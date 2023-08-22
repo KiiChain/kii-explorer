@@ -1,0 +1,21 @@
+{
+  "chain_name": "kii",
+  "api": [ "http://localhost:1317" ],
+  "rpc": [ "http://localhost:26657" ],
+  "snapshot_provider": "",
+  "sdk_version": "0.45.11",
+  "coin_type": "118",
+  "min_tx_fee": "800",
+  "addr_prefix": "kii",
+  "logo": "/logos/axelar.svg",
+  "theme_color": "#161723",
+  "assets": [
+    {
+      "base": "kii",
+      "symbol": "KII",
+      "exponent": "6",
+      "coingecko_id": "",
+      "logo": "/logos/axelar.svg"
+    }
+  ]
+}
