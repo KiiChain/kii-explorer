@@ -53,18 +53,15 @@ function selected(route: any, nav: NavLink) {
 </script>
 
 <template>
-  <div class="bg-gray-100 dark:bg-[#171d30]">
+  <div class="bg-gray-100 dark:bg-[#000]">
     <!-- sidebar -->
     <div
-      class="w-64 fixed z-50 left-0 top-0 bottom-0 overflow-auto bg-base-100 border-r border-gray-100 dark:border-gray-700"
+      class="w-64 fixed z-50 left-0 top-0 bottom-0 overflow-auto bg-base-100"
       :class="{ block: sidebarShow, 'hidden xl:!block': !sidebarShow }"
     >
       <div class="flex justify-between mt-1 pl-4 py-4 mb-1">
-        <RouterLink to="/" class="flex items-center">
-          <img class="w-10 h-10" src="../../assets/logo.svg" />
-          <h1 class="flex-1 ml-3 text-2xl font-semibold dark:text-white">
-            Ping.pub
-          </h1>
+        <RouterLink to="/" class="flex items-center w-full">
+          <img class="w-1/3" src="../../assets/logo-gradient.svg" />
         </RouterLink>
         <div
           class="pr-4 cursor-pointer xl:!hidden"
@@ -279,10 +276,10 @@ function selected(route: any, nav: NavLink) {
         </a>
       </div>
     </div>
-    <div class="xl:!ml-64 px-3 pt-4">
+    <div class="xl:!ml-64 px-3 pt-4 h-screen flex flex-col">
       <!-- header -->
       <div
-        class="flex items-center py-3 bg-base-100 mb-4 rounded px-4 sticky top-0 z-10"
+        class="flex items-center py-4 bg-base-100 mb-4 rounded px-4 sticky top-0 z-10 rounded-3xl"
       >
         <div
           class="text-2xl pr-3 cursor-pointer xl:!hidden"
@@ -303,7 +300,7 @@ function selected(route: any, nav: NavLink) {
       </div>
 
       <!-- 👉 Pages -->
-      <div style="min-height: calc(100vh - 180px);">
+      <div class="h-full">
         <RouterView v-slot="{ Component }">
           <Transition mode="out-in">
             <Component :is="Component" />
