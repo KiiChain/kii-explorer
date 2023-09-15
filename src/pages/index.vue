@@ -25,8 +25,8 @@ const chainStore = useBlockchain()
 </script>
 <template>
   <div class="h-full w-full relative">
-    <img class="absolute inset-0 m-auto z-1" src="../assets/images/svg/gradient-1.svg" />
-    <div class="w-full h-full flex flex-col items-center justify-center relative z-10">
+    <img class="absolute inset-0 m-auto z-[1]" src="../assets/images/svg/gradient-1.svg" />
+    <div class="w-full h-full flex flex-col items-center justify-center relative z-[2]">
       <div class="flex md:!flex-row flex-col items-center justify-center mb-6 mt-14 gap-2 ">
         <div class="w-36 rounded-full">
           <img class="w-full" src="../assets/logo.svg" />
