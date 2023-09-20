@@ -213,7 +213,7 @@ function selected(route: any, nav: NavLink) {
           {{ item?.heading }}
         </div>
       </div>
-      <div class="px-2">
+      <!-- <div class="px-2">
         <div class="px-4 text-sm pt-2 text-gray-400 pb-2 uppercase">
           {{ $t('module.sponsors') }}
         </div>
@@ -288,7 +288,7 @@ function selected(route: any, nav: NavLink) {
             FAQ
           </div>
         </a>
-      </div>
+      </div> -->
     </div>
     <div class="xl:!ml-64 px-3 pt-4 h-screen flex flex-col">
       <!-- header -->
