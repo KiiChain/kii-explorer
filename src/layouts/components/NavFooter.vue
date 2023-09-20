@@ -1,9 +1,9 @@
 <template>
   <!-- footer -->
-  <footer
+  <!-- <footer
     class="flex items-center h-12 mt-5 text-sm bg-gray-100 dark:bg-[#171d30] py-2 z-10 w-full"
-  >
-    <div class="flex flex-1">
+  > -->
+  <!-- <div class="flex flex-1">
       &copy;&nbsp;
       {{ new Date().getFullYear() }}&nbsp;
       Made With&nbsp;
@@ -16,10 +16,8 @@
         rel="noopener noreferrer"
         >Ping.pub</a
       >
-    </div>
-    <div
-      class="hidden md:!block"
-    >
+    </div> -->
+  <!-- <div class="hidden md:!block">
       <a
         class="link link-primary no-underline mr-4"
         href="https://github.com/ping-pub/explorer/blob/master/LICENSE"
@@ -33,5 +31,5 @@
         >Github</a
       >
     </div>
-  </footer>
+  </footer> -->
 </template>

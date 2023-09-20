@@ -118,8 +118,7 @@ function selected(route: any, nav: NavLink) {
             <div
               class="text-base capitalize flex-1 text-gray-700 dark:text-gray-200 whitespace-nowrap"
             >
-              <!-- {{ item?.title }} -->
-              Kii
+              {{ item?.title }}
             </div>
             <div
               v-if="item?.badgeContent"
