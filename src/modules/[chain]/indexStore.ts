@@ -151,7 +151,7 @@ export const useIndexModule = defineStore('module-index', {
       return [
         {
           title: 'Height',
-          color: 'primary',
+          color: 'success',
           icon: 'mdi-pound',
           stats: String(base?.latest?.block?.header?.height || 0),
           change: 0,
@@ -190,7 +190,7 @@ export const useIndexModule = defineStore('module-index', {
         },
         {
           title: 'Community Pool',
-          color: 'primary',
+          color: 'warning',
           icon: 'mdi-bank',
           stats: formatter.formatTokens(
             // @ts-ignore
