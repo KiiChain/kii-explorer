@@ -113,7 +113,7 @@ const calculateRank = function (position: number) {
         case tab.value === 'active' && percent < 0.67:
             return 'warning';
         default:
-            return 'primary';
+            return 'info';
     }
 };
 
@@ -202,8 +202,8 @@ loadAvatars();
         <div class="flex">
             <span>
                 <div class="relative w-9 h-9 rounded overflow-hidden flex items-center justify-center mr-2">
-                    <Icon class="text-primary" icon="mdi:lock-open-outline" size="32" />
-                    <div class="absolute top-0 left-0 bottom-0 right-0 opacity-20 bg-primary"></div>
+                    <Icon class="text-warning" icon="mdi:lock-open-outline" size="32" />
+                    <div class="absolute top-0 left-0 bottom-0 right-0 opacity-20 bg-warning"></div>
                 </div>
             </span>
             <span>

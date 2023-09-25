@@ -13,7 +13,12 @@ import { useBlockchain } from '@/stores';
 
 import NavBarI18n from './NavBarI18n.vue';
 import NavBarWallet from './NavBarWallet.vue';
-import type { NavGroup, NavLink, NavSectionTitle, VerticalNavItems } from '../types';
+import type {
+  NavGroup,
+  NavLink,
+  NavSectionTitle,
+  VerticalNavItems,
+} from '../types';
 
 const dashboard = useDashboard();
 dashboard.initial();
@@ -38,33 +43,33 @@ const changeOpen = (index: Number) => {
 const showDiscord = window.location.host.search('ping.pub') > -1;
 
 function isNavGroup(nav: VerticalNavItems | any): nav is NavGroup {
-   return (<NavGroup>nav).children !== undefined;
+  return (<NavGroup>nav).children !== undefined;
 }
 function isNavLink(nav: VerticalNavItems | any): nav is NavLink {
-   return (<NavLink>nav).to !== undefined;
+  return (<NavLink>nav).to !== undefined;
 }
 function isNavTitle(nav: VerticalNavItems | any): nav is NavSectionTitle {
-   return (<NavSectionTitle>nav).heading !== undefined;
+  return (<NavSectionTitle>nav).heading !== undefined;
 }
 function selected(route: any, nav: NavLink) {
-  const b = route.path === nav.to?.path || route.path.startsWith(nav.to?.path) && nav.title.indexOf('dashboard') === -1
-  return b
+  const b =
+    route.path === nav.to?.path ||
+    (route.path.startsWith(nav.to?.path) &&
+      nav.title.indexOf('dashboard') === -1);
+  return b;
 }
 </script>
 
 <template>
-  <div class="bg-gray-100 dark:bg-[#171d30]">
+  <div class="bg-gray-100 dark:bg-[#000]">
     <!-- sidebar -->
     <div
-      class="w-64 fixed z-50 left-0 top-0 bottom-0 overflow-auto bg-base-100 border-r border-gray-100 dark:border-gray-700"
+      class="w-64 fixed z-50 left-0 top-0 bottom-0 overflow-auto bg-base-100"
       :class="{ block: sidebarShow, 'hidden xl:!block': !sidebarShow }"
     >
       <div class="flex justify-between mt-1 pl-4 py-4 mb-1">
-        <RouterLink to="/" class="flex items-center">
-          <img class="w-10 h-10" src="../../assets/logo.svg" />
-          <h1 class="flex-1 ml-3 text-2xl font-semibold dark:text-white">
-            Ping.pub
-          </h1>
+        <RouterLink to="/" class="flex items-center w-full">
+          <img class="w-1/3" src="../../assets/logo-gradient.svg" />
         </RouterLink>
         <div
           class="pr-4 cursor-pointer xl:!hidden"
@@ -105,11 +110,11 @@ function selected(route: any, nav: NavLink) {
                 'text-blue-500': item?.title !== 'Favorite',
               }"
             />
-            <img
+            <!-- <img
               v-if="item?.icon?.image"
               :src="item?.icon?.image"
               class="w-6 h-6 rounded-full mr-3"
-            />
+            /> -->
             <div
               class="text-base capitalize flex-1 text-gray-700 dark:text-gray-200 whitespace-nowrap"
             >
@@ -124,32 +129,26 @@ function selected(route: any, nav: NavLink) {
             </div>
           </div>
           <div class="collapse-content">
-            <div v-for="(el, key) of item?.children" class="menu bg-base-100 w-full !p-0">
+            <div
+              v-for="(el, key) of item?.children"
+              class="menu bg-base-100 w-full !p-0"
+            >
               <RouterLink
                 v-if="isNavLink(el)"
                 @click="sidebarShow = false"
-                class="hover:bg-gray-100 dark:hover:bg-[#373f59] rounded cursor-pointer px-3 py-2 flex items-center"
+                class="hover:bg-gray-100 dark:hover:bg-primary rounded cursor-pointer px-3 py-2 flex items-center"
                 :class="{
-                  '!bg-primary': selected($route, el),
+                  '!bg-secondary': selected($route, el),
                 }"
                 :to="el.to"
               >
-                <Icon
-                  v-if="!el?.icon?.image"
-                  icon="mdi:chevron-right"
-                  class="mr-2 ml-3"
-                  :class="{
-                    'text-white':
-                      $route.path === el?.to?.path &&
-                      item?.title !== 'Favorite',
-                  }"
-                />
                 <img
                   v-if="el?.icon?.image"
                   :src="el?.icon?.image"
-                  class="w-6 h-6 rounded-full mr-3 ml-4 " :class="{
-                  'border border-gray-300 bg-white': selected($route, el),
-                }"
+                  class="w-6 h-6 rounded-full mr-3 ml-4"
+                  :class="{
+                    'border border-gray-300 bg-white': selected($route, el),
+                  }"
                 />
                 <div
                   class="text-base capitalize text-gray-500 dark:text-gray-300"
@@ -191,7 +190,7 @@ function selected(route: any, nav: NavLink) {
           </div>
           <div
             v-if="item?.badgeContent"
-            class="badge badge-sm text-white border-none" 
+            class="badge badge-sm text-white border-none"
             :class="item?.badgeClass"
           >
             {{ item?.badgeContent }}
@@ -204,7 +203,7 @@ function selected(route: any, nav: NavLink) {
           {{ item?.heading }}
         </div>
       </div>
-      <div class="px-2">
+      <!-- <div class="px-2">
         <div class="px-4 text-sm pt-2 text-gray-400 pb-2 uppercase">
           {{ $t('module.sponsors') }}
         </div>
@@ -239,7 +238,9 @@ function selected(route: any, nav: NavLink) {
           </div>
         </a>
 
-        <div class="px-4 text-sm pt-2 text-gray-400 pb-2 uppercase">{{ $t('module.links') }}</div>
+        <div class="px-4 text-sm pt-2 text-gray-400 pb-2 uppercase">
+          {{ $t('module.links') }}
+        </div>
         <a
           href="https://twitter.com/ping_pub"
           target="_blank"
@@ -277,12 +278,12 @@ function selected(route: any, nav: NavLink) {
             FAQ
           </div>
         </a>
-      </div>
+      </div> -->
     </div>
-    <div class="xl:!ml-64 px-3 pt-4">
+    <div class="xl:!ml-64 px-3 pt-4 h-screen flex flex-col">
       <!-- header -->
       <div
-        class="flex items-center py-3 bg-base-100 mb-4 rounded px-4 sticky top-0 z-10"
+        class="flex items-center py-4 bg-base-100 mb-4 rounded px-4 sticky top-0 z-10 rounded-3xl"
       >
         <div
           class="text-2xl pr-3 cursor-pointer xl:!hidden"
@@ -303,7 +304,7 @@ function selected(route: any, nav: NavLink) {
       </div>
 
       <!-- 👉 Pages -->
-      <div style="min-height: calc(100vh - 180px);">
+      <div class="h-full">
         <RouterView v-slot="{ Component }">
           <Transition mode="out-in">
             <Component :is="Component" />
