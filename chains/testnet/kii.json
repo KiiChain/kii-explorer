@@ -1,13 +1,21 @@
 {
   "chain_name": "kii",
-  "api": [ "http://3.129.207.228:1317", "http://18.219.189.71:1317", "http://18.223.155.224:1317" ],
-  "rpc": [ "http://3.129.207.228:26657", "http://18.219.189.71:26657", "http://18.223.155.224:26657" ],
+  "api": [
+    "http://3.129.207.228:1317",
+    "http://18.219.189.71:1317",
+    "http://18.223.155.224:1317"
+  ],
+  "rpc": [
+    "http://3.129.207.228:26657",
+    "http://18.219.189.71:26657",
+    "http://18.223.155.224:26657"
+  ],
   "snapshot_provider": "",
   "sdk_version": "0.45.11",
   "coin_type": "118",
   "min_tx_fee": "800",
   "addr_prefix": "kii",
-  "logo": "/logos/axelar.svg",
+  "logo": "/logo-gradient.svg",
   "theme_color": "#161723",
   "assets": [
     {
@@ -15,7 +23,7 @@
       "symbol": "KII",
       "exponent": "6",
       "coingecko_id": "",
-      "logo": "/logos/axelar.svg"
+      "logo": ""
     }
   ]
 }
