@@ -298,7 +298,7 @@ export const useDashboard = defineStore('dashboard', {
         })
       })
 
-      const currencies = ['usd, cny'] // usd,cny,eur,jpy,krw,sgd,hkd
+      const currencies = ['usd, cny'] // usd,cny,eur,jpy,krw,sgd,hkds
       get(`https://api.coingecko.com/api/v3/simple/price?include_24hr_change=true&vs_currencies=${currencies.join(',')}&ids=${coinIds.join(",")}`).then(x => {
         this.prices = x
       })
