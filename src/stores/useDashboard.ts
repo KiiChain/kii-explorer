@@ -61,7 +61,7 @@ export interface ChainConfig {
   coinType: string;
   assets: Asset[];
   themeColor?: string;
-  features?: string[]
+  features?: string[];
   endpoints: {
     rest?: Endpoint[];
     rpc?: Endpoint[];
@@ -76,15 +76,15 @@ export interface ChainConfig {
   exponent: string;
   excludes?: string;
   providerChain: {
-    api: Endpoint[]
+    api: Endpoint[];
   };
   // keplr config
-  keplrFeatures?: string[],
+  keplrFeatures?: string[];
   keplrPriceStep?: {
-    low: number,
-    average: number,
-    high: number,
-  },
+    low: number;
+    average: number;
+    high: number;
+  };
 }
 
 export interface LocalConfig {
@@ -92,8 +92,8 @@ export interface LocalConfig {
   alias: string;
   api: string[] | Endpoint[];
   provider_chain: {
-    api: string[] | Endpoint[]
-  }
+    api: string[] | Endpoint[];
+  };
   assets: {
     base: string;
     coingecko_id: string;
@@ -111,11 +111,11 @@ export interface LocalConfig {
   registry_name?: string;
   features?: string[];
   keplr_price_step?: {
-    low: number,
-    average: number,
-    high: number,
-  },
-  keplr_features: string[],
+    low: number;
+    average: number;
+    high: number;
+  };
+  keplr_features: string[];
 }
 
 function apiConverter(api: any[]) {
@@ -150,8 +150,8 @@ export function fromLocal(lc: LocalConfig): ChainConfig {
     ],
   }));
   conf.versions = {
-    cosmosSdk: lc.sdk_version
-  }
+    cosmosSdk: lc.sdk_version,
+  };
   conf.bech32Prefix = lc.addr_prefix;
   conf.chainName = lc.chain_name;
   conf.coinType = lc.coin_type;
@@ -160,12 +160,12 @@ export function fromLocal(lc: LocalConfig): ChainConfig {
     rest: apiConverter(lc.api),
     rpc: apiConverter(lc.rpc),
   };
-  if(lc.provider_chain) {
+  if (lc.provider_chain) {
     conf.providerChain = {
-      api: apiConverter(lc.provider_chain.api)
-    }
+      api: apiConverter(lc.provider_chain.api),
+    };
   }
-  conf.features = lc.features
+  conf.features = lc.features;
   conf.logo = lc.logo;
   conf.keplrFeatures = lc.keplr_features;
   conf.keplrPriceStep = lc.keplr_price_step;
@@ -256,8 +256,7 @@ export enum ConfigSource {
 export const useDashboard = defineStore('dashboard', {
   state: () => {
     const favMap = JSON.parse(
-      localStorage.getItem('favoriteMap') ||
-        '{"kii":true }'
+      localStorage.getItem('favoriteMap') || '{"kii":true }'
     );
     return {
       status: LoadingStatus.Empty,
@@ -266,7 +265,10 @@ export const useDashboard = defineStore('dashboard', {
       favoriteMap: favMap as Record<string, boolean>,
       chains: {} as Record<string, ChainConfig>,
       prices: {} as Record<string, any>,
-      coingecko: {} as Record<string, {coinId: string, exponent: number, symbol: string}>,
+      coingecko: {} as Record<
+        string,
+        { coinId: string; exponent: number; symbol: string }
+      >,
     };
   },
   getters: {
@@ -280,28 +282,33 @@ export const useDashboard = defineStore('dashboard', {
       // this.loadingFromRegistry()
     },
     loadingPrices() {
-      const coinIds = [] as string[]
-      const keys = Object.keys(this.chains) // load all blockchain
+      const coinIds = [] as string[];
+      const keys = Object.keys(this.chains); // load all blockchain
       // Object.keys(this.favoriteMap) //only load favorite once it has too many chains
-      keys.forEach(k => {
-        if(this.chains[k]) this.chains[k].assets.forEach(a => {
-          if(a.coingecko_id !== undefined && a.coingecko_id.length > 0) {
-            coinIds.push(a.coingecko_id)
-            a.denom_units.forEach(u => {
-              this.coingecko[u.denom] = {
-                coinId: a.coingecko_id || '',
-                exponent: u.exponent,
-                symbol: a.symbol
-              }
-            })
-          } 
-        })
-      })
+      keys.forEach((k) => {
+        if (this.chains[k])
+          this.chains[k].assets.forEach((a) => {
+            if (a.coingecko_id !== undefined && a.coingecko_id.length > 0) {
+              coinIds.push(a.coingecko_id);
+              a.denom_units.forEach((u) => {
+                this.coingecko[u.denom] = {
+                  coinId: a.coingecko_id || '',
+                  exponent: u.exponent,
+                  symbol: a.symbol,
+                };
+              });
+            }
+          });
+      });
 
-      const currencies = ['usd, cny'] // usd,cny,eur,jpy,krw,sgd,hkds
-      get(`https://api.coingecko.com/api/v3/simple/price?include_24hr_change=true&vs_currencies=${currencies.join(',')}&ids=${coinIds.join(",")}`).then(x => {
-        this.prices = x
-      })
+      const currencies = ['usd, cny']; // usd,cny,eur,jpy,krw,sgd,hkds
+      get(
+        `https://api.coingecko.com/api/v3/simple/price?include_24hr_change=true&vs_currencies=${currencies.join(
+          ','
+        )}&ids=${coinIds.join(',')}`
+      ).then((x) => {
+        this.prices = x;
+      });
     },
     async loadingFromRegistry() {
       if (this.status === LoadingStatus.Empty) {
@@ -315,8 +322,13 @@ export const useDashboard = defineStore('dashboard', {
       }
     },
     async loadingFromLocal() {
-      if((window.location.hostname.search("testnet") > -1) || (window.location.hostname.search("localhost") > -1) || (window.location.hostname.search("kiitestexplorer") > -1)) {
-        this.networkType = NetworkType.Testnet
+      if (
+        window.location.hostname.search('testnet') > -1 ||
+        window.location.hostname.search('localhost') > -1 ||
+        window.location.hostname.search('kiitestexplorer') > -1 ||
+        window.location.hostname.search('vercel') > -1
+      ) {
+        this.networkType = NetworkType.Testnet;
       }
       const source: Record<string, LocalConfig> =
         this.networkType === NetworkType.Mainnet
@@ -331,18 +343,22 @@ export const useDashboard = defineStore('dashboard', {
     setupDefault() {
       if (this.length > 0) {
         const blockchain = useBlockchain();
-        const keys = Object.keys(this.favoriteMap)
+        const keys = Object.keys(this.favoriteMap);
         for (let i = 0; i < keys.length; i++) {
-          if (!blockchain.chainName && this.chains[keys[i]] && this.favoriteMap[keys[i]]) {
+          if (
+            !blockchain.chainName &&
+            this.chains[keys[i]] &&
+            this.favoriteMap[keys[i]]
+          ) {
             blockchain.setCurrent(keys[i]);
-            break
+            break;
           }
         }
         if (!blockchain.chainName) {
           const [first] = Object.keys(this.chains);
           blockchain.setCurrent(first);
         }
-        this.loadingPrices()
+        this.loadingPrices();
       }
     },
     setConfigSource(newSource: ConfigSource) {
