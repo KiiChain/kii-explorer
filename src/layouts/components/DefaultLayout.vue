@@ -132,6 +132,7 @@ function selected(route: any, nav: NavLink) {
             <div
               v-for="(el, key) of item?.children"
               class="menu bg-base-100 w-full !p-0"
+              :key="key"
             >
               <RouterLink
                 v-if="isNavLink(el)"
@@ -304,7 +305,7 @@ function selected(route: any, nav: NavLink) {
       </div>
 
       <!-- 👉 Pages -->
-      <div class="h-full">
+      <div class="h-screen overflow-y-scroll pb-5">
         <RouterView v-slot="{ Component }">
           <Transition mode="out-in">
             <Component :is="Component" />
