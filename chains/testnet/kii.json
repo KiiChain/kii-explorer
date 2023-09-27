@@ -1,6 +1,6 @@
 {
   "chain_name": "kii",
-  "api": ["https://a.testnet.kiivalidator.com"],
+  "api": ["https://a.testnet.kiivalidator.com", "https://b.testnet.kiivalidator.com"],
   "rpc": [
     "http://3.129.207.228:26657",
     "http://18.219.189.71:26657",
