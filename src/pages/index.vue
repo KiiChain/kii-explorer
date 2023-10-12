@@ -41,7 +41,7 @@ const chainStore = useBlockchain()
         <progress class="progress progress-info w-80 h-1"></progress>
       </div>
 
-      <div class="flex items-center rounded-lg bg-base-100 mt-10 p-2 rounded-xl max-w-md w-full">
+      <div class="flex items-center rounded-lg bg-base-100 dark:bg-base100 mt-10 p-2 rounded-xl max-w-md w-full">
         <Icon icon="mdi:magnify" class="text-2xl text-gray-400 ml-3" />
         <input :placeholder="$t('pages.search_placeholder')"
           class="px-4 h-10 bg-transparent flex-1 outline-none text-neutral" v-model="keywords" />

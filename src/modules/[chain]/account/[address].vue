@@ -119,7 +119,7 @@ function updateEvent() {
 <template>
   <div v-if="account">
     <!-- address -->
-    <div class="bg-base-100 px-4 pt-3 pb-4 rounded mb-4 shadow">
+    <div class="bg-base-100 dark:bg-base100 px-4 pt-3 pb-4 rounded mb-4 shadow">
       <div class="flex items-center">
         <!-- img -->
         <div class="inline-flex relative w-11 h-11 rounded-md">
@@ -145,7 +145,7 @@ function updateEvent() {
     </div>
 
     <!-- Assets -->
-    <div class="bg-base-100 px-4 pt-3 pb-4 rounded mb-4 shadow">
+    <div class="bg-base-100 dark:bg-base100 px-4 pt-3 pb-4 rounded mb-4 shadow">
       <div class="flex justify-between">
         <h2 class="card-title mb-4">{{ $t('account.assets') }}</h2>
         <!-- button -->
@@ -326,7 +326,7 @@ function updateEvent() {
     </div>
 
     <!-- Delegations -->
-    <div class="bg-base-100 px-4 pt-3 pb-4 rounded mb-4 shadow">
+    <div class="bg-base-100 dark:bg-base100 px-4 pt-3 pb-4 rounded mb-4 shadow">
       <div class="flex justify-between">
         <h2 class="card-title mb-4">{{ $t('account.delegations') }}</h2>
         <div class="flex justify-end mb-4">
@@ -432,7 +432,7 @@ function updateEvent() {
 
     <!-- Unbonding Delegations -->
     <div
-      class="bg-base-100 px-4 pt-3 pb-4 rounded mb-4 shadow"
+      class="bg-base-100 dark:bg-base100 px-4 pt-3 pb-4 rounded mb-4 shadow"
       v-if="unbonding && unbonding.length > 0"
     >
       <h2 class="card-title mb-4">{{ $t('account.unbonding_delegations') }}</h2>
@@ -493,7 +493,7 @@ function updateEvent() {
     </div>
 
     <!-- Transactions -->
-    <div class="bg-base-100 px-4 pt-3 pb-4 rounded mb-4 shadow">
+    <div class="bg-base-100 dark:bg-base100 px-4 pt-3 pb-4 rounded mb-4 shadow">
       <h2 class="card-title mb-4">{{ $t('account.transactions') }}</h2>
       <div class="overflow-x-auto">
         <table class="table w-full text-sm">
@@ -537,7 +537,7 @@ function updateEvent() {
     </div>
 
     <!-- Account -->
-    <div class="bg-base-100 px-4 pt-3 pb-4 rounded mb-4 shadow">
+    <div class="bg-base-100 dark:bg-base100 px-4 pt-3 pb-4 rounded mb-4 shadow">
       <h2 class="card-title mb-4">{{ $t('account.acc') }}</h2>
       <DynamicComponent :value="account" />
     </div>

@@ -64,7 +64,7 @@ function selected(route: any, nav: NavLink) {
   <div class="bg-gray-100 dark:bg-[#000]">
     <!-- sidebar -->
     <div
-      class="w-64 fixed z-50 left-0 top-0 bottom-0 overflow-auto bg-base-100"
+      class="w-64 fixed z-50 left-0 top-0 bottom-0 overflow-auto bg-base-100 dark:bg-base100"
       :class="{ block: sidebarShow, 'hidden xl:!block': !sidebarShow }"
     >
       <div class="flex justify-between mt-1 pl-4 py-4 mb-1">
@@ -131,7 +131,7 @@ function selected(route: any, nav: NavLink) {
           <div class="collapse-content">
             <div
               v-for="(el, key) of item?.children"
-              class="menu bg-base-100 w-full !p-0"
+              class="menu bg-base-100 dark:bg-base100 w-full !p-0"
               :key="key"
             >
               <RouterLink
@@ -284,7 +284,7 @@ function selected(route: any, nav: NavLink) {
     <div class="xl:!ml-64 px-3 pt-4 h-screen flex flex-col">
       <!-- header -->
       <div
-        class="flex items-center py-4 bg-base-100 mb-4 rounded px-4 sticky top-0 z-10 rounded-3xl test class 1"
+        class="flex items-center py-4 bg-base-100 dark:bg-base100 mb-4 rounded px-4 sticky top-0 z-10 rounded-3xl"
       >
         <div
           class="text-2xl pr-3 cursor-pointer xl:!hidden"

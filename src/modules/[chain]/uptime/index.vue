@@ -134,7 +134,7 @@ function changeTab(v: string) {
         <a class="tab text-gray-400 capitalize">{{ $t('uptime.customize') }}</a>
       </RouterLink>
     </div>
-    <div class="bg-base-100 px-5 pt-5">
+    <div class="bg-base-100 dark:bg-base100 px-5 pt-5">
       <div class="flex items-center gap-x-4">
         <label v-if="chainStore.isConsumerChain" class="text-center">
           <input type="checkbox" v-model="filterOptout" class="checkbox" />
