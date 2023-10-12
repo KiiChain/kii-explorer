@@ -5,13 +5,13 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        yes: "#3fb68b",
-        no: "#ff5353",
-        info: "#00b2ff",
-        main: "var(--text-main)",
-        secondary: "var(--text-secondary)",
-        active: "var(--bg-active)",
-      }
+        yes: '#3fb68b',
+        no: '#ff5353',
+        info: '#00b2ff',
+        main: 'var(--text-main)',
+        secondary: 'var(--text-secondary)',
+        active: 'var(--bg-active)',
+      },
     },
   },
   plugins: [require("daisyui")],

@@ -2,9 +2,10 @@
   "chain_name": "kii",
   "api": ["https://a.testnet.kiivalidator.com", "https://b.testnet.kiivalidator.com", "https://c.testnet.kiivalidator.com", "https://d.testnet.kiivalidator.com"],
   "rpc": [
-    "http://3.129.207.228:26657",
-    "http://18.219.189.71:26657",
-    "http://18.223.155.224:26657"
+    "https://a.testnet.kiivalidator.com:26658",
+    "https://b.testnet.kiivalidator.com:26658",
+    "https://c.testnet.kiivalidator.com:26658",
+    "https://d.testnet.kiivalidator.com:26658"
   ],
   "snapshot_provider": "",
   "sdk_version": "0.45.11",
