@@ -48,7 +48,7 @@ const chainStore = useBlockchain()
         <div class="px-4 text-neutral hidden md:!block">{{ chains.length }}/{{ dashboard.length }}</div>
       </div>
 
-      <div class="grid grid-cols-1 gap-4 mt-6 md:!grid-cols-3 lg:!grid-cols-4 2xl:!grid-cols-5">
+      <div class="flex gap-2 w-full items-center justify-center w-full my-5 flex-wrap">
         <ChainSummary v-for="(chain, index) in chains" :key="index" :name="chain.chainName" />
       </div>
     </div>
