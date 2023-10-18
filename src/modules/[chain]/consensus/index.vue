@@ -298,7 +298,7 @@ async function update() {
 
     <!-- alert-info -->
     <div
-      class="text-[#00cfe8] bg-[rgba(0,207,232,0.12)] rounded shadow mt-4 alert-info"
+      class="text-secondary dark:text-info bg-[rgba(0,207,232,0.12)] rounded shadow mt-4 alert-info"
     >
       <div
         class="drop-shadow-md px-4 pt-2 pb-2"

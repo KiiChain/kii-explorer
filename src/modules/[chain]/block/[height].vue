@@ -64,9 +64,10 @@ onBeforeRouteUpdate(async (to, from, next) => {
   <div>
     <div v-if="isFutureBlock" class="text-center">
       <div v-if="remainingBlocks > 0">
-        <div class="text-primary font-bold text-lg my-10">#{{ target }}</div>
-        <Countdown :time="estimateTime" css="md:!text-5xl font-sans md:mx-5 text-white" />
-        <div class="my-5">{{ $t('block.estimated_time') }}: <span class="text-xl font-bold">{{ format.toLocaleDate(estimateDate) }}</span>
+        <div class="text-primary font-bold text-lg my-10 dark:text-white">#{{ target }}</div>
+        <Countdown :time="estimateTime" css="md:!text-5xl font-sans md:mx-5 dark:text-white" />
+        <div class="my-5">{{ $t('block.estimated_time') }}: <span class="text-xl font-bold">{{
+          format.toLocaleDate(estimateDate) }}</span>
         </div>
         <div class="pt-10 flex justify-center">
           <table class="table w-max rounded-lg bg-base-100 dark:bg-base100">
@@ -81,7 +82,8 @@ onBeforeRouteUpdate(async (to, from, next) => {
                   <p class="py-4">
                   <div class="join">
                     <input class="input input-bordered join-item" v-model="newHeight" type="number" />
-                    <button class="btn btn-primary join-item" @click="updateTarget()">{{ $t('block.btn_update') }}</button>
+                    <button class="btn btn-primary join-item" @click="updateTarget()">{{ $t('block.btn_update')
+                    }}</button>
                   </div>
                   </p>
                 </td>
@@ -138,5 +140,5 @@ onBeforeRouteUpdate(async (to, from, next) => {
         <h2 class="card-title flex flex-row justify-between">{{ $t('block.last_commit') }}</h2>
         <DynamicComponent :value="current.block?.last_commit" />
       </div>
-  </div>
-</div></template>
+    </div>
+  </div></template>
