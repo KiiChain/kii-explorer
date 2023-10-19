@@ -468,14 +468,14 @@ const tipMsg = computed(() => {
             <th class="text-left pl-4">{{ $t('account.time') }}</th>
           </thead>
           <tbody>
-            <tr v-for="(item, i) in txs.tx_responses">
+            <tr v-for="(item, i) in txs.tx_responses" :key="i">
               <td class="text-sm text-primary">
-                <RouterLink :to="`/${props.chain}/block/${item.height}`">{{
+                <RouterLink :to="`/${props.chain}/block/${item.height}`" class="text-primary dark:invert">{{
                   item.height
                 }}</RouterLink>
               </td>
               <td class="truncate text-primary" style="max-width: 200px">
-                <RouterLink :to="`/${props.chain}/tx/${item.txhash}`">
+                <RouterLink :to="`/${props.chain}/tx/${item.txhash}`" class="text-primary dark:invert">
                   {{ item.txhash }}
                 </RouterLink>
               </td>
