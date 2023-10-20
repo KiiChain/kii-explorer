@@ -365,7 +365,7 @@ function updateEvent() {
               <th class="py-3">{{ $t('account.validator') }}</th>
               <th class="py-3">{{ $t('account.delegation') }}</th>
               <th class="py-3">{{ $t('account.rewards') }}</th>
-              <th class="py-3" v-if="!hideButtons">{{ $t('account.action') }}</th>
+              <th class="py-3 text-center" v-if="!hideButtons">{{ $t('account.action') }}</th>
             </tr>
           </thead>
           <tbody class="text-sm">
@@ -374,6 +374,7 @@ function updateEvent() {
               <td class="text-caption text-primary py-3">
                 <RouterLink
                   :to="`/${chain}/staking/${v.delegation.validator_address}`"
+                  class="text-primary dark:invert"
                   >{{
                     format.validatorFromBech32(v.delegation.validator_address) || v.delegation.validator_address
                   }}</RouterLink
@@ -393,7 +394,7 @@ function updateEvent() {
                 }}
               </td>
               <td class="py-3">
-                <div v-if="v.balance" class="flex justify-end">
+                <div v-if="v.balance" class="flex justify-center">
                   <label
                     v-if="!hideButtons"
                     for="delegate"
