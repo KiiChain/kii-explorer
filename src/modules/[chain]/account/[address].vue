@@ -4,6 +4,7 @@ import {
   useFormatter,
   useStakingStore,
   useTxDialog,
+useWalletStore,
 } from '@/stores';
 import DynamicComponent from '@/components/dynamic/DynamicComponent.vue';
 import DonutChart from '@/components/charts/DonutChart.vue';
@@ -20,8 +21,13 @@ import type {
 } from '@/types';
 import type { Coin } from '@cosmjs/amino';
 import Countdown from '@/components/Countdown.vue';
+import { useRoute } from 'vue-router';
 
 const props = defineProps(['address', 'chain']);
+
+const route = useRoute();
+const walletAddress = route.params.address;
+const walletStore = useWalletStore();
 
 const blockchain = useBlockchain();
 const stakingStore = useStakingStore();
@@ -84,6 +90,10 @@ const totalValue = computed(() => {
   });
   return format.formatNumber(value, '0,0.00');
 });
+
+const hideButtons = computed(() => {
+  return walletStore.currentAddress !== walletAddress;
+})
 
 
 function loadAccount(address: string) {
@@ -151,12 +161,14 @@ function updateEvent() {
         <!-- button -->
         <div class="flex justify-end mb-4 pr-5">
             <label
+              v-if="!hideButtons"
               for="send"
               class="btn btn-primary btn-sm mr-2"
               @click="dialog.open('send', {}, updateEvent)"
               >{{ $t('account.btn_send') }}</label
             >
             <label
+              v-if="!hideButtons"
               for="transfer"
               class="btn btn-primary btn-sm"
               @click="
@@ -331,12 +343,14 @@ function updateEvent() {
         <h2 class="card-title mb-4">{{ $t('account.delegations') }}</h2>
         <div class="flex justify-end mb-4">
           <label
+            v-if="!hideButtons"
             for="delegate"
             class="btn btn-primary btn-sm mr-2"
             @click="dialog.open('delegate', {}, updateEvent)"
             >{{ $t('account.btn_delegate') }}</label
           >
           <label
+            v-if="!hideButtons"
             for="withdraw"
             class="btn btn-primary btn-sm"
             @click="dialog.open('withdraw', {}, updateEvent)"
@@ -351,7 +365,7 @@ function updateEvent() {
               <th class="py-3">{{ $t('account.validator') }}</th>
               <th class="py-3">{{ $t('account.delegation') }}</th>
               <th class="py-3">{{ $t('account.rewards') }}</th>
-              <th class="py-3">{{ $t('account.action') }}</th>
+              <th class="py-3" v-if="!hideButtons">{{ $t('account.action') }}</th>
             </tr>
           </thead>
           <tbody class="text-sm">
@@ -381,6 +395,7 @@ function updateEvent() {
               <td class="py-3">
                 <div v-if="v.balance" class="flex justify-end">
                   <label
+                    v-if="!hideButtons"
                     for="delegate"
                     class="btn btn-primary btn-xs mr-2"
                     @click="
@@ -395,6 +410,7 @@ function updateEvent() {
                     >{{ $t('account.btn_delegate') }}</label
                   >
                   <label
+                    v-if="!hideButtons"
                     for="redelegate"
                     class="btn btn-primary btn-xs mr-2"
                     @click="
@@ -409,6 +425,7 @@ function updateEvent() {
                     >{{ $t('account.btn_redelegate') }}</label
                   >
                   <label
+                    v-if="!hideButtons"
                     for="unbond"
                     class="btn btn-primary btn-xs"
                     @click="
