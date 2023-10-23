@@ -324,11 +324,14 @@ export const useFormatter = defineStore('formatter', {
       }
       return dayjs(time).format('YYYY-MM-DD HH:mm:ss');
     },
-    messages(msgs: { '@type'?: string; typeUrl?: string }[]) {
+    messages(msgs: { '@type'?: string; typeUrl?: string; to_address?: string }[], address?: string) {
       if (msgs) {
         const sum: Record<string, number> = msgs
           .map((msg) => {
             const msgType = msg['@type'] || msg.typeUrl || 'unknown';
+            if (msgType.substring(msgType.lastIndexOf('.') + 1) === 'MsgSend' && msg.to_address === address) {
+              return 'Receive';
+            }
             return msgType
               .substring(msgType.lastIndexOf('.') + 1)
               .replace('Msg', '');
