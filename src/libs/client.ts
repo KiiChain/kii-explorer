@@ -254,7 +254,13 @@ export class CosmosRestClient extends BaseRestClient<RequestRegistry> {
   // tx
   async getTxsBySender(sender: string, page?: PageRequest) {
     if(!page) page = new PageRequest()
-    const query = `?order_by=2&events=message.sender='${sender}'&pagination.limit=${page.limit}&pagination.offset=${page.offset||0}`;
+    const query = `?&events=message.sender='${sender}'&order_by=2&pagination.limit=${page.limit}&pagination.offset=${page.offset||0}`;
+    return this.request(this.registry.tx_txs, {}, query);
+  }
+  // tx received
+  async getTxsReceived(address: string, page?: PageRequest) {
+    if(!page) page = new PageRequest()
+    const query = `?&events=transfer.recipient='${address}'&order_by=2&pagination.limit=${page.limit}&pagination.offset=${page.offset||0}`;
     return this.request(this.registry.tx_txs, {}, query);
   }
   // query ibc sending msgs

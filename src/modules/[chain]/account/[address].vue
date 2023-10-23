@@ -8,7 +8,7 @@ useWalletStore,
 } from '@/stores';
 import DynamicComponent from '@/components/dynamic/DynamicComponent.vue';
 import DonutChart from '@/components/charts/DonutChart.vue';
-import { computed, ref } from '@vue/reactivity';
+import { ref, computed } from '@vue/reactivity';
 import { onMounted } from 'vue';
 import { Icon } from '@iconify/vue';
 import 'vue-json-pretty/lib/styles.css';
@@ -34,13 +34,17 @@ const stakingStore = useStakingStore();
 const dialog = useTxDialog();
 const format = useFormatter();
 const account = ref({} as AuthAccount);
-const txs = ref({} as TxResponse[]);
+const txs = ref([] as TxResponse[]);
+const receivedTxs = ref([] as TxResponse[]);
 const delegations = ref([] as Delegation[]);
 const rewards = ref({} as DelegatorRewards);
 const balances = ref([] as Coin[]);
 const unbonding = ref([] as UnbondingResponses[]);
 const unbondingTotal = ref(0);
 const chart = {};
+const combinedTxs = computed(() => {
+  return [...txs.value, ...receivedTxs.value].sort((a, b) => parseInt(b.height) - parseInt(a.height));
+});
 onMounted(() => {
   loadAccount(props.address);
 });
@@ -102,6 +106,9 @@ function loadAccount(address: string) {
   });
   blockchain.rpc.getTxsBySender(address).then((x) => {
     txs.value = x.tx_responses;
+  });
+  blockchain.rpc.getTxsReceived(address).then((x) => {
+    receivedTxs.value = x.tx_responses;
   });
   blockchain.rpc.getDistributionDelegatorRewards(address).then((x) => {
     rewards.value = x;
@@ -475,7 +482,7 @@ function updateEvent() {
                   >
                 </td>
               </tr>
-              <tr v-for="entry in v.entries">
+              <tr v-for="(entry, i) in v.entries" :key="i">
                 <td class="py-3">{{ entry.creation_height }}</td>
                 <td class="py-3">
                   {{
@@ -525,7 +532,7 @@ function updateEvent() {
           </thead>
           <tbody class="text-sm">
             <tr v-if="txs.length === 0"><td colspan="10"><div class="text-center">{{ $t('account.no_transactions') }}</div></td></tr>
-            <tr v-for="(v, index) in txs" :key="index">
+            <tr v-for="(v, index) in combinedTxs" :key="index">
               <td class="text-sm py-3">
                 <RouterLink :to="`/${chain}/block/${v.height}`" class="text-primary dark:invert">{{
                   v.height
@@ -538,7 +545,7 @@ function updateEvent() {
               </td>
               <td class="flex items-center py-3">
                 <div class="mr-2">
-                  {{ format.messages(v.tx.body.messages) }}
+                  {{ format.messages(v.tx.body.messages, props.address) }}
                 </div>
                 <Icon
                   v-if="v.code === 0"
