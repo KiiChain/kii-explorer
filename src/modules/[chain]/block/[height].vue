@@ -62,6 +62,21 @@ onBeforeRouteUpdate(async (to, from, next) => {
 </script>
 <template>
   <div>
+    <div class="tabs tabs-boxed bg-transparent mb-4">
+      <RouterLink class="tab text-gray-400 uppercase" :to="`/${chain}/block`">
+        {{ $t('block.recent') }}
+      </RouterLink>
+      <a class="tab text-gray-400 uppercase tab-active">
+        {{ $t('block.future') }}
+      </a>
+      <RouterLink class="tab text-gray-400 uppercase" :to="{
+        path: `/${chain}/block`,
+        query: { tab: 'transactions' }
+      }">
+        {{ $t('account.transactions') }}
+      </RouterLink>
+    </div>
+
     <div v-if="isFutureBlock" class="text-center">
       <div v-if="remainingBlocks > 0">
         <div class="text-primary font-bold text-lg my-10 dark:text-white">#{{ target }}</div>
@@ -141,4 +156,5 @@ onBeforeRouteUpdate(async (to, from, next) => {
         <DynamicComponent :value="current.block?.last_commit" />
       </div>
     </div>
-  </div></template>
+  </div>
+</template>
