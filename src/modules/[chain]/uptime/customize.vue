@@ -124,6 +124,20 @@ function color(v: string) {
 
 <template>
   <div>
+    <div class="tabs tabs-boxed bg-transparent mb-4">
+      <RouterLink :to="`/${chain}/uptime`" class="tab text-gray-400 capitalize">
+        {{ $t('uptime.overall') }}
+      </RouterLink>
+      <RouterLink :to="{
+        path: `/${chain}/uptime`,
+        query: {
+          tab: 'blocks'
+        }
+      }" class="tab text-gray-400 capitalize">
+        {{ $t('module.blocks') }}
+      </RouterLink>
+      <a class="tab text-gray-400 capitalize tab-active">{{ $t('uptime.customize') }}</a>
+    </div>
     <div class="overflow-x-auto w-full">
       <div class="lg:!flex lg:!items-center lg:!justify-between bg-base-100 dark:bg-base100 p-5">
         <div class="min-w-0 flex-1">
