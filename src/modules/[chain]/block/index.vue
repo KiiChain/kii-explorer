@@ -1,9 +1,14 @@
 <script lang="ts" setup>
 import { computed, ref } from '@vue/reactivity';
 import { useBaseStore, useFormatter } from '@/stores';
+import { useRoute } from 'vue-router';
 const props = defineProps(['chain']);
 
-const tab = ref('blocks');
+const route = useRoute();
+
+const queryTab = route.query.tab;
+
+const tab = ref(queryTab === 'transactions' ? 'transactions' : 'blocks');
 
 const base = useBaseStore()
 
