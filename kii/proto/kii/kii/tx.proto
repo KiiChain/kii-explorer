@@ -1,7 +1,0 @@
-syntax = "proto3";
-package kii.kii;
-
-option go_package = "kii/x/kii/types";
-
-// Msg defines the Msg service.
-service Msg {}
