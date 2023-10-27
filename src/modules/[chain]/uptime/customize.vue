@@ -187,14 +187,14 @@ function color(v: string) {
             </td>
             <td class=" capitalize">{{ v.sigingInfo?.tombstoned }}</td>
             <td><span v-if="v.sigingInfo" class="badge " :class="color( v.sigingInfo?.missed_blocks_counter)">{{ v.sigingInfo?.missed_blocks_counter }}</span></td>
-            <td class=""><RouterLink :to="`/${v.chainName}/uptime/#blocks`" class="btn btn-xs btn-primary">{{ $t('module.blocks') }}</RouterLink></td>
+            <td class=""><RouterLink :to="`/${v.chainName}/uptime/#blocks`" class="btn btn-xs btn-primary hover:text-black dark:hover:text-white">{{ $t('module.blocks') }}</RouterLink></td>
           </tr>
         </tbody>
       </table>
     </div>
     
     <div class="text-center">
-      <label for="add-validator" class="btn btn-primary mt-5">{{ $t('uptime.add_validators') }}</label>
+      <label for="add-validator" class="btn btn-primary mt-5 hover:text-black dark:hover:text-white">{{ $t('uptime.add_validators') }}</label>
     </div>
 
     <!-- Put this part before </body> tag -->
@@ -228,7 +228,7 @@ function color(v: string) {
           </table>
         </div>
         <div class="modal-action">
-          <label class="btn btn-primary" @click="add">{{ $t('uptime.add') }}</label>
+          <label class="btn btn-primary hover:text-black dark:hover:text-white" @click="add">{{ $t('uptime.add') }}</label>
         </div>
       </div>
     </div>
