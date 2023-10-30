@@ -406,7 +406,7 @@ loadAvatars();
                                 <label
                                     v-else-if="rank !== 'error'"
                                     for="delegate"
-                                    class="btn btn-xs btn-primary rounded-sm capitalize"
+                                    class="btn btn-xs btn-primary rounded-sm capitalize hover:text-black dark:hover:text-white"
                                     @click="
                                         dialog.open('delegate', {
                                             validator_address:

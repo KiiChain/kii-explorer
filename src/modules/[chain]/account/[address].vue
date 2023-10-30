@@ -170,14 +170,14 @@ function updateEvent() {
             <label
               v-if="!hideButtons"
               for="send"
-              class="btn btn-primary btn-sm mr-2"
+              class="btn btn-primary btn-sm mr-2 hover:text-black dark:hover:text-white"
               @click="dialog.open('send', {}, updateEvent)"
               >{{ $t('account.btn_send') }}</label
             >
             <label
               v-if="!hideButtons"
               for="transfer"
-              class="btn btn-primary btn-sm"
+              class="btn btn-primary btn-sm  hover:text-black dark:hover:text-white"
               @click="
                 dialog.open(
                   'transfer',
@@ -352,14 +352,14 @@ function updateEvent() {
           <label
             v-if="!hideButtons"
             for="delegate"
-            class="btn btn-primary btn-sm mr-2"
+            class="btn btn-primary btn-sm mr-2  hover:text-black dark:hover:text-white"
             @click="dialog.open('delegate', {}, updateEvent)"
             >{{ $t('account.btn_delegate') }}</label
           >
           <label
             v-if="!hideButtons"
             for="withdraw"
-            class="btn btn-primary btn-sm"
+            class="btn btn-primary btn-sm hover:text-black dark:hover:text-white"
             @click="dialog.open('withdraw', {}, updateEvent)"
             >{{ $t('account.btn_withdraw') }}</label
           >
@@ -405,7 +405,7 @@ function updateEvent() {
                   <label
                     v-if="!hideButtons"
                     for="delegate"
-                    class="btn btn-primary btn-xs mr-2"
+                    class="btn btn-primary btn-xs mr-2 hover:text-black dark:hover:text-white"
                     @click="
                       dialog.open(
                         'delegate',
@@ -420,7 +420,7 @@ function updateEvent() {
                   <label
                     v-if="!hideButtons"
                     for="redelegate"
-                    class="btn btn-primary btn-xs mr-2"
+                    class="btn btn-primary btn-xs mr-2 hover:text-black dark:hover:text-white"
                     @click="
                       dialog.open(
                         'redelegate',
@@ -435,7 +435,7 @@ function updateEvent() {
                   <label
                     v-if="!hideButtons"
                     for="unbond"
-                    class="btn btn-primary btn-xs"
+                    class="btn btn-primary btn-xs hover:text-black dark:hover:text-white"
                     @click="
                       dialog.open(
                         'unbond',
