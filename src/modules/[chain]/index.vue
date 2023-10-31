@@ -274,7 +274,7 @@ const amount = computed({
       </div>
     </div>
 
-    <div class="linear-gradient-tb-bg dark:bg-base100 rounded mt-4 shadow">
+    <div class="linear-gradient-tb-bg dark:bg-none dark:bg-black rounded mt-4 shadow">
       <div class="flex justify-between px-4 pt-4 pb-2 text-lg font-semibold text-main text-white">
         <span class="truncate" >{{ walletStore.currentAddress || 'Not Connected' }}</span>
         <RouterLink v-if="walletStore.currentAddress"
@@ -382,8 +382,8 @@ const amount = computed({
       </Teleport>
     </div>
 
-    <div class="flex w-full gap-4 mt-4">
-      <div class="linear-gradient-tb-bg-2 dark:bg-base100 rounded-lg text-white grow basis-0 min-w-0">
+    <div class="flex w-full flex-col gap-4 mt-4">
+      <div class="linear-gradient-tb-bg-2 dark:bg-none dark:bg-black rounded-lg text-white grow basis-0 min-w-0">
         <div class="flex items-center gap-1 px-4 pt-4 pb-2">
           <div class="p-2 rounded shadow bg-white/[0.2]">
             <Icon class="text-white" icon="icon-park-outline:more-app" size="32" />
@@ -397,7 +397,7 @@ const amount = computed({
         <div class="h-4"></div>
       </div>
 
-      <div v-if="!store.coingeckoId" class="linear-gradient-tl-to-br-bg dark:bg-base100 rounded-lg text-white grow basis-0 min-w-0">
+      <div v-if="!store.coingeckoId" class="linear-gradient-tl-to-br-bg dark:bg-none dark:bg-black rounded-lg text-white grow basis-0 min-w-0">
         <div class="flex items-center gap-1 px-4 pt-4 pb-2">
           <div class="p-2 rounded shadow bg-white/[0.2]">
             <Icon class="text-white" icon="ri:node-tree" size="32" />
