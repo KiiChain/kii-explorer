@@ -256,7 +256,7 @@ const amount = computed({
       </div>
     </div>
 
-    <div class="grid grid-cols-1 gap-4 md:!grid-cols-3 lg:!grid-cols-6">
+    <div class="grid grid-cols-2 gap-4">
       <div v-for="(item, key) in store.stats" :key="key">
         <CardStatisticsVertical v-bind="item" />
       </div>
@@ -274,11 +274,11 @@ const amount = computed({
       </div>
     </div>
 
-    <div class="bg-base-100 dark:bg-base100 rounded mt-4 shadow">
-      <div class="flex justify-between px-4 pt-4 pb-2 text-lg font-semibold text-main">
+    <div class="linear-gradient-tb-bg dark:bg-base100 rounded mt-4 shadow">
+      <div class="flex justify-between px-4 pt-4 pb-2 text-lg font-semibold text-main text-white">
         <span class="truncate" >{{ walletStore.currentAddress || 'Not Connected' }}</span>
         <RouterLink v-if="walletStore.currentAddress"
-          class="float-right text-sm cursor-pointert link link-primary no-underline font-medium"
+          class="float-right text-sm cursor-pointert link link-primary no-underline font-medium text-white"
           :to="`/${chain}/account/${walletStore.currentAddress}`">{{ $t('index.more') }}</RouterLink>
       </div>
       <div class="grid grid-cols-1 md:!grid-cols-4 auto-cols-auto gap-4 px-4 pb-6">
@@ -382,21 +382,33 @@ const amount = computed({
       </Teleport>
     </div>
 
-    <div class="bg-base-100 dark:bg-base100 rounded mt-4">
-      <div class="px-4 pt-4 pb-2 text-lg font-semibold text-main">
-        {{ $t('index.app_versions') }}
+    <div class="flex w-full gap-4 mt-4">
+      <div class="linear-gradient-tb-bg-2 dark:bg-base100 rounded-lg text-white grow basis-0 min-w-0">
+        <div class="flex items-center gap-1 px-4 pt-4 pb-2">
+          <div class="p-2 rounded shadow bg-white/[0.2]">
+            <Icon class="text-white" icon="icon-park-outline:more-app" size="32" />
+          </div>
+          <div class="text-2xl font-semibold text-main text-white">
+            {{ $t('index.app_versions') }}
+          </div>
+        </div>
+        <!-- Application Version -->
+        <ArrayObjectElement :value="paramStore.appVersion?.items" :thead="false" />
+        <div class="h-4"></div>
       </div>
-      <!-- Application Version -->
-      <ArrayObjectElement :value="paramStore.appVersion?.items" :thead="false" />
-      <div class="h-4"></div>
-    </div>
 
-    <div v-if="!store.coingeckoId" class="bg-base-100 dark:bg-base100 rounded mt-4">
-      <div class="px-4 pt-4 pb-2 text-lg font-semibold text-main">
-        {{ $t('index.node_info') }}
+      <div v-if="!store.coingeckoId" class="linear-gradient-tl-to-br-bg dark:bg-base100 rounded-lg text-white grow basis-0 min-w-0">
+        <div class="flex items-center gap-1 px-4 pt-4 pb-2">
+          <div class="p-2 rounded shadow bg-white/[0.2]">
+            <Icon class="text-white" icon="ri:node-tree" size="32" />
+          </div>
+          <div class="text-2xl font-semibold text-main text-white">
+            {{ $t('index.node_info') }}
+          </div>
+        </div>
+        <ArrayObjectElement :value="paramStore.nodeVersion?.items" :thead="false" />      
+        <div class="h-4"></div>
       </div>
-      <ArrayObjectElement :value="paramStore.nodeVersion?.items" :thead="false" />      
-      <div class="h-4"></div>
     </div>
   </div>
 </template>
