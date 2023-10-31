@@ -100,7 +100,8 @@ const list = computed(() => {
     {
       meta: {
         i18n: 'blocks',
-        order: 5
+        order: 5,
+        icon: 'clarity:blocks-group-solid'
       }
     }
   </route>

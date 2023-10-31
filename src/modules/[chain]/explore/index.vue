@@ -13,7 +13,8 @@ const walletStore = useWalletStore();
     {
       meta: {
         i18n: 'explore',
-        order: 1
+        order: 1,
+        icon: 'mdi:magnify'
       }
     }
 </route> 

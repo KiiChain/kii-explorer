@@ -53,7 +53,8 @@ function pageload(p: number) {
     {
       meta: {
         i18n: 'supply',
-        order: 17
+        order: 17,
+        icon: 'solar:shop-bold'
       }
     }
   </route>
