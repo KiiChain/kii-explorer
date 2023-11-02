@@ -44,7 +44,7 @@ function pageload(p: number) {
     <div class="relative overflow-auto flex gap-5 flex-nowrap w-full">
       <div class="h-1 w-full absolute bottom-1/3 linear-gradient-l-to-r-bg " />
       <div v-for="stat in mockBarCount" class="w-[135px] space-y-2">
-        <div class="h-[170px] rounded-lg overflow-hidden relative bg-[#DDDBE4]">
+        <div class="h-[170px] rounded-lg overflow-hidden relative bg-[#DDDBE4] dark:bg-black dark:border dark:border-info">
           <div class="absolute bottom-0 left-0 right-0 linear-gradient-tl-to-br-bg" :style="`height: ${stat}%`" />
         </div>
         <div class="truncate w-full text-black dark:text-white">0x474d4495c2b5d4495c2b5d4495c2b5d</div>
@@ -53,7 +53,7 @@ function pageload(p: number) {
 
     <!-- Table -->
     <div>
-      <table class="table rounded bg-[#F9F9F9]">
+      <table class="table rounded bg-[#F9F9F9] dark:bg-base-100">
         <thead>
           <tr class="">
             <td class="text-info">Token</td>
