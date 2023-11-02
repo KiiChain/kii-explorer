@@ -19,6 +19,10 @@ export const DEFAULT: RequestRegistry = {
     url: '/cosmos/bank/v1beta1/denoms_metadata',
     adapter,
   },
+  bank_denom_owners: {
+    url: '/cosmos/bank/v1beta1/denom_owners/{denom}',
+    adapter,
+  },
   bank_supply: { url: '/cosmos/bank/v1beta1/supply', adapter },
   bank_supply_by_denom: { url: '/cosmos/bank/v1beta1/supply/{denom}', adapter },
   distribution_params: { url: '/cosmos/distribution/v1beta1/params', adapter },

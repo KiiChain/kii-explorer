@@ -10,6 +10,7 @@ import {
   useWalletStore,
   useStakingStore,
   useParamStore,
+  useBankStore,
 } from '@/stores';
 import { onMounted, ref } from 'vue';
 import { useIndexModule, colorMap } from './indexStore';
@@ -18,12 +19,16 @@ import { computed } from '@vue/reactivity';
 import CardStatisticsVertical from '@/components/CardStatisticsVertical.vue';
 import ProposalListItem from '@/components/ProposalListItem.vue';
 import ArrayObjectElement from '@/components/dynamic/ArrayObjectElement.vue'
+import DonutChart from '@/components/charts/DonutChart.vue';
+import { shortenAddress } from '@/libs/utils';
+import type { DenomOwner } from '@/types';
 
 const props = defineProps(['chain']);
 
 const blockchain = useBlockchain();
 const store = useIndexModule();
 const walletStore = useWalletStore();
+const bankStore = useBankStore();
 const format = useFormatter();
 const dialog = useTxDialog();
 const stakingStore = useStakingStore();
@@ -32,22 +37,32 @@ const coinInfo = computed(() => {
   return store.coinInfo;
 });
 
-onMounted(() => {
+const topDenomOwners = ref([] as DenomOwner[]);
+
+onMounted(async() => {
   store.loadDashboard();
   walletStore.loadMyAsset();
   paramStore.handleAbciInfo()
+
+  const data = await bankStore.fetchTopDenomOwners(blockchain.current?.assets[0].base ?? '')
+
+  topDenomOwners.value = data;
   // if(!(coinInfo.value && coinInfo.value.name)) {
   // }
 });
 const ticker = computed(() => store.coinInfo.tickers[store.tickerIndex]);
 
 const currName = ref("")
-blockchain.$subscribe((m, s) => {
+blockchain.$subscribe(async(m, s) => {
   if (s.chainName !== currName.value) {
     currName.value = s.chainName
     store.loadDashboard();
     walletStore.loadMyAsset();
     paramStore.handleAbciInfo()
+    
+    const data = await bankStore.fetchTopDenomOwners(blockchain.current?.assets[0].base ?? '')
+
+    topDenomOwners.value = data;
   }
 });
 function shortName(name: string, id: string) {
@@ -96,8 +111,12 @@ const color = computed(() => {
   }
 });
 
-function updateState() {
+async function updateState() {
   walletStore.loadMyAsset()
+  
+  const data = await bankStore.fetchTopDenomOwners(blockchain.current?.assets[0].base ?? '')
+
+  topDenomOwners.value = data;
 }
 
 function trustColor(v: string) {
@@ -122,6 +141,35 @@ const amount = computed({
   }
 })
 
+const topAccountHolders = computed(() => {
+  const data = topDenomOwners.value;
+
+  if (Array.isArray(data)) {
+    const topData = data.slice(0, 10).map((x) => parseFloat(x.balance.amount));
+    const otherData = data.slice(10, data.length);
+
+    const otherDataTotal = otherData.reduce(
+      (accumulator, x) => accumulator + parseFloat(x.balance.amount),
+      0
+    );
+
+    return [...topData, otherDataTotal];
+  }
+
+  return [];
+});
+
+const topAccountAddresses = computed(() => {
+  const data = topDenomOwners.value;
+
+  if (Array.isArray(data)) {
+    const topData = data.slice(0, 10).map((x) => shortenAddress(x.address));
+
+    return [...topData, 'Other accounts'];
+  }
+
+  return [];
+});
 </script>
 
 <template>
@@ -382,6 +430,14 @@ const amount = computed({
       </Teleport>
     </div>
 
+    <div class="bg-base-100 dark:bg-base100 rounded mt-4">
+      <div class="px-4 pt-4 pb-2 text-lg font-semibold text-main">
+        {{ $t('index.top_account_holders') }}
+      </div>
+      <div class="pb-2">
+        <DonutChart :series="topAccountHolders" :labels="topAccountAddresses" />
+      </div>
+    </div>
     <div class="bg-base-100 dark:bg-base100 rounded mt-4">
       <div class="px-4 pt-4 pb-2 text-lg font-semibold text-main">
         {{ $t('index.app_versions') }}
