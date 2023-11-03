@@ -44,10 +44,14 @@
       "total_value": "Nilai Total",
       "delegations": "Delegasi",
       "no_delegations": "Tidak Ada Delegasi",
-      "btn_delegate": "Delegate",
-      "btn_redelegate": "Redelegate",
-      "btn_withdraw": "Withdraw",
-      "btn_unbond": "Lepaskan ikatan",
+      // "btn_delegate": "Delegate",
+      "btn_delegate": "Create Stake",
+      // "btn_redelegate": "Redelegate",
+      "btn_redelegate": "Relocate",
+      // "btn_withdraw": "Withdraw",
+      "btn_withdraw": "Claim Rewards",
+      // "btn_unbond": "Lepaskan ikatan",
+      "btn_unbond": "Withdraw",
       "validator": "Validator",
       "delegation": "Delegasi",
       "rewards": "Hadiah",
@@ -277,6 +281,7 @@
       "btn_swap": "Tukar",
       "receive": "Terima",
       "app_versions": "Versi Aplikasi",
+      "top_account_holders": "Top Account Holders",
       "node_info": "Informasi Node"
     }
 }
