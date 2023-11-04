@@ -88,7 +88,7 @@ console.log('topAccountHolders', topAccountHolders)
 
     <!-- Table -->
     <div>
-      <table class="table rounded bg-[#F9F9F9] dark:bg-base-100">
+      <table class="table rounded bg-[#F9F9F9] dark:bg-base100">
         <thead>
           <tr class="">
             <td class="text-info">Token</td>
