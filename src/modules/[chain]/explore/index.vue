@@ -139,7 +139,7 @@ function toggleIsFilterDropdown() {
           </td>
           <td class="py-4">
             <div>
-              <span class=" text-black">Fee Recipient </span>
+              <span class=" text-black dark:text-white">Fee Recipient </span>
               <span class=" text-info font-semibold">{{ item.feeRecipient }}</span>
             </div>
             <div class="text-gray-500">{{ item.txnCount }} in 12 secs</div>
@@ -168,11 +168,11 @@ function toggleIsFilterDropdown() {
           </td>
           <td class="py-4">
             <div>
-              <span class=" text-black">From: </span>
+              <span class=" text-black dark:text-white">From: </span>
               <span class=" text-info font-semibold">0X1F9090E6723IX99</span>
             </div>
             <div>
-              <span class=" text-black">To: </span>
+              <span class=" text-black dark:text-white">To: </span>
               <span class=" text-info font-semibold">0XCM12M3N4U584292</span>
             </div>
           </td>
