@@ -119,7 +119,7 @@ function toggleIsFilterDropdown() {
 
     <!-- Tables -->
     <div class="flex gap-2">
-      <table class="table rounded bg-[#F9F9F9] dark:!bg-base-100 shadow">
+      <table class="table rounded bg-[#F9F9F9] dark:bg-base100 shadow">
         <thead>
           <tr class="">
             <td colspan="3" class="text-info">LATEST BLOCKS</td>
@@ -148,7 +148,7 @@ function toggleIsFilterDropdown() {
         </tr>
       </table>
 
-      <table class="table rounded bg-[#F9F9F9] dark:bg-base-100 shadow">
+      <table class="table rounded bg-[#F9F9F9] dark:bg-base100 shadow">
         <thead>
           <tr class="">
             <td colspan="3" class="text-info">LATEST BLOCKS</td>
