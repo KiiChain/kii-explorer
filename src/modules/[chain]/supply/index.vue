@@ -1,17 +1,18 @@
 <script lang="ts" setup>
 import { computed, ref } from '@vue/reactivity';
-import { useBaseStore, useBlockchain, useFormatter } from '@/stores';
-import { PageRequest, type AuthAccount, type Pagination, type Coin } from '@/types';
+import { useBankStore, useBaseStore, useBlockchain, useFormatter } from '@/stores';
+import { PageRequest, type AuthAccount, type Pagination, type Coin, type DenomOwner } from '@/types';
 import { onMounted } from 'vue';
 import PaginationBar from '@/components/PaginationBar.vue';
+// import { shortenAddress } from '@/libs/utils';
 const props = defineProps(['chain']);
 
 const format = useFormatter();
 const chainStore = useBlockchain()
+const bankStore = useBankStore();
+const blockchain = useBlockchain();
 
 const list = ref([] as Coin[])
-// TODO: remove mock
-const mockBarCount = Array(20).fill(null).map((_v, i) => Math.floor(Math.random() * (100 - 1 + 1)) + 1);
 
 function showType(v: string) {
   return v.replace("/cosmos.auth.v1beta1.", "")
@@ -19,9 +20,13 @@ function showType(v: string) {
 
 const pageRequest = ref(new PageRequest())
 const pageResponse = ref({} as Pagination)
+const topDenomOwners = ref([] as DenomOwner[]);
 
-onMounted(() => {
-  pageload(1)
+onMounted(async() => {
+  const data = await bankStore.fetchTopDenomOwners(blockchain.current?.assets[0].base ?? '')
+
+  topDenomOwners.value = data;
+  pageload(1);
 });
 
 function pageload(p: number) {
@@ -32,6 +37,37 @@ function pageload(p: number) {
   });
 }
 
+const topAccountHolders = computed(() => {
+  const data = topDenomOwners.value;
+  const supplyMax = list.value.find(item => item.denom === blockchain.current?.assets[0].base);
+
+  if (Array.isArray(data)) {
+    const topData = data.slice(0, 10).map((x) => {
+      console.log('x.balance.amount', x.balance.amount, supplyMax?.amount, (parseFloat(x.balance.amount)/ parseFloat(supplyMax?.amount ?? '0')))
+      return {
+        amount: (parseFloat(x.balance.amount)/ parseFloat(supplyMax?.amount ?? '0') * 100),
+        address: x.address
+      }
+    });
+    const otherData = data.slice(10, data.length);
+
+    const otherDataTotal = otherData.reduce(
+      (accumulator, x) => accumulator + parseFloat(x.balance.amount),
+      0
+    );
+
+    return [...topData, {
+      amount: (otherDataTotal/ parseFloat(supplyMax?.amount ?? '0') * 100),
+      address: 'Other accounts'
+    }];
+  }
+
+
+  return [];
+});
+
+console.log('topAccountHolders', topAccountHolders)
+
 </script>
 <template>
   <div class="overflow-auto space-y-3">
@@ -40,14 +76,13 @@ function pageload(p: number) {
       Bank Supply
     </div>
 
-    <!-- TODO: Integrate -->
     <div class="relative overflow-auto flex gap-5 flex-nowrap w-full">
       <div class="h-1 w-full absolute bottom-1/3 linear-gradient-l-to-r-bg " />
-      <div v-for="stat in mockBarCount" class="w-[135px] space-y-2">
+      <div v-for="stat in topAccountHolders" class="w-[135px] space-y-2">
         <div class="h-[170px] rounded-lg overflow-hidden relative bg-[#DDDBE4] dark:bg-black dark:border dark:border-info">
-          <div class="absolute bottom-0 left-0 right-0 linear-gradient-tl-to-br-bg" :style="`height: ${stat}%`" />
+          <div class="absolute bottom-0 left-0 right-0 linear-gradient-tl-to-br-bg" :style="`height: ${stat.amount}%`" />
         </div>
-        <div class="truncate w-full text-black dark:text-white">0x474d4495c2b5d4495c2b5d4495c2b5d</div>
+        <div class="truncate w-full text-black dark:text-white">{{stat.address}}</div>
       </div>
     </div>
 

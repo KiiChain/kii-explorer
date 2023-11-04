@@ -329,7 +329,7 @@ const topAccountAddresses = computed(() => {
       </div>
     </div>
 
-    <div v-if="blockchain.supportModule('governance')" class="bg-base-100 dark:bg-base100 rounded mt-4 shadow">
+    <!-- <div v-if="blockchain.supportModule('governance')" class="bg-base-100 dark:bg-base100 rounded mt-4 shadow">
       <div class="px-4 pt-4 pb-2 text-lg font-semibold text-main">
         {{ $t('index.active_proposals') }}
       </div>
@@ -339,7 +339,7 @@ const topAccountAddresses = computed(() => {
       <div class="pb-8 text-center" v-if="store.proposals?.proposals?.length === 0">
         {{ $t('index.no_active_proposals') }}
       </div>
-    </div>
+    </div> -->
 
     <div class="linear-gradient-tb-bg dark:bg-none dark:bg-black rounded mt-4 shadow">
       <div class="flex justify-between px-4 pt-4 pb-2 text-lg font-semibold text-main text-white">
@@ -455,15 +455,15 @@ const topAccountAddresses = computed(() => {
       </Teleport>
     </div>
 
-    <div class="flex w-full flex-col gap-4 mt-4">
-      <div class="bg-base-100 dark:bg-base100 rounded mt-4">
+    <div class="flex w-full flex-row gap-4 mt-4">
+      <!-- <div class="bg-base-100 dark:bg-base100 rounded mt-4">
         <div class="px-4 pt-4 pb-2 text-lg font-semibold text-main">
           {{ $t('index.top_account_holders') }}
         </div>
         <div class="pb-2">
           <DonutChart :series="topAccountHolders" :labels="topAccountAddresses" />
         </div>
-      </div>
+      </div> -->
       <div class="linear-gradient-tb-bg-2 dark:bg-none dark:bg-black rounded-lg text-white grow basis-0 min-w-0">
         <div class="flex items-center gap-1 px-4 pt-4 pb-2">
           <div class="p-2 rounded shadow bg-white/[0.2]">
@@ -480,18 +480,18 @@ const topAccountAddresses = computed(() => {
 
       <div v-if="!store.coingeckoId"
       class="linear-gradient-tl-to-br-bg dark:bg-none dark:bg-black rounded-lg text-white grow basis-0 min-w-0">
-      <div class="flex items-center gap-1 px-4 pt-4 pb-2">
-        <div class="p-2 rounded shadow bg-white/[0.2]">
-          <Icon class="text-white" icon="ri:node-tree" size="32" />
+        <div class="flex items-center gap-1 px-4 pt-4 pb-2">
+          <div class="p-2 rounded shadow bg-white/[0.2]">
+            <Icon class="text-white" icon="ri:node-tree" size="32" />
+          </div>
+          <div class="text-2xl font-semibold text-main text-white">
+            {{ $t('index.node_info') }}
+          </div>
         </div>
-        <div class="text-2xl font-semibold text-main text-white">
-          {{ $t('index.node_info') }}
-        </div>
+        <ArrayObjectElement :value="paramStore.nodeVersion?.items" :thead="false" />
+        <div class="h-4"></div>
       </div>
-      <ArrayObjectElement :value="paramStore.nodeVersion?.items" :thead="false" />
-      <div class="h-4"></div>
     </div>
-  </div>
 </div></template>
 
 <route>

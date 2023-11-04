@@ -1,13 +1,14 @@
 <script setup lang="ts">
 // @ts-ignore
-import { useWalletStore } from '@/stores';
+import { useWalletStore, useBlockchain } from '@/stores';
 import CardValue from '@/components/CardValue.vue';
 import DualCardValue from '@/components/DualCardValue.vue';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
 import { Icon } from '@iconify/vue';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
+import router from '@/router'
 
 dayjs.extend(relativeTime);
 
@@ -16,6 +17,40 @@ const walletStore = useWalletStore();
 let isFilterDropdownActive = ref(false);
 
 let mockList = ref<any[]>([]);
+
+const blockStore = useBlockchain();
+let errorMessage = ref('');
+let searchQuery = ref('');
+
+onMounted(() => {});
+
+function confirm() {
+  errorMessage.value = '';
+  const key = searchQuery.value;
+  if (!key) {
+    errorMessage.value = 'Please enter a value!';
+    return;
+  }
+  const height = /^\d+$/;
+  const txhash = /^[A-Z\d]{64}$/;
+  const addr = /^[a-z\d]+1[a-z\d]{38,58}$/;
+
+  const current = blockStore?.current?.chainName || '';
+  const routeParams = router?.currentRoute?.value;
+
+  if (!Object.values(routeParams?.params ?? '').includes(key)) {
+    if (height.test(key)) {
+      router.push({ path: `/${current}/block/${key}` });
+    } else if (txhash.test(key)) {
+      router.push({ path: `/${current}/tx/${key}` });
+      //     this.$router.push({ name: 'transaction', params: { chain: c.chain_name, hash: key } })
+    } else if (addr.test(key)) {
+      router.push({ path: `/${current}/account/${key}` });
+    } else {
+      errorMessage.value = 'The input not recognized';
+    }
+  }
+}
 
 mockList.value = Array(15).fill(null).map((_v, i) => ({
   hash: Math.floor(Math.random() * (18499999 - 18400000 + 1) + 18400000),
@@ -52,14 +87,21 @@ function toggleIsFilterDropdown() {
       </div>
 
       <!-- Search Filter Input -->
-      <input :placeholder="$t('pages.search_placeholder')"
+      <input :placeholder="$t('pages.explore_search_placeholder')" 
+        v-model="searchQuery"
         class="px-4 h-10 bg-transparent flex-1 outline-none text-neutral" />
       <!-- <div class="px-4 text-neutral hidden md:!block">{{ chains.length }}/{{ dashboard.length }}</div> -->
 
       <!-- Search Filter Magnify -->
       <div class="linear-gradient-tb-bg p-2 w-fit h-fit rounded-lg cursor-pointer">
-        <Icon icon="mdi:magnify" class="text-2xl text-white" />
+        <Icon icon="mdi:magnify" class="text-2xl text-white" @click="confirm"/>
       </div>
+    </div>
+    <div
+      class="mt-2 text-center text-sm text-error"
+      v-show="errorMessage"
+    >
+      {{ errorMessage }}
     </div>
 
     <!-- Stats -->

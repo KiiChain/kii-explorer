@@ -189,11 +189,11 @@ export function rgbToHsl(color: string) {
   };
 }
 
-export const shortenAddress = (address: string) => {
+export const shortenAddress = (address: string, prefixLength = 5, suffixLength = 4 ) => {
   if (!address || address.length < 42) return address; // Address is too short to shorten
 
-  const prefixLength = 5;
-  const suffixLength = 4;
+  // const prefixLength = 5;
+  // const suffixLength = 4;
 
   const prefix = address.slice(0, prefixLength);
   const suffix = address.slice(-suffixLength);
