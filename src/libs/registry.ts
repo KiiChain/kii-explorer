@@ -15,6 +15,7 @@ import type {
   BankParams,
   PaginatedBalances,
   PaginatedDenomMetadata,
+  PaginatedDenomOwners,
   PaginatedSupply,
 } from '@/types/bank';
 import type {
@@ -61,6 +62,7 @@ export interface RequestRegistry extends AbstractRegistry {
   bank_params: Request<BankParams>;
   bank_balances_address: Request<PaginatedBalances>;
   bank_denoms_metadata: Request<PaginatedDenomMetadata>;
+  bank_denom_owners: Request<PaginatedDenomOwners>;
   bank_supply: Request<PaginatedSupply>;
   bank_supply_by_denom: Request<{ amount: Coin }>;
 

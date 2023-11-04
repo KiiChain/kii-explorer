@@ -170,7 +170,7 @@ async function update() {
               {{ item?.address }}/consensus_state
             </option>
           </select>
-          <button class="btn btn-primary" @click="onChange">{{ $t('consensus.monitor') }}</button>
+          <button class="btn btn-primary hover:text-black dark:hover:text-white" @click="onChange">{{ $t('consensus.monitor') }}</button>
         </label>
       </div>
       <div v-if="httpstatus !== 200" class="text-error mt-1">
@@ -324,6 +324,7 @@ async function update() {
   {
     meta: {
       i18n: 'consensus',
+      icon: 'streamline:interface-hierarchy-2-node-organization-links-structure-link-nodes-network-hierarchy'
     }
   }
 </route>

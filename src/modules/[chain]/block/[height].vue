@@ -62,6 +62,21 @@ onBeforeRouteUpdate(async (to, from, next) => {
 </script>
 <template>
   <div>
+    <div class="tabs tabs-boxed bg-transparent mb-4">
+      <RouterLink class="tab text-gray-400 uppercase" :to="`/${chain}/block`">
+        {{ $t('block.recent') }}
+      </RouterLink>
+      <a class="tab text-gray-400 uppercase tab-active">
+        {{ $t('block.future') }}
+      </a>
+      <RouterLink class="tab text-gray-400 uppercase" :to="{
+        path: `/${chain}/block`,
+        query: { tab: 'transactions' }
+      }">
+        {{ $t('account.transactions') }}
+      </RouterLink>
+    </div>
+
     <div v-if="isFutureBlock" class="text-center">
       <div v-if="remainingBlocks > 0">
         <div class="text-primary font-bold text-lg my-10 dark:text-white">#{{ target }}</div>
@@ -82,7 +97,7 @@ onBeforeRouteUpdate(async (to, from, next) => {
                   <p class="py-4">
                   <div class="join">
                     <input class="input input-bordered join-item" v-model="newHeight" type="number" />
-                    <button class="btn btn-primary join-item" @click="updateTarget()">{{ $t('block.btn_update')
+                    <button class="btn btn-primary join-item hover:text-black dark:hover:text-white" @click="updateTarget()">{{ $t('block.btn_update')
                     }}</button>
                   </div>
                   </p>
@@ -112,11 +127,11 @@ onBeforeRouteUpdate(async (to, from, next) => {
           <p class="">#{{ current.block?.header?.height }}</p>
           <div class="flex" v-if="props.height">
             <RouterLink :to="`/${store.blockchain.chainName}/block/${height - 1}`"
-              class="btn btn-primary btn-sm p-1 text-2xl mr-2">
+              class="btn btn-primary btn-sm p-1 text-2xl mr-2 hover:text-black dark:hover:text-white">
               <Icon icon="mdi-arrow-left" class="w-full h-full" />
             </RouterLink>
             <RouterLink :to="`/${store.blockchain.chainName}/block/${height + 1}`"
-              class="btn btn-primary btn-sm p-1 text-2xl">
+              class="btn btn-primary btn-sm p-1 text-2xl hover:text-black dark:hover:text-white">
               <Icon icon="mdi-arrow-right" class="w-full h-full" />
             </RouterLink>
           </div>
@@ -141,4 +156,5 @@ onBeforeRouteUpdate(async (to, from, next) => {
         <DynamicComponent :value="current.block?.last_commit" />
       </div>
     </div>
-  </div></template>
+  </div>
+</template>

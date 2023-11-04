@@ -113,7 +113,7 @@ const proposalInfo = ref();
             <div class="">
               <label
                 for="vote"
-                class="btn btn-xs btn-primary rounded-sm"
+                class="btn btn-xs btn-primary rounded-sm  hover:text-black dark:hover:text-white"
                 @click="
                   dialog.open('vote', {
                     proposal_id: item?.proposal_id,
@@ -207,7 +207,7 @@ const proposalInfo = ref();
             </div>
             <label
               for="vote"
-              class="btn btn-xs btn-primary rounded-sm"
+              class="btn btn-xs btn-primary rounded-sm hover:text-black dark:hover:text-white"
               @click="
                 dialog.open('vote', {
                   proposal_id: item?.proposal_id,

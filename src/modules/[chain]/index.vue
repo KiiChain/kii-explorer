@@ -10,6 +10,7 @@ import {
   useWalletStore,
   useStakingStore,
   useParamStore,
+  useBankStore,
 } from '@/stores';
 import { onMounted, ref } from 'vue';
 import { useIndexModule, colorMap } from './indexStore';
@@ -18,12 +19,16 @@ import { computed } from '@vue/reactivity';
 import CardStatisticsVertical from '@/components/CardStatisticsVertical.vue';
 import ProposalListItem from '@/components/ProposalListItem.vue';
 import ArrayObjectElement from '@/components/dynamic/ArrayObjectElement.vue'
+import DonutChart from '@/components/charts/DonutChart.vue';
+import { shortenAddress } from '@/libs/utils';
+import type { DenomOwner } from '@/types';
 
 const props = defineProps(['chain']);
 
 const blockchain = useBlockchain();
 const store = useIndexModule();
 const walletStore = useWalletStore();
+const bankStore = useBankStore();
 const format = useFormatter();
 const dialog = useTxDialog();
 const stakingStore = useStakingStore();
@@ -32,22 +37,32 @@ const coinInfo = computed(() => {
   return store.coinInfo;
 });
 
-onMounted(() => {
+const topDenomOwners = ref([] as DenomOwner[]);
+
+onMounted(async () => {
   store.loadDashboard();
   walletStore.loadMyAsset();
   paramStore.handleAbciInfo()
+
+  const data = await bankStore.fetchTopDenomOwners(blockchain.current?.assets[0].base ?? '')
+
+  topDenomOwners.value = data;
   // if(!(coinInfo.value && coinInfo.value.name)) {
   // }
 });
 const ticker = computed(() => store.coinInfo.tickers[store.tickerIndex]);
 
 const currName = ref("")
-blockchain.$subscribe((m, s) => {
+blockchain.$subscribe(async (m, s) => {
   if (s.chainName !== currName.value) {
     currName.value = s.chainName
     store.loadDashboard();
     walletStore.loadMyAsset();
     paramStore.handleAbciInfo()
+
+    const data = await bankStore.fetchTopDenomOwners(blockchain.current?.assets[0].base ?? '')
+
+    topDenomOwners.value = data;
   }
 });
 function shortName(name: string, id: string) {
@@ -96,8 +111,12 @@ const color = computed(() => {
   }
 });
 
-function updateState() {
+async function updateState() {
   walletStore.loadMyAsset()
+
+  const data = await bankStore.fetchTopDenomOwners(blockchain.current?.assets[0].base ?? '')
+
+  topDenomOwners.value = data;
 }
 
 function trustColor(v: string) {
@@ -122,6 +141,35 @@ const amount = computed({
   }
 })
 
+const topAccountHolders = computed(() => {
+  const data = topDenomOwners.value;
+
+  if (Array.isArray(data)) {
+    const topData = data.slice(0, 10).map((x) => parseFloat(x.balance.amount));
+    const otherData = data.slice(10, data.length);
+
+    const otherDataTotal = otherData.reduce(
+      (accumulator, x) => accumulator + parseFloat(x.balance.amount),
+      0
+    );
+
+    return [...topData, otherDataTotal];
+  }
+
+  return [];
+});
+
+const topAccountAddresses = computed(() => {
+  const data = topDenomOwners.value;
+
+  if (Array.isArray(data)) {
+    const topData = data.slice(0, 10).map((x) => shortenAddress(x.address));
+
+    return [...topData, 'Other accounts'];
+  }
+
+  return [];
+});
 </script>
 
 <template>
@@ -192,7 +240,7 @@ const amount = computed({
                         </div>
 
                         <div class="text-base text-main">
-                           ${{ item.converted_last.usd }}
+                          ${{ item.converted_last.usd }}
                         </div>
                       </div>
                     </li>
@@ -202,8 +250,24 @@ const amount = computed({
             </div>
 
             <div class="flex">
-              <label class="btn btn-primary !px-1 my-5 mr-2" for="calculator">
-                <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <rect x="4" y="2" width="16" height="20" rx="2"></rect> <line x1="8" x2="16" y1="6" y2="6"></line> <line x1="16" x2="16" y1="14" y2="18"></line> <path d="M16 10h.01"></path> <path d="M12 10h.01"></path> <path d="M8 10h.01"></path> <path d="M12 14h.01"></path> <path d="M8 14h.01"></path> <path d="M12 18h.01"></path> <path d="M8 18h.01"></path> </g></svg>
+              <label class="btn btn-primary !px-1 my-5 mr-2 hover:text-black dark:hover:text-white" for="calculator">
+                <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ffffff"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                  <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                  <g id="SVGRepo_iconCarrier">
+                    <rect x="4" y="2" width="16" height="20" rx="2"></rect>
+                    <line x1="8" x2="16" y1="6" y2="6"></line>
+                    <line x1="16" x2="16" y1="14" y2="18"></line>
+                    <path d="M16 10h.01"></path>
+                    <path d="M12 10h.01"></path>
+                    <path d="M8 10h.01"></path>
+                    <path d="M12 14h.01"></path>
+                    <path d="M8 14h.01"></path>
+                    <path d="M12 18h.01"></path>
+                    <path d="M8 18h.01"></path>
+                  </g>
+                </svg>
               </label>
               <!-- Put this part before </body> tag -->
               <input type="checkbox" id="calculator" class="modal-toggle" />
@@ -216,7 +280,8 @@ const amount = computed({
                         <label class="join-item btn">
                           <span class="uppercase">{{ coinInfo.symbol }}</span>
                         </label>
-                        <input type="number" v-model="qty" min="0" placeholder="Input a number" class="input grow input-bordered join-item" />
+                        <input type="number" v-model="qty" min="0" placeholder="Input a number"
+                          class="input grow input-bordered join-item" />
                       </div>
                     </div>
                     <div class="divider">=</div>
@@ -225,15 +290,17 @@ const amount = computed({
                         <label class="join-item btn">
                           <span>USD</span>
                         </label>
-                        <input type="number" v-model="amount" min="0" placeholder="Input amount" class="join-item grow input input-bordered" />
+                        <input type="number" v-model="amount" min="0" placeholder="Input amount"
+                          class="join-item grow input input-bordered" />
                       </div>
                     </div>
                   </div>
                 </div>
                 <label class="modal-backdrop" for="calculator">{{ $t('index.close') }}</label>
               </div>
-              <a class="my-5 !text-white btn grow" :class="{'!btn-success': store.trustColor === 'green', '!btn-warning': store.trustColor === 'yellow'}" :href="ticker.trade_url"
-                target="_blank">
+              <a class="my-5 !text-white btn grow"
+                :class="{ '!btn-success': store.trustColor === 'green', '!btn-warning': store.trustColor === 'yellow' }"
+                :href="ticker.trade_url" target="_blank">
                 {{ $t('index.buy') }} {{ coinInfo.symbol || '' }}
               </a>
             </div>
@@ -256,13 +323,13 @@ const amount = computed({
       </div>
     </div>
 
-    <div class="grid grid-cols-1 gap-4 md:!grid-cols-3 lg:!grid-cols-6">
+    <div class="grid grid-cols-2 gap-4">
       <div v-for="(item, key) in store.stats" :key="key">
         <CardStatisticsVertical v-bind="item" />
       </div>
     </div>
 
-    <div v-if="blockchain.supportModule('governance')" class="bg-base-100 dark:bg-base100 rounded mt-4 shadow">
+    <!-- <div v-if="blockchain.supportModule('governance')" class="bg-base-100 dark:bg-base100 rounded mt-4 shadow">
       <div class="px-4 pt-4 pb-2 text-lg font-semibold text-main">
         {{ $t('index.active_proposals') }}
       </div>
@@ -272,13 +339,13 @@ const amount = computed({
       <div class="pb-8 text-center" v-if="store.proposals?.proposals?.length === 0">
         {{ $t('index.no_active_proposals') }}
       </div>
-    </div>
+    </div> -->
 
-    <div class="bg-base-100 dark:bg-base100 rounded mt-4 shadow">
-      <div class="flex justify-between px-4 pt-4 pb-2 text-lg font-semibold text-main">
-        <span class="truncate" >{{ walletStore.currentAddress || 'Not Connected' }}</span>
+    <div class="linear-gradient-tb-bg dark:bg-none dark:bg-black rounded mt-4 shadow">
+      <div class="flex justify-between px-4 pt-4 pb-2 text-lg font-semibold text-main text-white">
+        <span class="truncate">{{ walletStore.currentAddress || 'Not Connected' }}</span>
         <RouterLink v-if="walletStore.currentAddress"
-          class="float-right text-sm cursor-pointert link link-primary no-underline font-medium"
+          class="float-right text-sm cursor-pointert link link-primary no-underline font-medium text-white"
           :to="`/${chain}/account/${walletStore.currentAddress}`">{{ $t('index.more') }}</RouterLink>
       </div>
       <div class="grid grid-cols-1 md:!grid-cols-4 auto-cols-auto gap-4 px-4 pb-6">
@@ -333,12 +400,13 @@ const amount = computed({
           <tbody>
             <tr v-for="(item, index) in walletStore.delegations" :key="index">
               <td>
-                <RouterLink class="link link-primary no-underline" :to="`/${chain}/staking/${item?.delegation?.validator_address}`">
-                {{
-                  format.validatorFromBech32(
-                    item?.delegation?.validator_address
-                  )
-                }}
+                <RouterLink class="link link-primary no-underline"
+                  :to="`/${chain}/staking/${item?.delegation?.validator_address}`">
+                  {{
+                    format.validatorFromBech32(
+                      item?.delegation?.validator_address
+                    )
+                  }}
                 </RouterLink>
               </td>
               <td>{{ format.formatToken(item?.balance) }}</td>
@@ -354,11 +422,13 @@ const amount = computed({
               </td>
               <td>
                 <div>
-                  <label for="delegate" class="btn !btn-xs !btn-primary btn-ghost rounded-sm mr-2"
+                  <label for="delegate"
+                    class="btn !btn-xs !btn-primary hover:!text-black dark:hover:!text-white rounded-sm mr-2"
                     @click="dialog.open('delegate', { validator_address: item.delegation.validator_address }, updateState)">
                     {{ $t('account.btn_delegate') }}
                   </label>
-                  <label for="withdraw" class="btn !btn-xs !btn-primary btn-ghost rounded-sm"
+                  <label for="withdraw"
+                    class="btn !btn-xs !btn-primary hover:!text-black dark:hover:!text-white btn-ghost rounded-sm"
                     @click="dialog.open('withdraw', { validator_address: item.delegation.validator_address }, updateState)">
                     {{ $t('index.btn_withdraw_reward') }}
                   </label>
@@ -370,11 +440,14 @@ const amount = computed({
       </div>
 
       <div class="grid grid-cols-3 gap-4 px-4 pb-6 mt-4">
-        <label for="PingTokenConvert" class="btn btn-primary text-white">{{ $t('index.btn_swap') }}</label>
-        <label for="send" class="btn !bg-yes !border-yes text-white" @click="dialog.open('send', {}, updateState)">{{ $t('account.btn_send') }}</label>
+        <label for="PingTokenConvert" class="btn btn-primary hover:text-black dark:hover:text-white">{{
+          $t('index.btn_swap') }}</label>
+        <label for="send" class="btn !bg-yes !border-yes text-white" @click="dialog.open('send', {}, updateState)">{{
+          $t('account.btn_send') }}</label>
         <label for="delegate" class="btn !bg-info !border-info text-white"
           @click="dialog.open('delegate', {}, updateState)">{{ $t('account.btn_delegate') }}</label>
-        <RouterLink to="/wallet/receive" class="btn !bg-info !border-info text-white hidden">{{ $t('index.receive') }}</RouterLink>
+        <RouterLink to="/wallet/receive" class="btn !bg-info !border-info text-white hidden">{{ $t('index.receive') }}
+        </RouterLink>
       </div>
       <Teleport to="body">
         <ping-token-convert :chain-name="blockchain?.current?.prettyName" :endpoint="blockchain?.endpoint?.address"
@@ -382,30 +455,51 @@ const amount = computed({
       </Teleport>
     </div>
 
-    <div class="bg-base-100 dark:bg-base100 rounded mt-4">
-      <div class="px-4 pt-4 pb-2 text-lg font-semibold text-main">
-        {{ $t('index.app_versions') }}
+    <div class="flex w-full flex-row gap-4 mt-4">
+      <!-- <div class="bg-base-100 dark:bg-base100 rounded mt-4">
+        <div class="px-4 pt-4 pb-2 text-lg font-semibold text-main">
+          {{ $t('index.top_account_holders') }}
+        </div>
+        <div class="pb-2">
+          <DonutChart :series="topAccountHolders" :labels="topAccountAddresses" />
+        </div>
+      </div> -->
+      <div class="linear-gradient-tb-bg-2 dark:bg-none dark:bg-black rounded-lg text-white grow basis-0 min-w-0">
+        <div class="flex items-center gap-1 px-4 pt-4 pb-2">
+          <div class="p-2 rounded shadow bg-white/[0.2]">
+            <Icon class="text-white" icon="icon-park-outline:more-app" size="32" />
+          </div>
+          <div class="text-2xl font-semibold text-main text-white">
+            {{ $t('index.app_versions') }}
+          </div>
+        </div>
+        <!-- Application Version -->
+        <ArrayObjectElement :value="paramStore.appVersion?.items" :thead="false" />
+        <div class="h-4"></div>
       </div>
-      <!-- Application Version -->
-      <ArrayObjectElement :value="paramStore.appVersion?.items" :thead="false" />
-      <div class="h-4"></div>
-    </div>
 
-    <div v-if="!store.coingeckoId" class="bg-base-100 dark:bg-base100 rounded mt-4">
-      <div class="px-4 pt-4 pb-2 text-lg font-semibold text-main">
-        {{ $t('index.node_info') }}
+      <div v-if="!store.coingeckoId"
+      class="linear-gradient-tl-to-br-bg dark:bg-none dark:bg-black rounded-lg text-white grow basis-0 min-w-0">
+        <div class="flex items-center gap-1 px-4 pt-4 pb-2">
+          <div class="p-2 rounded shadow bg-white/[0.2]">
+            <Icon class="text-white" icon="ri:node-tree" size="32" />
+          </div>
+          <div class="text-2xl font-semibold text-main text-white">
+            {{ $t('index.node_info') }}
+          </div>
+        </div>
+        <ArrayObjectElement :value="paramStore.nodeVersion?.items" :thead="false" />
+        <div class="h-4"></div>
       </div>
-      <ArrayObjectElement :value="paramStore.nodeVersion?.items" :thead="false" />      
-      <div class="h-4"></div>
     </div>
-  </div>
-</template>
+</div></template>
 
 <route>
   {
     meta: {
       i18n: 'dashboard',
       order: 1,
+      icon: 'material-symbols:dashboard-outline'
     }
   }
 </route>
