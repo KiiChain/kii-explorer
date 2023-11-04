@@ -499,6 +499,7 @@ const topAccountAddresses = computed(() => {
     meta: {
       i18n: 'dashboard',
       order: 1,
+      icon: 'material-symbols:dashboard-outline'
     }
   }
 </route>

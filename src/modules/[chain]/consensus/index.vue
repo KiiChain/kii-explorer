@@ -324,6 +324,7 @@ async function update() {
   {
     meta: {
       i18n: 'consensus',
+      icon: 'streamline:interface-hierarchy-2-node-organization-links-structure-link-nodes-network-hierarchy'
     }
   }
 </route>
