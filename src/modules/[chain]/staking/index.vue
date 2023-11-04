@@ -406,7 +406,7 @@ loadAvatars();
                                 <label
                                     v-else-if="rank !== 'error'"
                                     for="delegate"
-                                    class="btn btn-xs btn-primary rounded-sm capitalize hover:text-black dark:hover:text-white"
+                                    class="btn btn-xs btn-primary rounded-sm capitalize"
                                     @click="
                                         dialog.open('delegate', {
                                             validator_address:
@@ -452,8 +452,7 @@ loadAvatars();
   {
     meta: {
       i18n: 'staking',
-      order: 3,
-      icon: 'ph:coin-fill'
+      order: 3
     }
   }
 </route>

@@ -187,7 +187,7 @@ const tipMsg = computed(() => {
               </div>
               <label
                 for="delegate"
-                class="btn btn-primary btn-sm w-full hover:text-black dark:hover:text-white"
+                class="btn btn-primary btn-sm w-full"
                 @click="
                   dialog.open('delegate', {
                     validator_address: v.operator_address,
@@ -375,7 +375,7 @@ const tipMsg = computed(() => {
           <div class="">
             <label
               for="withdraw_commission"
-              class="btn btn-primary w-full hover:text-black dark:hover:text-white"
+              class="btn btn-primary w-full"
               @click="
                 dialog.open('withdraw_commission', {
                   validator_address: v.operator_address,

@@ -56,8 +56,7 @@ onMounted(() => {
 {
   meta: {
     i18n: 'parameters',
-    order: 50,
-    icon: 'ic:twotone-query-stats'
+    order: 50
   }
 }
 </route>

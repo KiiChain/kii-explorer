@@ -120,7 +120,7 @@ function confirm() {
         </div>
         <!-- foot -->
         <div class="mt-6">
-          <button class="w-full btn btn-primary hover:text-black dark:hover:text-white" @click="confirm">
+          <button class="w-full btn btn-primary" @click="confirm">
             Confirm
           </button>
         </div>

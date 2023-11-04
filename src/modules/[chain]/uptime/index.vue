@@ -10,13 +10,8 @@ import {
 import UptimeBar from '@/components/UptimeBar.vue';
 import type { Commit, SlashingParam, SigningInfo } from '@/types';
 import { consensusPubkeyToHexAddress, valconsToBase64 } from '@/libs';
-import { useRoute } from 'vue-router';
 
 const props = defineProps(['chain']);
-
-const router = useRoute();
-
-const defaultTab = router.query.tab;
 
 const stakingStore = useStakingStore();
 const format = useFormatter();
@@ -114,7 +109,7 @@ onUnmounted(() => {
 });
 
 //const tab = ref(window.location.hash.search("block")>-1?"2":"3")
-const tab = ref(defaultTab === 'blocks' ? '2' : '3');
+const tab = ref('2');
 function changeTab(v: string) {
   tab.value = v;
 }
@@ -267,8 +262,7 @@ function changeTab(v: string) {
   {
     meta: {
       i18n: 'uptime',
-      order: 8,
-      icon: 'ion:time'
+      order: 8
     }
   }
 </route>

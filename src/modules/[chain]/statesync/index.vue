@@ -109,8 +109,7 @@ onMounted(() => {
 <route>
     {
       meta: {
-        i18n: 'state-sync',
-        icon: 'material-symbols:sync-outline'
+        i18n: 'state-sync'
       }
     }
   </route>

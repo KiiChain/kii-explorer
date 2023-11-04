@@ -124,20 +124,6 @@ function color(v: string) {
 
 <template>
   <div>
-    <div class="tabs tabs-boxed bg-transparent mb-4">
-      <RouterLink :to="`/${chain}/uptime`" class="tab text-gray-400 capitalize">
-        {{ $t('uptime.overall') }}
-      </RouterLink>
-      <RouterLink :to="{
-        path: `/${chain}/uptime`,
-        query: {
-          tab: 'blocks'
-        }
-      }" class="tab text-gray-400 capitalize">
-        {{ $t('module.blocks') }}
-      </RouterLink>
-      <a class="tab text-gray-400 capitalize tab-active">{{ $t('uptime.customize') }}</a>
-    </div>
     <div class="overflow-x-auto w-full">
       <div class="lg:!flex lg:!items-center lg:!justify-between bg-base-100 dark:bg-base100 p-5">
         <div class="min-w-0 flex-1">
@@ -187,14 +173,14 @@ function color(v: string) {
             </td>
             <td class=" capitalize">{{ v.sigingInfo?.tombstoned }}</td>
             <td><span v-if="v.sigingInfo" class="badge " :class="color( v.sigingInfo?.missed_blocks_counter)">{{ v.sigingInfo?.missed_blocks_counter }}</span></td>
-            <td class=""><RouterLink :to="`/${v.chainName}/uptime/#blocks`" class="btn btn-xs btn-primary hover:text-black dark:hover:text-white">{{ $t('module.blocks') }}</RouterLink></td>
+            <td class=""><RouterLink :to="`/${v.chainName}/uptime/#blocks`" class="btn btn-xs btn-primary">{{ $t('module.blocks') }}</RouterLink></td>
           </tr>
         </tbody>
       </table>
     </div>
     
     <div class="text-center">
-      <label for="add-validator" class="btn btn-primary mt-5 hover:text-black dark:hover:text-white">{{ $t('uptime.add_validators') }}</label>
+      <label for="add-validator" class="btn btn-primary mt-5">{{ $t('uptime.add_validators') }}</label>
     </div>
 
     <!-- Put this part before </body> tag -->
@@ -228,7 +214,7 @@ function color(v: string) {
           </table>
         </div>
         <div class="modal-action">
-          <label class="btn btn-primary hover:text-black dark:hover:text-white" @click="add">{{ $t('uptime.add') }}</label>
+          <label class="btn btn-primary" @click="add">{{ $t('uptime.add') }}</label>
         </div>
       </div>
     </div>
