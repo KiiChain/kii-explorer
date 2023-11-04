@@ -21,6 +21,11 @@ export interface DenomMetadata {
     "symbol": string
 }
 
+export interface DenomOwner {
+    address: string,
+    balance: Coin;
+}
+
 export interface PaginatedBalances extends PaginatedResponse{
     balances: Coin[]
 }
@@ -31,4 +36,8 @@ export interface PaginatedDenomMetadata extends PaginatedResponse{
 
 export interface PaginatedSupply extends PaginatedResponse {
     supply: Coin[]
+}
+
+export interface PaginatedDenomOwners extends PaginatedResponse{
+    denom_owners: DenomOwner[]
 }

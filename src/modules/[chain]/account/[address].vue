@@ -70,7 +70,8 @@ const totalAmountByCategory = computed(() => {
   return [sumBal, sumDel, sumRew, sumUn];
 });
 
-const labels = ['Balance', 'Delegation', 'Reward', 'Unbonding'];
+// const labels = ['Balance', 'Delegation', 'Reward', 'Unbonding'];
+const labels = ['Balance', 'Stake', 'Reward', 'Withdrawals'];
 
 const totalAmount = computed(() => {
   return totalAmountByCategory.value.reduce((p, c) => c + p, 0);
