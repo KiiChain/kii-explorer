@@ -29,6 +29,7 @@
     "slogan": "KII Global Dashboard is not just an explorer, but also a wallet and more! Cosmos Ecosystem Blockchains ",
     "description": "Cosmos Ecosystem Blockchains 🚀",
     "search_placeholder": "Search Chain",
+    "explore_search_placeholder": "Search by Address / Txn Hash / Block / Token / Domain Name",
     "description_all": "We couldn't find the page you are looking for.",
     "btn_index": "Back to Home"
   },
