@@ -72,7 +72,7 @@ function toggleIsFilterDropdown() {
     <div class="flex items-center rounded-lg bg-base-100 dark:bg-base100 p-2 rounded-xl w-full shadow">
 
       <!-- Search Filter Dropdown -->
-      <div class="relative flex gap-2 items-center linear-gradient-tb-bg text-white rounded px-3 py-2 cursor-pointer"
+      <!-- <div class="relative flex gap-2 items-center linear-gradient-tb-bg text-white rounded px-3 py-2 cursor-pointer"
         @click="toggleIsFilterDropdown">
         <Icon icon="icon-park-outline:setting-config" class="text-lg fill-white" />
         <div>All Filters</div>
@@ -84,7 +84,7 @@ function toggleIsFilterDropdown() {
           <div class="px-4 py-2 hover:bg-gray-100">Filter 2</div>
           <div class="px-4 py-2 hover:bg-gray-100">Filter 3</div>
         </div>
-      </div>
+      </div> -->
 
       <!-- Search Filter Input -->
       <input :placeholder="$t('pages.explore_search_placeholder')" 
