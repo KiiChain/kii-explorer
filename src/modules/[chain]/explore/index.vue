@@ -118,7 +118,7 @@ function toggleIsFilterDropdown() {
     </div>
 
     <!-- Tables -->
-    <div class="flex gap-2">
+    <!-- <div class="flex gap-2">
       <table class="table rounded bg-[#F9F9F9] dark:bg-base100 shadow">
         <thead>
           <tr class="">
@@ -180,7 +180,7 @@ function toggleIsFilterDropdown() {
         </tr>
       </table>
 
-    </div>
+    </div> -->
 
   </div>
 </template>
