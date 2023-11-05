@@ -14,7 +14,7 @@ defineProps<Props>();
 </script>
 
 <template>
-  <div class="bg-white shadow-md rounded-lg p-4 h-[95px] flex gap-2">
+  <div class="bg-white shadow-md rounded-lg p-4 h-[95px] flex gap-2 dark:bg-base100">
     <div
       class="linear-gradient-tl-to-br-bg flex items-center justify-center h-full aspect-square linear-gradient-tl-to-br-bg rounded">
       <Icon :icon="icon" class="text-3xl text-white" />
