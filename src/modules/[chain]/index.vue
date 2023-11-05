@@ -400,7 +400,7 @@ const topAccountAddresses = computed(() => {
           <tbody>
             <tr v-for="(item, index) in walletStore.delegations" :key="index">
               <td>
-                <RouterLink class="link link-primary no-underline"
+                <RouterLink class="link dark:text-white link-primary no-underline"
                   :to="`/${chain}/staking/${item?.delegation?.validator_address}`">
                   {{
                     format.validatorFromBech32(
