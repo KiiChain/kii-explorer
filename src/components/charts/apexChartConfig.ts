@@ -173,6 +173,7 @@ export const colorVariables = (theme: string) => {
       themeDisabledTextColor: 'rgba(76,78,100,0.38)',
       themeBorderColor: 'rgba(76,78,100,0.12)',
       themePrimaryTextColor: 'rgba(76,78,100,0.87)',
+      themeBackgroundColor: 'rgb(234, 234, 234)'
     };
   }
   return {
@@ -180,6 +181,7 @@ export const colorVariables = (theme: string) => {
     themeDisabledTextColor: 'rgba(234,234,255,0.38)',
     themeBorderColor: 'rgba(234,234,255,0.12)',
     themePrimaryTextColor: 'rgba(234,234,255,0.87)',
+    themeBackgroundColor: 'rgb(0, 0, 0)'
   };
 };
 /// Price Chart config
@@ -362,7 +364,7 @@ export const getDonutChartConfig = (
 
 /// Transaction History Chart config
 export const getLineChartConfig = (theme: string, categories: string[]) => {
-  const { themeBorderColor, themeDisabledTextColor } =
+  const { themeBorderColor, themeDisabledTextColor, themeBackgroundColor } =
     colorVariables(theme);
 
   return {
@@ -375,6 +377,7 @@ export const getLineChartConfig = (theme: string, categories: string[]) => {
       zoom: {
         enabled: false,
       },
+      background: themeBackgroundColor
     },
     dataLabels: { enabled: false },
     tooltip: {
@@ -383,11 +386,19 @@ export const getLineChartConfig = (theme: string, categories: string[]) => {
     },
     stroke: {
       curve: 'straight',
+      width: 2
     },
-    colors: [themeColors(theme).colors.primary],
     fill: {
       opacity: 0.5,
       type: 'gradient',
+      gradient: {
+        gradientToColors: [ '#8835be', '#042d82'],
+        shadeIntensity: 1,
+        type: 'horizontal',
+        opacityFrom: 1,
+        opacityTo: 1,
+        stops: [10, 100]
+      },
     },
     grid: {
       show: false,

@@ -3,6 +3,7 @@
 import { useWalletStore, useBlockchain } from '@/stores';
 import CardValue from '@/components/CardValue.vue';
 import DualCardValue from '@/components/DualCardValue.vue';
+import LineChart from '@/components/charts/LineChart.vue';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
@@ -58,6 +59,11 @@ mockList.value = Array(15).fill(null).map((_v, i) => ({
   txnCount: Math.floor(Math.random() * (200 - 150 + 1) + 150),
   value: Math.floor(Math.random() * (0.09895 - 0.03595 + 1) + 0.03595),
 }));
+
+const mockChartValue = {
+  series: Array(10).fill(null).map(() => Math.floor(Math.random() * (200000 - 50000 + 1) + 50000)),
+  labels: Array(10).fill(null).map((v, i) => dayjs().subtract(i + 2, 'd').format('MMM D'))
+}
 
 function toggleIsFilterDropdown() {
   isFilterDropdownActive.value = !isFilterDropdownActive.value;
@@ -115,6 +121,19 @@ function toggleIsFilterDropdown() {
 
       <DualCardValue icon="clarity:block-solid" title="LAST FINALIZED BLOCK" :value="`$${125745680.00.toLocaleString()}`"
         title2="LAST SAFE BLOCK" :value2="`${45615498.00.toLocaleString()}`" />
+    </div>
+
+    <div>
+      <div class="px-12 py-6 bg-white shadow-lg rounded-lg space-y-2 dark:bg-base100">
+        <div>Transaction History in {{ mockChartValue.labels.length }} days</div>
+        <div class="flex items-center gap-2">
+          <div class="text-2xl font-semibold">$ {{ 32.18.toLocaleString() }}</div>
+          <div class="flex items-center">
+            <Icon icon="mdi:chevron-up" /> <div>1.2 %</div>
+          </div>
+        </div>
+        <LineChart :series="mockChartValue.series" :labels="mockChartValue.labels" />
+      </div>
     </div>
 
     <!-- Tables -->

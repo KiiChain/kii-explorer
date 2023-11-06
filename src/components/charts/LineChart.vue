@@ -8,6 +8,11 @@ const props = defineProps(['series', 'labels']);
 
 const baseStore = useBaseStore();
 
+const data = [{
+  name: "Transactions",
+  data: props.series
+}]
+
 const transactionHistoryChartConfig = computed(() => {
   const theme = baseStore.theme;
   return getLineChartConfig(theme, props?.labels);
@@ -15,7 +20,7 @@ const transactionHistoryChartConfig = computed(() => {
 </script>
 
 <template>
-  <ApexCharts type="line" height="210" :options="transactionHistoryChartConfig" :series="series" />
+  <ApexCharts type="line" height="275" :options="transactionHistoryChartConfig" :series="data" />
 </template>
 
 <script lang="ts">
