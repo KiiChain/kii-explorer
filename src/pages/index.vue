@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // @ts-ignore
-import { useWalletStore, useBlockchain } from '@/stores';
+import { useWalletStore, useBlockchain, useBaseStore, useFormatter, useBankStore } from '@/stores';
 import CardValue from '@/components/CardValue.vue';
 import DualCardValue from '@/components/DualCardValue.vue';
 import dayjs from 'dayjs';
@@ -9,20 +9,53 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import { Icon } from '@iconify/vue';
 import { onMounted, ref } from 'vue';
 import router from '@/router'
+import type { Block, Coin, Message, Tx, TxResponse } from '@/types';
+import { shortenAddress } from '@/libs/utils';
 
 dayjs.extend(relativeTime);
 
 const walletStore = useWalletStore();
+const format = useFormatter();
+const blockStore = useBlockchain();
+const baseStore = useBaseStore();
+const bankStore = useBankStore();
 
 let isFilterDropdownActive = ref(false);
 
-let mockList = ref<any[]>([]);
-
-const blockStore = useBlockchain();
 let errorMessage = ref('');
 let searchQuery = ref('');
+let latestBlocks = ref<Block[]>([]);
+let latestTransactions = ref<TxResponse[]>([]);
 
-onMounted(() => {});
+onMounted(async() => {
+  latestBlocks.value = baseStore.recents.slice(0, 20);
+
+  const data = await bankStore.fetchLatestTxs(blockStore.current?.assets[0].base ?? '')
+
+  latestTransactions.value = data
+  console.log(data)
+});
+
+function computeTx(items: Tx[]) {
+  const initialDenom = blockStore.current?.assets[0].base ?? '';
+  const total = items.reduce((accumulator, currentTx) => {
+    const message = currentTx.body.messages[0];
+    const messageAmount = Array.isArray(message.amount) ? message.amount[0] : message.amount;
+
+    // Assuming denom is the same for all transactions, otherwise you'd need to handle varying denoms
+    const denom = initialDenom;
+
+    // Sum amounts as integers then convert back to string
+    const amount = (parseInt(accumulator.amount) + parseInt(messageAmount.amount)).toString();
+    
+    return {
+      denom, 
+      amount 
+    };
+  }, { denom: initialDenom, amount: '0' });
+
+  return format.formatToken(total);
+}
 
 function confirm() {
   errorMessage.value = '';
@@ -52,18 +85,13 @@ function confirm() {
   }
 }
 
-mockList.value = Array(15).fill(null).map((_v, i) => ({
-  hash: Math.floor(Math.random() * (18499999 - 18400000 + 1) + 18400000),
-  feeRecipient: 'resync builder',
-  txnCount: Math.floor(Math.random() * (200 - 150 + 1) + 150),
-  value: Math.floor(Math.random() * (0.09895 - 0.03595 + 1) + 0.03595),
-}));
-
 function toggleIsFilterDropdown() {
   isFilterDropdownActive.value = !isFilterDropdownActive.value;
 }
 
+
 </script>
+
 <template>
   <div class="space-y-5">
     <div class="font-bold text-2xl">Welcome {{ walletStore.shortAddress }}</div>
@@ -105,7 +133,7 @@ function toggleIsFilterDropdown() {
     </div>
 
     <!-- Stats -->
-    <div class="grid grid-cols-2 gap-2">
+    <div class="grid md:grid-cols-2 gap-2">
       <CardValue icon="cib:ethereum" title="ETHER PRICE" :value="`$${1999.34.toLocaleString()}`"
         sub-value="@ 0.0524735 BTC" sub-value-suffix="(+0.10%)" />
       <CardValue icon="material-symbols:globe" title="MARKET CAP" :value="`$${215187658132.00.toLocaleString()}`" />
@@ -118,69 +146,77 @@ function toggleIsFilterDropdown() {
     </div>
 
     <!-- Tables -->
-    <!-- <div class="flex gap-2">
+    <div class="grid grid-cols-2 gap-2 items-start">
       <table class="table rounded bg-[#F9F9F9] dark:bg-base100 shadow">
         <thead>
           <tr class="">
             <td colspan="3" class="text-info">LATEST BLOCKS</td>
           </tr>
         </thead>
-        <tr v-for="item in mockList" class="border-y-solid border-y-1 border-[#EAECF0]">
+        <tr v-for="item in latestBlocks" class="border-y-solid border-y-1 border-[#EAECF0]">
           <td class="py-4">
             <div class="flex gap-3 items-center">
               <div class="p-2 rounded-full bg-base-300">
                 <Icon icon="mingcute:paper-line" class="text-lg" />
               </div>
               <div>
-                <div class=" text-info font-bold">{{ item.hash }}</div>
-                <div class="text-gray-500">{{ dayjs().fromNow() }}</div>
+                <div class=" text-info font-bold">{{ item.block.header.height }}</div>
+                <div class="text-gray-500">
+                  {{ format.toDay(item.block?.header?.time, 'from') }}
+                </div>
               </div>
             </div>
           </td>
           <td class="py-4">
             <div>
               <span class=" text-black dark:text-white">Fee Recipient </span>
-              <span class=" text-info font-semibold">{{ item.feeRecipient }}</span>
+              <span class=" text-info font-semibold">{{ format.validator(item.block?.header?.proposer_address) }}</span>
             </div>
-            <div class="text-gray-500">{{ item.txnCount }} in 12 secs</div>
+            <div class="text-gray-500">{{ item.block?.data?.txs.length }} txs</div>
           </td>
-          <td class="py-4 text-info font-semibold">{{ `${item.value.toFixed(6)}` }} ETH</td>
+          <td class="py-4 text-info font-semibold"> {{ item.block?.data?.txs ? computeTx(item.block.data.txs) : 'No transactions' }}</td>
         </tr>
       </table>
 
       <table class="table rounded bg-[#F9F9F9] dark:bg-base100 shadow">
         <thead>
           <tr class="">
-            <td colspan="3" class="text-info">LATEST BLOCKS</td>
+            <td colspan="3" class="text-info">LATEST TRANSACTIONS</td>
           </tr>
         </thead>
-        <tr v-for="item in mockList" class="border-y-solid border-y-1 border-[#EAECF0]">
+        <tr v-for="item in latestTransactions" class="border-y-solid border-y-1 border-[#EAECF0]">
           <td class="py-4">
             <div class="flex gap-3 items-center">
               <div class="p-2 rounded-full bg-base-300">
                 <Icon icon="mingcute:paper-line" class="text-lg" />
               </div>
               <div>
-                <div class=" text-info font-bold">{{ item.hash }}</div>
-                <div class="text-gray-500">{{ dayjs().fromNow() }}</div>
+                <div class=" text-info font-bold">{{ shortenAddress(item.txhash, 25, 0) }}</div>
+                <div class="text-gray-500"> {{ format.toDay(item.timestamp, 'from') }}</div>
               </div>
             </div>
           </td>
           <td class="py-4">
-            <div>
+            <div class="flex justify-center space-x-1">
               <span class=" text-black dark:text-white">From: </span>
-              <span class=" text-info font-semibold">0X1F9090E6723IX99</span>
+              <span class=" text-info font-semibold">{{ shortenAddress(item.tx.body.messages[0]['from_address'] || '', 20, 0) }}</span>
             </div>
-            <div>
+            <div class="flex justify-center space-x-1">
               <span class=" text-black dark:text-white">To: </span>
-              <span class=" text-info font-semibold">0XCM12M3N4U584292</span>
+              <span class=" text-info font-semibold">{{ shortenAddress(item.tx.body.messages[0]['to_address'] || '', 20, 0) }}</span>
             </div>
           </td>
-          <td class="py-4 text-info font-semibold">{{ `${item.value.toFixed(6)}` }} ETH</td>
+          <td class="py-4 text-info font-semibold">
+            {{ format.formatToken(
+              Array.isArray(item.tx.body.messages[0]['amount']) 
+                ? item.tx.body.messages[0]['amount'][0]
+                :item.tx.body.messages[0]['amount']
+            )}}
+          </td>
         </tr>
       </table>
 
-    </div> -->
+    </div>
 
   </div>
 </template>
