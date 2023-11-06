@@ -105,7 +105,7 @@ function toggleIsFilterDropdown() {
     </div>
 
     <!-- Stats -->
-    <div class="grid grid-cols-2 gap-2">
+    <div class="grid md:grid-cols-2 gap-2">
       <CardValue icon="cib:ethereum" title="ETHER PRICE" :value="`$${1999.34.toLocaleString()}`"
         sub-value="@ 0.0524735 BTC" sub-value-suffix="(+0.10%)" />
       <CardValue icon="material-symbols:globe" title="MARKET CAP" :value="`$${215187658132.00.toLocaleString()}`" />
