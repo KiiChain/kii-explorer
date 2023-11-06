@@ -200,3 +200,36 @@ export const shortenAddress = (address: string, prefixLength = 5, suffixLength =
 
   return `${prefix}...${suffix}`;
 };
+
+const AMOUNT_ABBREVIATIONS = ['', 'K', 'M', 'B', 'T'];
+export const formatAmount = (
+  amount: number,
+  addDecimal = false,
+  decimalPlaces = 2
+): string => {
+  let num = parseFloat((amount ?? 0).toFixed(decimalPlaces));
+  //
+  if (isNaN(num) || num < 1000) {
+    return addDecimal ? num.toFixed(decimalPlaces) : num.toLocaleString();
+  }
+
+  let abbreviationIndex = 0;
+
+  while (num >= 1000 && abbreviationIndex < AMOUNT_ABBREVIATIONS.length - 1) {
+    num /= 1000;
+    abbreviationIndex++;
+  }
+
+  const formattedAmount =
+    parseInt(num.toString()) === num && !addDecimal
+      ? num
+      : num.toFixed(decimalPlaces);
+
+  console.log(
+    'formattedAmount',
+    formattedAmount,
+    parseInt(num.toString()) === num && !addDecimal
+  );
+
+  return formattedAmount + AMOUNT_ABBREVIATIONS[abbreviationIndex];
+};
