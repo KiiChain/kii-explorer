@@ -146,7 +146,7 @@ function toggleIsFilterDropdown() {
     </div>
 
     <!-- Tables -->
-    <div class="flex gap-2 items-start">
+    <div class="grid grid-cols-2 gap-2 items-start">
       <table class="table rounded bg-[#F9F9F9] dark:bg-base100 shadow">
         <thead>
           <tr class="">
@@ -197,13 +197,13 @@ function toggleIsFilterDropdown() {
             </div>
           </td>
           <td class="py-4">
-            <div>
+            <div class="flex justify-center space-x-1">
               <span class=" text-black dark:text-white">From: </span>
-              <span class=" text-info font-semibold">{{ item.tx.body.messages[0]['from_address'] }}</span>
+              <span class=" text-info font-semibold">{{ shortenAddress(item.tx.body.messages[0]['from_address'] || '', 20, 0) }}</span>
             </div>
-            <div>
+            <div class="flex justify-center space-x-1">
               <span class=" text-black dark:text-white">To: </span>
-              <span class=" text-info font-semibold">{{ item.tx.body.messages[0]['to_address'] }}</span>
+              <span class=" text-info font-semibold">{{ shortenAddress(item.tx.body.messages[0]['to_address'] || '', 20, 0) }}</span>
             </div>
           </td>
           <td class="py-4 text-info font-semibold">
