@@ -34,7 +34,7 @@ html.dark,
 html[data-theme='dark'] {
   --text-main: #fff;
   --text-secondary: #6f6e84;
-  --bg-active: #0F014A;
+  --bg-active: #0c1117;
 }
 
 .table th:first-child {

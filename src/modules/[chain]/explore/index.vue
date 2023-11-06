@@ -220,12 +220,3 @@ function toggleIsFilterDropdown() {
 
   </div>
 </template>
-<route>
-    {
-      meta: {
-        i18n: 'explore',
-        order: 1,
-        icon: 'mdi:magnify'
-      }
-    }
-</route> 
