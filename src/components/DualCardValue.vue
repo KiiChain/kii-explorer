@@ -16,7 +16,7 @@ defineProps<Props>();
 </script>
 
 <template>
-    <div class="bg-white dark:bg-base100 shadow-md rounded-lg p-4 h-auto md:!h-fit xl:!h-[95px] flex gap-2 xl:divide-x flex-col xl:!flex-row">
+    <div class="bg-white dark:bg-base100 shadow-md rounded-lg p-4 h-auto md:h-fit xl:!h-[95px] flex gap-2 xl:divide-x flex-col xl:!flex-row">
         <div class="flex-1 flex flex-col xl:!flex-row gap-2">
             <div
                 class="linear-gradient-tl-to-br-bg flex items-center justify-center h-12 w-12 xl:!h-full xl:!w-fit aspect-square linear-gradient-tl-to-br-bg rounded">
@@ -24,7 +24,7 @@ defineProps<Props>();
             </div>
             <div class="h-full flex flex-col justify-between min-w-[0px]">
                 <div class="text-gray-400 font-semibold truncate">{{ title }}</div>
-                <div class="flex flex-col md:!flex-row md:!items-center md:!gap-2">
+                <div class="flex flex-col md:flex-row md:items-center md:gap-2">
                     <div class="font-bold text-3xl truncate">{{ value }}</div>
                     <div v-if="subValue?.length" class="text-gray-500 text-lg truncate">{{ subValue }}</div>
                 </div>
@@ -34,7 +34,7 @@ defineProps<Props>();
         <div class="flex-1 flex gap-2 xl:text-right">
             <div class="xl:ml-auto h-full flex flex-col justify-between min-w-[0px]">
                 <div class="text-gray-400 font-semibold truncate">{{ title }}</div>
-                <div class="flex flex-col md:!flex-row md:!items-center md:!gap-2">
+                <div class="flex flex-col md:flex-row md:items-center md:gap-2">
                     <div class="font-bold text-3xl truncate">{{ value }}</div>
                     <div v-if="subValue?.length" class="text-gray-500 text-lg truncate">{{ subValue }}</div>
                 </div>
