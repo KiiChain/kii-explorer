@@ -33,7 +33,7 @@ onMounted(async() => {
   const data = await bankStore.fetchLatestTxs(blockStore.current?.assets[0].base ?? '')
 
   latestTransactions.value = data
-  console.log(data)
+  // console.log(data)
 });
 
 function computeTx(items: Tx[]) {
