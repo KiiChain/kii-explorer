@@ -1,9 +1,17 @@
 import type { Coin, Key, PaginatedResponse } from "./common"
 
+export interface Message{
+    '@type': string;
+    from_address?: string;
+    to_address?: string;
+    delegator_address?: string;
+    validator_address?: string;
+    amount: Coin | Coin[];
+}
 export interface Tx {
     "@type"?: string,
     "body": {
-        "messages": {"@type": string}[],
+        "messages": Message[],
         "memo": string,
         "timeout_height": string,
         "extension_options": any[],

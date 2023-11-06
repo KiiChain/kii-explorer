@@ -196,7 +196,7 @@ export const shortenAddress = (address: string, prefixLength = 5, suffixLength =
   // const suffixLength = 4;
 
   const prefix = address.slice(0, prefixLength);
-  const suffix = address.slice(-suffixLength);
+  const suffix = suffixLength ? address.slice(-suffixLength) : '';
 
   return `${prefix}...${suffix}`;
 };
