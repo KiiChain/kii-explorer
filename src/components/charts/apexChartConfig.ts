@@ -1,7 +1,7 @@
 import { useBlockchain } from '@/stores';
 import numeral from 'numeral';
 
-const chainStore = useBlockchain()
+const chainStore = useBlockchain();
 
 const themeColors = (theme: string) => {
   if (theme === 'light') {
@@ -360,3 +360,57 @@ export const getDonutChartConfig = (
   };
 };
 
+/// Transaction History Chart config
+export const getLineChartConfig = (theme: string, categories: string[]) => {
+  const { themeBorderColor, themeDisabledTextColor } =
+    colorVariables(theme);
+
+  return {
+    chart: {
+      redrawOnParentResize: true,
+      type: 'line',
+      width: '100%',
+      parentHeightOffset: 0,
+      toolbar: { show: false },
+      zoom: {
+        enabled: false,
+      },
+    },
+    dataLabels: { enabled: false },
+    tooltip: {
+      theme: 'dark',
+      shared: false,
+    },
+    stroke: {
+      curve: 'straight',
+    },
+    colors: [themeColors(theme).colors.primary],
+    fill: {
+      opacity: 0.5,
+      type: 'gradient',
+    },
+    grid: {
+      show: false,
+      borderColor: themeBorderColor,
+      xaxis: {
+        lines: { show: true },
+      },
+    },
+    yaxis: {
+      labels: {
+        style: { colors: themeDisabledTextColor },
+      },
+    },
+    xaxis: {
+      axisBorder: { show: false },
+      axisTicks: { color: themeBorderColor },
+      crosshairs: {
+        stroke: { color: themeBorderColor },
+      },
+      labels: {
+        style: { colors: themeDisabledTextColor },
+      },
+      categories,
+    },
+  };
+};
