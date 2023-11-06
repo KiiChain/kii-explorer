@@ -323,7 +323,7 @@ const topAccountAddresses = computed(() => {
       </div>
     </div>
 
-    <div class="grid grid-cols-2 gap-4">
+    <div class="grid md:grid-cols-2 gap-4">
       <div v-for="(item, key) in store.stats" :key="key">
         <CardStatisticsVertical v-bind="item" />
       </div>
@@ -455,7 +455,7 @@ const topAccountAddresses = computed(() => {
       </Teleport>
     </div>
 
-    <div class="flex w-full flex-row gap-4 mt-4">
+    <div class="flex w-full flex-col md:flex-row gap-4 mt-4">
       <!-- <div class="bg-base-100 dark:bg-base100 rounded mt-4">
         <div class="px-4 pt-4 pb-2 text-lg font-semibold text-main">
           {{ $t('index.top_account_holders') }}

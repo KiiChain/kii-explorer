@@ -7,6 +7,8 @@ import {
   type Coin,
   type DenomOwner,
   type DenomTrace,
+  type Tx,
+  type TxResponse,
 } from '@/types';
 
 export const useBankStore = defineStore('bankstore', {
@@ -80,6 +82,15 @@ export const useBankStore = defineStore('bankstore', {
         this.ibcDenoms[hash] = trace;
       }
       return trace;
+    },
+    async fetchLatestTxs(denom: string): Promise<TxResponse[]> {
+      const pageRequest = new PageRequest();
+      pageRequest.limit = 20;
+      const data = await this.blockchain.rpc.getLatestTxs(
+        
+      );
+
+      return data.tx_responses;
     },
   },
 });
