@@ -89,7 +89,6 @@ function toggleIsFilterDropdown() {
   isFilterDropdownActive.value = !isFilterDropdownActive.value;
 }
 
-
 </script>
 
 <template>
