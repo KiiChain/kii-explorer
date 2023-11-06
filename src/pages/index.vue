@@ -7,9 +7,9 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
 import { Icon } from '@iconify/vue';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import router from '@/router'
-import type { Block, Coin, Message, Tx, TxResponse } from '@/types';
+import type {  Tx, TxResponse } from '@/types';
 import { shortenAddress } from '@/libs/utils';
 
 dayjs.extend(relativeTime);
@@ -24,17 +24,17 @@ let isFilterDropdownActive = ref(false);
 
 let errorMessage = ref('');
 let searchQuery = ref('');
-let latestBlocks = ref<Block[]>([]);
 let latestTransactions = ref<TxResponse[]>([]);
 
 onMounted(async() => {
-  latestBlocks.value = baseStore.recents.slice(0, 20);
-
   const data = await bankStore.fetchLatestTxs(blockStore.current?.assets[0].base ?? '')
 
-  latestTransactions.value = data
-  // console.log(data)
+  latestTransactions.value = data;
 });
+
+const latestBlocks = computed(() => {
+    return baseStore.recents.slice(0, 20)
+})
 
 function computeTx(items: Tx[]) {
   const initialDenom = blockStore.current?.assets[0].base ?? '';
