@@ -74,37 +74,13 @@ function selected(route: any, nav: NavLink) {
         </div>
       </div>
       <div v-for="(item, index) of blockchain.computedChainMenu" :key="index" class="px-2">
-        <div v-if="isNavGroup(item)" :tabindex="index" class="collapse" :class="{
-          'collapse-arrow': item?.children?.length > 0,
-          'collapse-open': index === 0 && sidebarOpen,
-          'collapse-close': index === 0 && !sidebarOpen,
-        }">
-          <input type="checkbox" class="cursor-pointer !h-10 block" @click="changeOpen(index)" />
-          <div
-            class="collapse-title !py-0 px-4 flex items-center cursor-pointer hover:bg-gray-100 dark:hover:bg-[#373f59]">
-            <Icon v-if="item?.icon?.icon" :icon="item?.icon?.icon" class="text-xl mr-2" :class="{
-              'text-yellow-500': item?.title === 'Favorite',
-              'text-blue-500': item?.title !== 'Favorite',
-            }" />
-            <!-- <img
-              v-if="item?.icon?.image"
-              :src="item?.icon?.image"
-              class="w-6 h-6 rounded-full mr-3"
-            /> -->
-            <div class="text-base capitalize flex-1 text-gray-700 dark:text-gray-200 whitespace-nowrap">
-              {{ item?.title }}
-            </div>
-            <div v-if="item?.badgeContent" class="mr-6 badge badge-sm text-white border-none" :class="item?.badgeClass">
-              {{ item?.badgeContent }}
-            </div>
-          </div>
-          <div class="collapse-content">
-            <div v-for="(el, key) of item?.children" class="menu bg-base-100 dark:bg-base100 w-full !p-0" :key="key">
-              <RouterLink v-if="isNavLink(el)" @click="sidebarShow = false"
-                class="hover:bg-gray-100 dark:hover:bg-primary rounded cursor-pointer px-3 py-2 flex items-center" :class="{
-                  '!bg-secondary': selected($route, el),
-                }" :to="el.to">
-                <!-- <img
+        <div v-if="isNavGroup(item)" :tabindex="index">
+          <div v-for="(el, key) of item?.children" class="menu bg-base-100 dark:bg-base100 w-full !p-0" :key="key">
+            <RouterLink v-if="isNavLink(el)" @click="sidebarShow = false"
+              class="hover:bg-gray-100 dark:hover:bg-primary rounded cursor-pointer px-3 py-2 flex items-center" :class="{
+                '!bg-secondary': selected($route, el),
+              }" :to="el.to">
+              <!-- <img
                   v-if="el?.icon?.image"
                   :src="el?.icon?.image"
                   class="w-6 h-6 rounded-full mr-3 ml-4"
@@ -112,17 +88,15 @@ function selected(route: any, nav: NavLink) {
                     'border border-gray-300 bg-white': selected($route, el),
                   }"
                 /> -->
-                <Icon v-if="el.icon?.icon" :icon="el.icon?.icon" class="text-xl mr-2 text-[#042D82] dark:text-white"
-                  :class="{
-                    '!text-white': selected($route, el)
-                  }" />
-                <div class="text-base capitalize text-gray-500 dark:text-gray-300" :class="{
-                  '!text-white': selected($route, el),
-                }">
-                  {{ item?.title === 'Favorite' ? el?.title : $t(el?.title) }}
-                </div>
-              </RouterLink>
-            </div>
+              <Icon v-if="el.icon?.icon" :icon="el.icon?.icon" class="text-xl mr-2 text-[#042D82] dark:text-white" :class="{
+                '!text-white': selected($route, el)
+              }" />
+              <div class="text-base capitalize text-gray-500 dark:text-gray-300" :class="{
+                '!text-white': selected($route, el),
+              }">
+                {{ item?.title === 'Favorite' ? el?.title : $t(el?.title) }}
+              </div>
+            </RouterLink>
           </div>
         </div>
 
@@ -145,6 +119,7 @@ function selected(route: any, nav: NavLink) {
           {{ item?.heading }}
         </div>
       </div>
+
       <!-- <div class="px-2">
         <div class="px-4 text-sm pt-2 text-gray-400 pb-2 uppercase">
           {{ $t('module.sponsors') }}
