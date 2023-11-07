@@ -1,7 +1,8 @@
+import { formatAmount } from '@/libs/utils';
 import { useBlockchain } from '@/stores';
 import numeral from 'numeral';
 
-const chainStore = useBlockchain()
+const chainStore = useBlockchain();
 
 const themeColors = (theme: string) => {
   if (theme === 'light') {
@@ -173,6 +174,7 @@ export const colorVariables = (theme: string) => {
       themeDisabledTextColor: 'rgba(76,78,100,0.38)',
       themeBorderColor: 'rgba(76,78,100,0.12)',
       themePrimaryTextColor: 'rgba(76,78,100,0.87)',
+      themeBackgroundColor: 'rgb(234, 234, 234)',
     };
   }
   return {
@@ -180,6 +182,7 @@ export const colorVariables = (theme: string) => {
     themeDisabledTextColor: 'rgba(234,234,255,0.38)',
     themeBorderColor: 'rgba(234,234,255,0.12)',
     themePrimaryTextColor: 'rgba(234,234,255,0.87)',
+    themeBackgroundColor: 'rgb(0, 0, 0)',
   };
 };
 /// Price Chart config
@@ -260,14 +263,55 @@ export const getMarketPriceChartConfig = (
 };
 
 // const donutColors = Array.from({length: 19}, () => (`#${Math.floor(Math.random()*16777215+100000).toString(16)}`))
-const donutColors = ["#bbe81a", "#ff5f0b", "#43ebef", "#1999e5", "#230b2c", "#628be8", "#aa5343", "#c9fa89", "#e88ea8", "#72e4a2", "#38cd87", "#515e13", "#7bf8f5", "#83dd6e", "#e8b203", "#7d11d5", "#3e4927", "#f303e2", "#249493", "#50e5e6", "#11deb2", "#a2f9c7", "#2a7bdc", "#47383a", "#226da4", "#966319", "#1bdf99", "#f3ab0c", "#961f50", "#832efd", "#875287", "#4bebe7", "#1d3d2e", "#9caea4", "#2772f5", "#938bf1", "#6228a5", "#24fea5", "#c9bbc8", "#e27225", "#54bd9f", "#babb2d", "#bcf591", "#803b36", "#124f03"]
+const donutColors = [
+  '#bbe81a',
+  '#ff5f0b',
+  '#43ebef',
+  '#1999e5',
+  '#230b2c',
+  '#628be8',
+  '#aa5343',
+  '#c9fa89',
+  '#e88ea8',
+  '#72e4a2',
+  '#38cd87',
+  '#515e13',
+  '#7bf8f5',
+  '#83dd6e',
+  '#e8b203',
+  '#7d11d5',
+  '#3e4927',
+  '#f303e2',
+  '#249493',
+  '#50e5e6',
+  '#11deb2',
+  '#a2f9c7',
+  '#2a7bdc',
+  '#47383a',
+  '#226da4',
+  '#966319',
+  '#1bdf99',
+  '#f3ab0c',
+  '#961f50',
+  '#832efd',
+  '#875287',
+  '#4bebe7',
+  '#1d3d2e',
+  '#9caea4',
+  '#2772f5',
+  '#938bf1',
+  '#6228a5',
+  '#24fea5',
+  '#c9bbc8',
+  '#e27225',
+  '#54bd9f',
+  '#babb2d',
+  '#bcf591',
+  '#803b36',
+  '#124f03',
+];
 
-
-export const getDonutChartConfig = (
-  theme: string,
-  labels: string[]
-) => {
-
+export const getDonutChartConfig = (theme: string, labels: string[]) => {
   const { themeSecondaryTextColor, themePrimaryTextColor } =
     colorVariables(theme);
 
@@ -360,3 +404,67 @@ export const getDonutChartConfig = (
   };
 };
 
+/// Transaction History Chart config
+export const getLineChartConfig = (theme: string, categories: string[]) => {
+  const { themeBorderColor, themeDisabledTextColor, themeBackgroundColor } =
+    colorVariables(theme);
+
+  return {
+    chart: {
+      redrawOnParentResize: true,
+      type: 'line',
+      width: '100%',
+      parentHeightOffset: 0,
+      toolbar: { show: false },
+      zoom: {
+        enabled: false,
+      },
+      background: themeBackgroundColor,
+    },
+    dataLabels: { enabled: false },
+    tooltip: {
+      theme: 'dark',
+      shared: false,
+    },
+    stroke: {
+      curve: 'straight',
+      width: 2,
+    },
+    fill: {
+      opacity: 0.5,
+      type: 'gradient',
+      gradient: {
+        gradientToColors: ['#8835be', '#042d82'],
+        shadeIntensity: 1,
+        type: 'horizontal',
+        opacityFrom: 1,
+        opacityTo: 1,
+        stops: [10, 100],
+      },
+    },
+    grid: {
+      show: false,
+      borderColor: themeBorderColor,
+      xaxis: {
+        lines: { show: true },
+      },
+    },
+    yaxis: {
+      labels: {
+        style: { colors: themeDisabledTextColor },
+        formatter: (val: string) => formatAmount(Number(val)),
+      },
+    },
+    xaxis: {
+      axisBorder: { show: false },
+      axisTicks: { color: themeBorderColor },
+      crosshairs: {
+        stroke: { color: themeBorderColor },
+      },
+      labels: {
+        style: { colors: themeDisabledTextColor },
+      },
+      categories,
+    },
+  };
+};
