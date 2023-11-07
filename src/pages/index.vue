@@ -188,7 +188,7 @@ const transactionHistoryChartValue = computed(() => {
             <Icon icon="mdi:chevron-up" /> <div>1.2 %</div>
           </div>
         </div> -->
-        <LineChart :series="transactionHistoryChartValue.series" :labels="transactionHistoryChartValue.labels" />
+        <LineChart :series="transactionHistoryChartValue.series.reverse()" :labels="transactionHistoryChartValue.labels.reverse()" />
       </div>
     </div>
 
