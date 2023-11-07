@@ -3,6 +3,7 @@
 import { useWalletStore, useBlockchain, useBaseStore, useFormatter, useBankStore } from '@/stores';
 import CardValue from '@/components/CardValue.vue';
 import DualCardValue from '@/components/DualCardValue.vue';
+import LineChart from '@/components/charts/LineChart.vue';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
@@ -19,11 +20,6 @@ const format = useFormatter();
 const blockStore = useBlockchain();
 const baseStore = useBaseStore();
 const bankStore = useBankStore();
-
-const mockChartValue = {
-  series: Array(10).fill(null).map(() => Math.floor(Math.random() * (200000 - 50000 + 1) + 50000)),
-  labels: Array(10).fill(null).map((v, i) => dayjs().subtract(i + 2, 'd').format('MMM D'))
-}
 
 let isFilterDropdownActive = ref(false);
 
@@ -94,6 +90,39 @@ function toggleIsFilterDropdown() {
   isFilterDropdownActive.value = !isFilterDropdownActive.value;
 }
 
+const transactionHistory = computed(() => {
+  return latestTransactions?.value?.reduce((history, currentItem) => {
+    const txDate = dayjs(currentItem.timestamp).format('MMM D YYYY');
+
+    if (Object.keys(history).some((existingHistory: any) => dayjs(existingHistory.date).isSame(txDate, 'd'))) {
+      history[txDate] = {
+        tx: [...history[txDate].tx, currentItem]
+      }
+    } else {
+      history[txDate] = {
+        tx: [currentItem]
+      }
+    }
+    return history;
+
+  }, {} as any)
+});
+
+const transactionHistoryChartValue = computed(() => {
+  const getAmount = (item: TxResponse) => {
+    return Array.isArray(item.tx.body.messages[0]['amount'])
+      ? item.tx.body.messages[0]['amount'][0]['amount']
+      : item.tx.body.messages[0]['amount']['amount']
+  }
+
+  return {
+    series: Object.values(transactionHistory?.value || {}).map((data: any) => ({
+      data: data.tx.reduce((total: number, curr: any) => total = total + Number(getAmount(curr)), 0).toString(),
+    })),
+    labels: Object.keys(transactionHistory?.value || {})?.map((date: string) => dayjs(date).format('MMM D'))
+  }
+})
+
 </script>
 
 <template>
@@ -149,16 +178,17 @@ function toggleIsFilterDropdown() {
         title2="LAST SAFE BLOCK" :value2="`${45615498.00.toLocaleString()}`" />
     </div>
 
+    <!-- Line Chart -->
     <div>
       <div class="px-12 py-6 bg-white shadow-lg rounded-lg space-y-2 dark:bg-base100">
-        <div>Transaction History in {{ mockChartValue.labels.length }} days</div>
-        <div class="flex items-center gap-2">
+        <div>Transaction History in {{ transactionHistoryChartValue.labels.length }} days</div>
+        <!-- <div class="flex items-center gap-2">
           <div class="text-2xl font-semibold">$ {{ 32.18.toLocaleString() }}</div>
           <div class="flex items-center">
             <Icon icon="mdi:chevron-up" /> <div>1.2 %</div>
           </div>
-        </div>
-        <LineChart :series="mockChartValue.series" :labels="mockChartValue.labels" />
+        </div> -->
+        <LineChart :series="transactionHistoryChartValue.series" :labels="transactionHistoryChartValue.labels" />
       </div>
     </div>
 
