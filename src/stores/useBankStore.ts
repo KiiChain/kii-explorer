@@ -44,6 +44,31 @@ export const useBankStore = defineStore('bankstore', {
     async fetchSupply(denom: string) {
       return this.blockchain.rpc.getBankSupplyByDenom(denom);
     },
+    async fetchDenomOwners(denom: string): Promise<DenomOwner[]> {
+      let key = undefined;
+      let fetch = true;
+      let allData: DenomOwner[] = [];
+
+      while (fetch) {
+        const pageRequest = new PageRequest();
+        pageRequest.key = key;
+
+        const data = await this.blockchain.rpc.getBankDenomOwners(
+          denom,
+          pageRequest
+        );
+
+        allData = [...allData, ...data.denom_owners];
+
+        key = data.pagination.next_key;
+
+        if (!key) {
+          fetch = false;
+        }
+      }
+
+      return allData;
+    },
     async fetchTopDenomOwners(denom: string): Promise<DenomOwner[]> {
       let key = undefined;
       let fetch = true;
