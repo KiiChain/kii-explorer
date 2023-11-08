@@ -58,7 +58,9 @@ import kiiExLogo2 from '@/assets/images/pages/competition-kiiex-logo-2.png';
       meta: {
         i18n: 'competition',
         order: 3,
-        icon: 'material-symbols:trophy'
+        icon: 'material-symbols:trophy',
+        section: 2,
+        weight: 'font-semibold'
       }
     }
   </route>
