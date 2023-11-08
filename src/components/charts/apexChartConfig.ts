@@ -1,10 +1,9 @@
-import { formatAmount } from '@/libs/utils';
-import { useBlockchain } from '@/stores';
+import { useBlockchain, useFormatter } from '@/stores';
 import numeral from 'numeral';
 
-const chainStore = useBlockchain();
-
 const themeColors = (theme: string) => {
+  const chainStore = useBlockchain();
+
   if (theme === 'light') {
     return {
       dark: false,
@@ -406,6 +405,9 @@ export const getDonutChartConfig = (theme: string, labels: string[]) => {
 
 /// Transaction History Chart config
 export const getLineChartConfig = (theme: string, categories: string[]) => {
+  const format = useFormatter();
+  const blockStore = useBlockchain();
+
   const { themeBorderColor, themeDisabledTextColor, themeBackgroundColor } =
     colorVariables(theme);
 
@@ -452,7 +454,13 @@ export const getLineChartConfig = (theme: string, categories: string[]) => {
     yaxis: {
       labels: {
         style: { colors: themeDisabledTextColor },
-        formatter: (val: string) => formatAmount(Number(val)),
+        formatter: (val: string) =>
+          format.formatToken(
+            {
+              amount: val,
+              denom: blockStore.current?.assets[0].base ?? '',
+            },
+          ),
       },
     },
     xaxis: {
