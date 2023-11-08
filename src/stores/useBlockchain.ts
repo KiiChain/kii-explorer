@@ -21,7 +21,7 @@ import {
   useStakingStore,
   useWalletStore,
 } from '.';
-import { useBlockModule } from '@/modules/[chain]/block/block';
+// import { useBlockModule } from '@/modules/[chain]/block/block';
 import { DEFAULT } from '@/libs';
 import { hexToRgb, rgbToHsl } from '@/libs/utils';
 
@@ -128,7 +128,7 @@ export const useBlockchain = defineStore('blockchain', {
       useBaseStore().initial();
       useGovStore().initial();
       useMintStore().initial();
-      useBlockModule().initial();
+      // useBlockModule().initial();
     },
 
     async randomSetupEndpoint() {
