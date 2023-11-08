@@ -13,6 +13,25 @@ module.exports = {
         active: 'var(--bg-active)',
         'base100': '#0C1116',
       },
+      backgroundSize: {
+        '300%': '300%',
+        '400%': '400%',
+      },
+      animation: {
+        'gradient-x': 'gradient-x 15s ease infinite',
+        'gradient-y': 'gradient-y 15s ease infinite',
+        'gradient-xy': 'gradient-xy 15s ease infinite',
+      },
+      keyframes: {
+        animatedgradient: {
+          '0%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+          '100%': { backgroundPosition: '0% 50%' },
+        },
+      },
+      animation: {
+        gradient: 'animatedgradient 60s ease infinite alternate',
+      },
     },
   },
   daisyui: {
