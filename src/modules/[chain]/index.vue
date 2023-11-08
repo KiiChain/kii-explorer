@@ -11,6 +11,7 @@ import {
   useStakingStore,
   useParamStore,
   useBankStore,
+useBaseStore,
 } from '@/stores';
 import { onMounted, ref } from 'vue';
 import { useIndexModule, colorMap } from './indexStore';
@@ -23,8 +24,16 @@ import DonutChart from '@/components/charts/DonutChart.vue';
 import { shortenAddress } from '@/libs/utils';
 import type { DenomOwner } from '@/types';
 
+import planet1 from '@/assets/images/misc/planet-1.png';
+import planet2 from '@/assets/images/misc/planet-2.png';
+import planet3 from '@/assets/images/misc/planet-3.png';
+import planet4 from '@/assets/images/misc/planet-4.png';
+import planet5 from '@/assets/images/misc/planet-5.png';
+import planet6 from '@/assets/images/misc/planet-6.png';
+
 const props = defineProps(['chain']);
 
+const baseStore = useBaseStore();
 const blockchain = useBlockchain();
 const store = useIndexModule();
 const walletStore = useWalletStore();
@@ -170,6 +179,9 @@ const topAccountAddresses = computed(() => {
 
   return [];
 });
+
+const cardImages = [planet1, planet2, planet3, planet4, planet5, planet6];
+
 </script>
 
 <template>
@@ -324,8 +336,13 @@ const topAccountAddresses = computed(() => {
     </div>
 
     <div class="grid md:grid-cols-2 gap-4">
-      <div v-for="(item, key) in store.stats" :key="key">
-        <CardStatisticsVertical v-bind="item" />
+      <div v-for="(item, key) in store.stats" :key="key" class="relative">
+        <div class="absolute left-0 top-0 right-0 bottom-0 bg-no-repeat bg-right-bottom bg-15%" v-bind:style="{
+          backgroundImage: baseStore.theme === 'dark' ? 'url(' + cardImages[key] + ')' : '',
+          opacity: '0.75',
+          backgroundPosition: 'bottom -20% right -5%',
+        }" />
+        <CardStatisticsVertical v-bind="item" class="dark:bg-radial-gradient-base-duo" />
       </div>
     </div>
 
@@ -341,7 +358,7 @@ const topAccountAddresses = computed(() => {
       </div>
     </div> -->
 
-    <div class="linear-gradient-tb-bg dark:bg-none dark:bg-black rounded mt-4 shadow">
+    <div class="linear-gradient-tb-bg dark:bg-none dark:bg-[#101c28] rounded mt-4 shadow">
       <div class="flex justify-between px-4 pt-4 pb-2 text-lg font-semibold text-main text-white">
         <span class="truncate">{{ walletStore.currentAddress || 'Not Connected' }}</span>
         <RouterLink v-if="walletStore.currentAddress"
@@ -349,7 +366,7 @@ const topAccountAddresses = computed(() => {
           :to="`/${chain}/account/${walletStore.currentAddress}`">{{ $t('index.more') }}</RouterLink>
       </div>
       <div class="grid grid-cols-1 md:!grid-cols-4 auto-cols-auto gap-4 px-4 pb-6">
-        <div class="bg-gray-100 dark:bg-[#373f59] rounded-sm px-4 py-3">
+        <div class="bg-gray-100 dark:bg-base-200 rounded-sm px-4 py-3">
           <div class="text-sm mb-1">{{ $t('account.balance') }}</div>
           <div class="text-lg font-semibold text-main">
             {{ format.formatToken(walletStore.balanceOfStakingToken) }}
@@ -358,7 +375,7 @@ const topAccountAddresses = computed(() => {
             ${{ format.tokenValue(walletStore.balanceOfStakingToken) }}
           </div>
         </div>
-        <div class="bg-gray-100 dark:bg-[#373f59] rounded-sm px-4 py-3">
+        <div class="bg-gray-100 dark:bg-base-200 rounded-sm px-4 py-3">
           <div class="text-sm mb-1">{{ $t('module.staking') }}</div>
           <div class="text-lg font-semibold text-main">
             {{ format.formatToken(walletStore.stakingAmount) }}
@@ -367,7 +384,7 @@ const topAccountAddresses = computed(() => {
             ${{ format.tokenValue(walletStore.stakingAmount) }}
           </div>
         </div>
-        <div class="bg-gray-100 dark:bg-[#373f59] rounded-sm px-4 py-3">
+        <div class="bg-gray-100 dark:bg-base-200 rounded-sm px-4 py-3">
           <div class="text-sm mb-1">{{ $t('index.reward') }}</div>
           <div class="text-lg font-semibold text-main">
             {{ format.formatToken(walletStore.rewardAmount) }}
@@ -376,7 +393,7 @@ const topAccountAddresses = computed(() => {
             ${{ format.tokenValue(walletStore.rewardAmount) }}
           </div>
         </div>
-        <div class="bg-gray-100 dark:bg-[#373f59] rounded-sm px-4 py-3">
+        <div class="bg-gray-100 dark:bg-base-200 rounded-sm px-4 py-3">
           <div class="text-sm mb-1">{{ $t('index.unbonding') }}</div>
           <div class="text-lg font-semibold text-main">
             {{ format.formatToken(walletStore.unbondingAmount) }}
@@ -464,8 +481,8 @@ const topAccountAddresses = computed(() => {
           <DonutChart :series="topAccountHolders" :labels="topAccountAddresses" />
         </div>
       </div> -->
-      <div class="linear-gradient-tb-bg-2 dark:bg-none dark:bg-black rounded-lg text-white grow basis-0 min-w-0">
-        <div class="flex items-center gap-1 px-4 pt-4 pb-2">
+      <div class="linear-gradient-tb-bg-2 dark:linear-gradient-l-to-r-bg-2 dark:bg-base-100 rounded-lg text-white grow basis-0 min-w-0">
+        <div class="flex items-center gap-1 px-4 pt-4 pb-2 ">
           <div class="p-2 rounded shadow bg-white/[0.2]">
             <Icon class="text-white" icon="icon-park-outline:more-app" size="32" />
           </div>
@@ -479,7 +496,7 @@ const topAccountAddresses = computed(() => {
       </div>
 
       <div v-if="!store.coingeckoId"
-      class="linear-gradient-tl-to-br-bg dark:bg-none dark:bg-black rounded-lg text-white grow basis-0 min-w-0">
+        class="linear-gradient-tl-to-br-bg dark:linear-gradient-l-to-r-bg-2 dark:bg-base-100 rounded-lg text-white grow basis-0 min-w-0">
         <div class="flex items-center gap-1 px-4 pt-4 pb-2">
           <div class="p-2 rounded shadow bg-white/[0.2]">
             <Icon class="text-white" icon="ri:node-tree" size="32" />
@@ -492,7 +509,8 @@ const topAccountAddresses = computed(() => {
         <div class="h-4"></div>
       </div>
     </div>
-</div></template>
+  </div>
+</template>
 
 <route>
   {
