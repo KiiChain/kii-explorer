@@ -54,10 +54,11 @@ function isNavTitle(nav: VerticalNavItems | any): nav is NavSectionTitle {
   return (<NavSectionTitle>nav).heading !== undefined;
 }
 function selected(route: any, nav: NavLink) {
-  const b =
-    route.path === nav.to?.path ||
-    (route.path.startsWith(nav.to?.path) &&
-      nav.title.indexOf('dashboard') === -1);
+  const b = route.path === nav.to?.path ;
+    // ||
+    // (route.path.startsWith(nav.to?.path) &&
+    //   nav.title.indexOf('dashboard') === -1);
+  // console.log(route.path, nav.to?.path, b)
   return b;
 }
 </script>
