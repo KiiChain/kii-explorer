@@ -70,7 +70,7 @@ function selected(route: any, nav: NavLink) {
       :class="{ block: sidebarShow, 'hidden xl:!block': !sidebarShow }">
       <div class="flex justify-between mt-1 pl-4 py-4 mb-1">
         <RouterLink to="/" class="flex items-center w-full">
-          <img class="w-1/3" src="../../assets/logo-gradient.svg" />
+          <img class="w-1/3" src="../../assets/kii-branding-logo.png" />
         </RouterLink>
         <div class="pr-4 cursor-pointer xl:!hidden" @click="sidebarShow = false">
           <Icon icon="mdi-close" class="text-2xl" />
