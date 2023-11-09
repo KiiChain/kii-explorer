@@ -14,23 +14,14 @@ module.exports = {
         'base100': '#0C1116',
       },
       backgroundSize: {
+        '15%': '15%',
+        '25%': '25%',
+        '30%': '30%',
         '300%': '300%',
         '400%': '400%',
       },
-      animation: {
-        'gradient-x': 'gradient-x 15s ease infinite',
-        'gradient-y': 'gradient-y 15s ease infinite',
-        'gradient-xy': 'gradient-xy 15s ease infinite',
-      },
-      keyframes: {
-        animatedgradient: {
-          '0%': { backgroundPosition: '0% 50%' },
-          '50%': { backgroundPosition: '100% 50%' },
-          '100%': { backgroundPosition: '0% 50%' },
-        },
-      },
-      animation: {
-        gradient: 'animatedgradient 60s ease infinite alternate',
+      backgroundImage: {
+        'radial-gradient-base-duo': 'radial-gradient(circle at 100%, #000, #1f2937)',
       },
     },
   },
@@ -50,7 +41,7 @@ module.exports = {
           accent: '#B832BE',
           neutral: '#f0f0f0',
           'base-100': '#0C1116',
-          'base-200': '#252d37',
+          'base-200': '#1f2937',
           info: '#3055e8',
           success: '#43d6a0',
           warning: '#bb720c',

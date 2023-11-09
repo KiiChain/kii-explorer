@@ -228,7 +228,7 @@ function selected(route: any, nav: NavLink) {
       </div>
 
       <!-- 👉 Pages -->
-      <div class="h-screen overflow-y-auto pb-5">
+      <div class="h-full overflow-y-auto pb-5">
         <RouterView v-slot="{ Component }">
           <Transition mode="out-in">
             <Component :is="Component" />
