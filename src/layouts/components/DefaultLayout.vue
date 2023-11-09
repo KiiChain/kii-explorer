@@ -77,6 +77,8 @@ function selected(route: any, nav: NavLink) {
       </div>
       <div v-for="(item, index) of blockchain.computedChainMenu" :key="index" class="px-2">
         <div v-if="isNavGroup(item)" :tabindex="index">
+          <div v-if="index > 0 && index < blockchain.computedChainMenu.length"
+            class="h-[1px] w-full linear-gradient-l-to-r-bg" />
           <div v-for="(el, key) of item?.children" class="menu bg-base-100 dark:bg-base100 w-full !p-0" :key="key">
             <RouterLink v-if="isNavLink(el)" @click="sidebarShow = false"
               class="hover:bg-gray-100 dark:hover:bg-primary rounded cursor-pointer px-3 py-2 flex items-center" :class="{
@@ -91,11 +93,14 @@ function selected(route: any, nav: NavLink) {
                   }"
                 /> -->
               <Icon v-if="el.icon?.icon" :icon="el.icon?.icon" class="text-xl mr-2 text-[#042D82] dark:text-white" :class="{
-                '!text-white': selected($route, el)
-              }" />
-              <div class="text-base capitalize text-gray-500 dark:text-gray-300" :class="{
                 '!text-white': selected($route, el),
-              }">
+              }" />
+              <div class="text-base capitalize text-gray-500 dark:text-gray-300" :class="[
+                {
+                  '!text-white': selected($route, el),
+                },
+                el.meta?.weight
+              ]">
                 {{ item?.title === 'Favorite' ? el?.title : $t(el?.title) }}
               </div>
             </RouterLink>
