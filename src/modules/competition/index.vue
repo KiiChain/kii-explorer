@@ -358,8 +358,8 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
           backgroundPositionY: '50%',
           backgroundPositionX: '90%'
         }">
-          <div class="text-xl font-semibold">Step 1</div>
-          <div class="w-2/3 text-md">
+          <div class="text-xl font-semibold text-white">Step 1</div>
+          <div class="w-2/3 text-md text-white">
             Sign up for an account on KIIEX and pass KYC verification (settings -> verification -> level 1). Important to
             note that your email address and username will be your main point of reference.
           </div>
@@ -368,8 +368,8 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
         <div class="lg:!col-span-7 bg-cover bg-no-repeat p-6 bg-base200 rounded-lg shadow-lg dark:shadow-none" v-bind:style="{
           backgroundImage: isDarkMode ? 'url(' + signUpStepBg2 + ')' : '',
         }">
-          <div class="text-xl font-semibold">Step 1</div>
-          <div class="w-2/3 text-md">
+          <div class="text-xl font-semibold text-white">Step 1</div>
+          <div class="w-2/3 text-md text-white">
             Sign up for an account on KIIEX and pass KYC verification (settings -> verification -> level 1). Important to
             note that your email address and username will be your main point of reference.
           </div>
@@ -381,8 +381,8 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
           backgroundPositionY: '120%',
           backgroundPositionX: '105%'
         }">
-          <div class="text-xl font-semibold">Step 3</div>
-          <div class="w-2/3 text-md">
+          <div class="text-xl font-semibold text-white">Step 3</div>
+          <div class="w-2/3 text-md text-white">
             Sign our electronic user agreement stating that coins received in mainnet will be dedicated to your
             validator. 
           </div>
@@ -394,8 +394,8 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
           backgroundPositionY: '100%',
           backgroundPositionX: '105%'
         }">
-          <div class="text-xl font-semibold">Step 4</div>
-          <div class="w-2/3 text-md">
+          <div class="text-xl font-semibold text-white">Step 4</div>
+          <div class="w-2/3 text-md text-white">
             Drop your KIIEX username on our discord channel “Validator competition” stating “My username is “X” and I'm
             signing up for the Kii Blockchain Validator competition. My wallet address will be “X”.
           </div>
