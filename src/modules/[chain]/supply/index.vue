@@ -21,14 +21,19 @@ function showType(v: string) {
 const pageRequest = ref(new PageRequest())
 const pageResponse = ref({} as Pagination)
 const topDenomOwners = ref([] as DenomOwner[]);
+const allDenomOwners = ref([] as DenomOwner[]);
 
 onMounted(async() => {
   const data = await bankStore.fetchTopDenomOwners(blockchain.current?.assets[0].base ?? '')
-
   topDenomOwners.value = data;
+
   pageload(1);
+
+  const owners = await bankStore.fetchDenomOwners(blockchain.current?.assets[0].base ?? '')
+  allDenomOwners.value = owners;
 });
 
+// console.log('allData', allData)
 function pageload(p: number) {
   pageRequest.value.setPage(p)
   chainStore.rpc.getBankSupply(pageRequest.value).then(x => {
@@ -43,7 +48,6 @@ const topAccountHolders = computed(() => {
 
   if (Array.isArray(data)) {
     const topData = data.slice(0, 10).map((x) => {
-      console.log('x.balance.amount', x.balance.amount, supplyMax?.amount, (parseFloat(x.balance.amount)/ parseFloat(supplyMax?.amount ?? '0')))
       return {
         amount: (parseFloat(x.balance.amount)/ parseFloat(supplyMax?.amount ?? '0') * 100),
         address: x.address
@@ -56,17 +60,35 @@ const topAccountHolders = computed(() => {
       0
     );
 
-    return [...topData, {
+    const mergedData = [...topData, {
       amount: (otherDataTotal/ parseFloat(supplyMax?.amount ?? '0') * 100),
       address: 'Other accounts'
     }];
-  }
 
+    return mergedData.filter(item => item.amount > 0);
+  }
 
   return [];
 });
 
-console.log('topAccountHolders', topAccountHolders)
+const accountOwners = computed(() => {
+  const data = allDenomOwners.value;
+  const supplyMax = list.value.find(item => item.denom === blockchain.current?.assets[0].base);
+
+  if (Array.isArray(data)) {
+
+    return data.map((x) => {
+      return {
+        amount: x.balance.amount,
+        percentage: (parseFloat(x.balance.amount)/ parseFloat(supplyMax?.amount ?? '0') * 100).toFixed(2),
+        address: x.address
+      }
+    });
+  }
+
+  return [];
+});
+
 
 </script>
 <template>
@@ -91,13 +113,15 @@ console.log('topAccountHolders', topAccountHolders)
       <table class="table rounded bg-[#F9F9F9] dark:bg-base100">
         <thead>
           <tr class="">
-            <td class="text-info">Token</td>
-            <td class="text-info">Amount</td>
+            <td class="text-info">WALLET ADDRESS</td>
+            <td class="text-info">AMOUNT</td>
+            <td class="text-info">% OF SUPPLY</td>
           </tr>
         </thead>
-        <tr v-for="item in list" class="border-y-solid border-y-1 border-[#EAECF0]">
-          <td class="py-4 text-info font-bold">{{ item.denom }}</td>
+        <tr v-for="item in accountOwners" class="border-y-solid border-y-1 border-[#EAECF0]">
+          <td class="py-4 text-info font-bold">{{ item.address }}</td>
           <td class="py-4">{{ item.amount }}</td>
+          <td class="py-4">{{ item.percentage }}%</td>
         </tr>
       </table>
     </div>
