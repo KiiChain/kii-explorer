@@ -12,6 +12,8 @@ module.exports = {
         secondary: 'var(--text-secondary)',
         active: 'var(--bg-active)',
         'base100': '#0C1116',
+        'light-purple': '#e0d2fe',
+        'violet': '#8942b5'
       },
       backgroundSize: {
         '15%': '15%',
