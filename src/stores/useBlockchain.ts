@@ -72,6 +72,18 @@ export const useBlockchain = defineStore('blockchain', {
         } else {
           document.body.style.setProperty('--p', '237.65 100% 70%');
         }
+
+
+      const exploreNav = {
+        meta: {
+          i18n: 'explore',
+          section: '',
+          order: 1,
+          icon: 'mdi:magnify'
+        },
+        path: '/'
+      }
+
         currNavItem = [
           {
             title: this.current?.prettyName || this.chainName || '',
@@ -79,7 +91,7 @@ export const useBlockchain = defineStore('blockchain', {
             i18n: false,
             badgeContent: this.isConsumerChain ? 'Consumer' : undefined,
             badgeClass: 'bg-error',
-            children: routes
+            children: [...routes, exploreNav]
               .filter((x) => x.meta.i18n && !x.meta.section) // defined menu name
               .filter(
                 (x) =>
