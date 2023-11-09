@@ -81,8 +81,12 @@ html[data-theme='dark'] {
   .linear-gradient-l-to-r-bg {
     @apply bg-gradient-to-r from-[#CE43FF] via-[#040DEC] to-[#8482F7]
   }
-
+  
   .linear-gradient-tl-br-bg-2 {
     @apply bg-gradient-to-br from-[#64e0da] to-[#1055e8]
+  }
+  
+  .linear-gradient-l-to-r-bg-2 {
+    @apply bg-gradient-to-r from-[#11365d] via-[#07505a] to-[#08604d]
   }
 }

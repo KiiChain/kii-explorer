@@ -13,6 +13,16 @@ module.exports = {
         active: 'var(--bg-active)',
         'base100': '#0C1116',
       },
+      backgroundSize: {
+        '15%': '15%',
+        '25%': '25%',
+        '30%': '30%',
+        '300%': '300%',
+        '400%': '400%',
+      },
+      backgroundImage: {
+        'radial-gradient-base-duo': 'radial-gradient(circle at 100%, #000, #1f2937)',
+      },
     },
   },
   daisyui: {
