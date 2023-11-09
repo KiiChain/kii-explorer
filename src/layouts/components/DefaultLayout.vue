@@ -213,7 +213,7 @@ function selected(route: any, nav: NavLink) {
           :class="testnetHelpTextVisible ? 'h-64' : 'h-[0px]'"
           >
           <span class="font-semibold">This is TESTNET</span>
-          <Icon icon="bi:x" class="right-0 cursor-pointer absolute right-0 mr-2 hover:rotate-90 transition-all ease-in-out rounded-full border border-white/50" @click="testnetHelpTextVisible = false" />
+          <!-- <Icon icon="bi:x" class="right-0 cursor-pointer absolute right-0 mr-2 hover:rotate-90 transition-all ease-in-out rounded-full border border-white/50" @click="testnetHelpTextVisible = false" /> -->
         </div>
       
           <!-- header -->
