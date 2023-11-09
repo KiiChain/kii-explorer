@@ -202,7 +202,7 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
     </div>
 
     <!-- 2nd section -->
-    <div class="py-32 px-6 lg:px-64 bg-base-100 text-black dark:text-white">
+    <div class="py-32 px-6 lg:!px-64 bg-base-100 text-black dark:text-white">
       <div class="space-y-2">
         <div class="text-5xl font-bold text-center">How do I earn Tkii and compete?</div>
         <div class="text-xl text-center">
@@ -213,15 +213,15 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
         </div>
       </div>
 
-      <div class="flex flex-col items-center lg:justify-start lg:flex-row gap-12 mx-auto py-12">
+      <div class="flex flex-col items-center lg:!justify-start lg:!flex-row gap-12 mx-auto py-12">
         <div
-          class="flex flex-col lg:flex-row justify-center h-auto gap-2 w-full lg:w-[40%] items-center lg:items-start flex-wrap shrink-0 flex-row lg:flex-col">
+          class="flex flex-col lg:!flex-row justify-center h-auto gap-2 w-full lg:!w-[40%] items-center lg:!items-start flex-wrap shrink-0">
           <div class="text-5xl text-transparent font-bold bg-clip-text linear-gradient-tb-bg-4">Start</div>
           <div>+2,500 Tkii available every 24 hours via the faucet in our Discord. </div>
           <div class="text-info">JOIN OUR DISCORD SERVER</div>
         </div>
         <div
-          class="rounded-2xl overflow-hidden linear-gradient-tl-br-bg-2 relative shrink-0 w-full lg:w-[60%] aspect-[4/3] flex items-center justify-center">
+          class="rounded-2xl overflow-hidden linear-gradient-tl-br-bg-2 relative shrink-0 w-full lg:!w-[60%] aspect-[4/3] flex items-center justify-center">
           <img :src="laptop2" />
           <img class="absolute bottom-[40%] left-[10%] w-[18%] -rotate-[20deg]" :src="discordLogo" />
           <img class="absolute bottom-[65%] left-[25%] w-[8%] rotate-[20deg]" :src="discordLogo" />
@@ -229,23 +229,23 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
         </div>
       </div>
 
-      <div class="flex flex-col items-center lg:justify-start lg:flex-row gap-12 mx-auto py-12">
+      <div class="flex flex-col items-center lg:!justify-start lg:!flex-row gap-12 mx-auto py-12">
         <div
-          class="flex flex-col lg:flex-row justify-center h-auto gap- w-full lg:w-[40%] items-center lg:items-start flex-wrap shrink-0 flex-row lg:flex-col">
+          class="flex flex-col lg:!flex-row justify-center h-auto gap- w-full lg:!w-[40%] items-center lg:!items-start flex-wrap shrink-0">
           <div class="text-5xl text-transparent font-bold bg-clip-text linear-gradient-tb-bg-4">Compete</div>
           <div>+2,000 Tkii: Following Kiiglobal on Twitter and Discord.
             +1,000 Tkii: Retweeting our weekly pinned tweet with quote.</div>
           <div class="text-info">FOLLOW OUR TWITTER</div>
         </div>
         <div
-          class="rounded-2xl overflow-hidden relative shrink-0 w-full lg:w-[60%] aspect-[4/3] flex items-center justify-center">
+          class="rounded-2xl overflow-hidden relative shrink-0 w-full lg:!w-[60%] aspect-[4/3] flex items-center justify-center">
           <img :src="competeImage" />
         </div>
       </div>
 
-      <div class="flex flex-col items-center lg:justify-start lg:flex-row gap-12 mx-auto py-12">
+      <div class="flex flex-col items-center lg:!justify-start lg:!flex-row gap-12 mx-auto py-12">
         <div
-          class="flex flex-col lg:flex-row justify-center h-auto gap-2 w-full lg:w-[40%] items-center lg:items-start flex-wrap shrink-0 flex-row lg:flex-col">
+          class="flex flex-col lg:!flex-row justify-center h-auto gap-2 w-full lg:!w-[40%] items-center lg:!items-start flex-wrap shrink-0">
           <div class="text-5xl text-transparent font-bold bg-clip-text linear-gradient-tb-bg-4">Earn</div>
           <div>
             <div>
@@ -260,12 +260,12 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
           <div class="text-info">JOIN OUR DISCORD SERVER</div>
         </div>
         <div
-          class="rounded-2xl linear-gradient-tb-bg-3 overflow-hidden relative shrink-0 w-full lg:w-[60%]  flex items-center justify-center px-8 py-12">
-          <div class="grid grid-rows-4 grid-cols-1 lg:grid-rows-2 lg:grid-cols-2 gap-12 w-full h-full">
+          class="rounded-2xl linear-gradient-tb-bg-3 overflow-hidden relative shrink-0 w-full lg:!w-[60%]  flex items-center justify-center px-8 py-12">
+          <div class="grid grid-rows-4 grid-cols-1 lg:!grid-rows-2 lg:!grid-cols-2 gap-12 w-full h-full">
             <div v-for="earnInfo in earnInfoList" class="flex flex-col gap-2">
               <div class="text-white text-xl font-semibold flex items-center gap-2">
                 <div class="p-1 bg-white rounded">
-                  <Icon :icon="earnInfo.icon" class="text-base-200 " />
+                  <Icon :icon="earnInfo.icon" class="text-base200 " />
                 </div>
                 {{ earnInfo.title }}
               </div>
@@ -280,7 +280,7 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
     </div>
 
     <!-- 3rd section -->
-    <div class="py-32 px-6 lg:px-64 space-y-2 bg-no-repeat text-black dark:text-white" v-bind:style="{
+    <div class="py-32 px-6 lg:!px-64 space-y-2 bg-no-repeat text-black dark:text-white" v-bind:style="{
       backgroundImage: isDarkMode ? 'url(' + planetGroup1 + ')' : '',
       backgroundSize: '42%',
       backgroundPositionY: '90%',
@@ -297,8 +297,8 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
       </div>
       <div class="bg-no-repeat">
         <div
-          class="grid grid-cols-2 lg:grid-rows-2 gap-12 lg:ml-auto w-full h-full my-32" :class="{
-            'lg:w-1/2': isDarkMode
+          class="grid grid-cols-2 lg:!grid-rows-2 gap-12 lg:!ml-auto w-full h-full my-32" :class="{
+            'lg:!w-1/2': isDarkMode
           }">
           <div v-for="earnCard in earnMoreCardsList" class="flex flex-col gap-4 rounded-lg p-6 dark:p-0 shadow-lg dark:shadow-none">
             <div class="bg-contain bg-no-repeat h-[50px]" v-bind:style="{
@@ -324,14 +324,14 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
 
 
     <!-- 4th section -->
-    <div class="py-32 px-6 lg:px-64 flex flex-col gap-y-2 bg-cover bg-no-repeat text-black dark:text-white" v-bind:style="{
+    <div class="py-32 px-6 lg:!px-64 flex flex-col gap-y-2 bg-cover bg-no-repeat text-black dark:text-white" v-bind:style="{
       backgroundImage: isDarkMode ? 'url(' + planetsBg + ')' : '',
     }">
 
       <div class="space-y-6 mb-32">
         <div class="text-4xl font-bold text-center">Are There More <span class="text-info">Rules?</span>
         </div>
-        <div class="flex flex-col lg:flex-row justify-center gap-2 text-black min-h-[0px]">
+        <div class="flex flex-col lg:!flex-row justify-center gap-2 text-black min-h-[0px]">
           <div v-for="ruleCard in rulesCardsList"
             class="flex flex-col gap-2 p-6 bg-light-purple rounded-lg flex-1 h-auto">
             <div class=" text-xl font-semibold flex items-center gap-2">
@@ -350,52 +350,52 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
       <div class="text-4xl font-bold text-center">How To Sign Up?</div>
       <div class="text-center">Once you have completed each task, we will airdrop your +5,000 Tkii to begin.</div>
 
-      <div class="grid grid-rows-2 grid-cols-1 lg:grid-cols-12 gap-2">
+      <div class="grid grid-rows-2 grid-cols-1 lg:!grid-cols-12 gap-2">
 
-        <div class="lg:col-span-5 bg-no-repeat p-6 bg-base-200 rounded-lg gap-2 space-y-3 shadow-lg dark:shadow-none" v-bind:style="{
+        <div class="lg:!col-span-5 bg-no-repeat p-6 bg-base200 rounded-lg gap-2 space-y-3 shadow-lg dark:shadow-none" v-bind:style="{
           backgroundImage: isDarkMode ? 'url(' + signUpStepBg1 + ')' : '',
           backgroundSize: '30%',
           backgroundPositionY: '50%',
           backgroundPositionX: '90%'
         }">
-          <div class="text-xl font-semibold">Step 1</div>
-          <div class="w-2/3 text-md">
+          <div class="text-xl font-semibold text-white">Step 1</div>
+          <div class="w-2/3 text-md text-white">
             Sign up for an account on KIIEX and pass KYC verification (settings -> verification -> level 1). Important to
             note that your email address and username will be your main point of reference.
           </div>
         </div>
 
-        <div class="lg:col-span-7 bg-cover bg-no-repeat p-6 bg-base-200 rounded-lg shadow-lg dark:shadow-none" v-bind:style="{
+        <div class="lg:!col-span-7 bg-cover bg-no-repeat p-6 bg-base200 rounded-lg shadow-lg dark:shadow-none" v-bind:style="{
           backgroundImage: isDarkMode ? 'url(' + signUpStepBg2 + ')' : '',
         }">
-          <div class="text-xl font-semibold">Step 1</div>
-          <div class="w-2/3 text-md">
+          <div class="text-xl font-semibold text-white">Step 1</div>
+          <div class="w-2/3 text-md text-white">
             Sign up for an account on KIIEX and pass KYC verification (settings -> verification -> level 1). Important to
             note that your email address and username will be your main point of reference.
           </div>
         </div>
 
-        <div class="lg:col-span-6 bg-no-repeat p-6 bg-base-200 rounded-lg shadow-lg dark:shadow-none" v-bind:style="{
+        <div class="lg:!col-span-6 bg-no-repeat p-6 bg-base200 rounded-lg shadow-lg dark:shadow-none" v-bind:style="{
           backgroundImage: isDarkMode ? 'url(' + signUpStepBg3 + ')' : '',
           backgroundSize: '30%',
           backgroundPositionY: '120%',
           backgroundPositionX: '105%'
         }">
-          <div class="text-xl font-semibold">Step 3</div>
-          <div class="w-2/3 text-md">
+          <div class="text-xl font-semibold text-white">Step 3</div>
+          <div class="w-2/3 text-md text-white">
             Sign our electronic user agreement stating that coins received in mainnet will be dedicated to your
             validator. 
           </div>
         </div>
 
-        <div class="lg:col-span-6 bg-no-repeat p-6 bg-base-200 rounded-lg shadow-lg dark:shadow-none" v-bind:style="{
+        <div class="lg:!col-span-6 bg-no-repeat p-6 bg-base200 rounded-lg shadow-lg dark:shadow-none" v-bind:style="{
           backgroundImage: isDarkMode ? 'url(' + signUpStepBg4 + ')' : '',
           backgroundSize: '60%',
           backgroundPositionY: '100%',
           backgroundPositionX: '105%'
         }">
-          <div class="text-xl font-semibold">Step 4</div>
-          <div class="w-2/3 text-md">
+          <div class="text-xl font-semibold text-white">Step 4</div>
+          <div class="w-2/3 text-md text-white">
             Drop your KIIEX username on our discord channel “Validator competition” stating “My username is “X” and I'm
             signing up for the Kii Blockchain Validator competition. My wallet address will be “X”.
           </div>
@@ -403,8 +403,8 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
       </div>
 
       <div>
-        <div class="flex flex-col lg:flex-row mt-64 gap-12">
-          <div class="flex flex-col gap-y-2 grow order-2 lg:order-1">
+        <div class="flex flex-col lg:!flex-row mt-64 gap-12">
+          <div class="flex flex-col gap-y-2 grow order-2 lg:!order-1">
             <div class="text-4xl font-bold" >What are the dates?</div>
             <div>The competition will begin November 1st, 2023. On January 15th, 2024 we will stop the competition and the
               final grid will be assigned. Shortly after, we will airdrop tokens in Mainnet for validating. Tokens will be
@@ -414,12 +414,12 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
               REGISTER NOW!
             </div>
           </div>
-          <div class="min-w-[40%] order-1 lg:order-2">
+          <div class="min-w-[40%] order-1 lg:!order-2">
             <img class="mx-auto" :src="laptop3" />
           </div>
         </div>
 
-        <div class="flex flex-col lg:flex-row mt-64 gap-12">
+        <div class="flex flex-col lg:!flex-row mt-64 gap-12">
           <div class="min-w-[40%]">
             <img class="mx-auto" :src="tablet1" />
           </div>
@@ -441,7 +441,7 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
 
 
     <!-- 5th section -->
-    <div class="px-6 lg:px-64 flex flex-col gap-y-2" v-bind:style="{
+    <div class="px-6 lg:!px-64 flex flex-col gap-y-2" v-bind:style="{
       background: isDarkMode ? `radial-gradient(circle at 90% 40%, #301E46, transparent 20%),
             radial-gradient(circle at 10% 60%, #301E46, transparent 20%)` : ''
     }">
@@ -465,7 +465,7 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
       </div>
     </div>
 
-    <div class="py-12 px-6 lg:px-64 relative">
+    <div class="py-12 px-6 lg:!px-64 relative">
       <img class="absolute left-0 right-0 top-0 z-10" :src="footerBg" />
       <div class="absolute mx-auto left-0 right-0 space-y-6 z-20">
         <div class="p-4 text-6xl text-white bg-violet mx-auto w-fit rounded-lg font-bold">95+</div>
