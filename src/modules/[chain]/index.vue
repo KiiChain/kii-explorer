@@ -516,7 +516,7 @@ const cardImages = [planet1, planet2, planet3, planet4, planet5, planet6];
   {
     meta: {
       i18n: 'dashboard',
-      order: 1,
+      order: 2,
       icon: 'material-symbols:dashboard-outline'
     }
   }
