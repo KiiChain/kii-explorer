@@ -20,6 +20,8 @@ import type {
   VerticalNavItems,
 } from '../types';
 
+const testnetHelpTextVisible = ref(true);
+
 const dashboard = useDashboard();
 dashboard.initial();
 const blockchain = useBlockchain();
@@ -196,10 +198,20 @@ function selected(route: any, nav: NavLink) {
           </div>
         </a>
       </div> -->
-    </div>
-    <div class="xl:!ml-64 px-3 pt-4 h-screen flex flex-col">
-      <!-- header -->
-      <div class="flex items-center py-4 bg-base-100 dark:bg-base100 mb-4 rounded px-4 sticky top-0 z-10 rounded-3xl">
+      </div>
+
+        <!-- testnet helptext -->
+        <div class="xl:!ml-64 px-3 pt-4 h-screen flex flex-col">
+          <div 
+          class="h-8 overflow-hidden flex items-center text-center w-full flex items-center bg-300% justify-center linear-gradient-l-to-r-bg animate-gradient text-white relative transition-all ease-in-out relative"
+          :class="testnetHelpTextVisible ? 'h-64' : 'h-[0px]'"
+          >
+          <span class="font-semibold">This is TESTNET</span>
+          <Icon icon="bi:x" class="right-0 cursor-pointer absolute right-0 mr-2 hover:rotate-90 transition-all ease-in-out rounded-full border border-white/50" @click="testnetHelpTextVisible = false" />
+        </div>
+      
+          <!-- header -->
+        <div class="flex items-center py-4 bg-base-100 dark:bg-base100 mb-4 rounded px-4 sticky top-0 z-10 rounded-3xl">
         <div class="text-2xl pr-3 cursor-pointer xl:!hidden" @click="sidebarShow = true">
           <Icon icon="mdi-menu" />
         </div>
