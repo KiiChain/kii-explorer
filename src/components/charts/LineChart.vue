@@ -8,10 +8,10 @@ const props = defineProps(['series', 'labels']);
 
 const baseStore = useBaseStore();
 
-const data = [{
+const data = computed(() => ([{
   name: "Transactions",
-  data: props.series
-}]
+  data: props.series.map((item: any) => item.data)
+}]))
 
 const transactionHistoryChartConfig = computed(() => {
   const theme = baseStore.theme;
