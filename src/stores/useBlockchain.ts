@@ -112,7 +112,7 @@ export const useBlockchain = defineStore('blockchain', {
                 title: `module.${x.meta.i18n}`,
                 to: { path: x.path.replace(':chain', this.chainName) },
                 icon: { icon: x.meta.icon as string, size: '22' },
-                meta: { weight: x.meta.weight },
+                meta: { weight: x.meta.weight as string || '' },
                 i18n: true,
                 order: Number(x.meta.order || 100),
               }))
