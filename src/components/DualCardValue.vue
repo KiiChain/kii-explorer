@@ -33,10 +33,10 @@ defineProps<Props>();
 
         <div class="flex-1 flex gap-2 xl:text-right">
             <div class="xl:ml-auto h-full flex flex-col justify-between min-w-[0px]">
-                <div class="text-gray-400 font-semibold truncate">{{ title }}</div>
+                <div class="text-gray-400 font-semibold truncate">{{ title2 }}</div>
                 <div class="flex flex-col md:flex-row md:items-center md:gap-2">
-                    <div class="font-bold text-3xl truncate">{{ value }}</div>
-                    <div v-if="subValue?.length" class="text-gray-500 text-lg truncate">{{ subValue }}</div>
+                    <div class="font-bold text-3xl truncate">{{ value2 }}</div>
+                    <div v-if="subValue?.length" class="text-gray-500 text-lg truncate">{{ subValue2 }}</div>
                 </div>
             </div>
         </div>

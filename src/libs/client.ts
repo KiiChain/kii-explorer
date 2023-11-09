@@ -276,6 +276,10 @@ export class CosmosRestClient extends BaseRestClient<RequestRegistry> {
     if(!page) page = new PageRequest()    
     return this.request(this.registry.tx_txs, params, `${query}&${page.toQueryString()}`);
   }
+  async getTxsCount() {
+    const query = `?&events=message.action='/cosmos.bank.v1beta1.MsgSend'&pagination.count_total=true`;
+    return (await this.request(this.registry.tx_txs, {}, query)).total;
+  }
   async getLatestTxs(page?: PageRequest) {
     if(!page) page = new PageRequest()
     const query = `?events=message.action='/cosmos.bank.v1beta1.MsgSend'&order_by=2&pagination.limit=${page.limit}&pagination.offset=${page.offset||0}`;
