@@ -297,8 +297,8 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
       </div>
       <div class="bg-no-repeat">
         <div
-          class="grid grid-rows-4 grid-cols-1 lg:grid-rows-2 lg:grid-cols-2 gap-12 lg:ml-auto w-full h-full my-32" :class="{
-            '2lg:w-1/2': isDarkMode
+          class="grid grid-cols-2 lg:grid-rows-2 gap-12 lg:ml-auto w-full h-full my-32" :class="{
+            'lg:w-1/2': isDarkMode
           }">
           <div v-for="earnCard in earnMoreCardsList" class="flex flex-col gap-4 rounded-lg p-6 dark:p-0 shadow-lg dark:shadow-none">
             <div class="bg-contain bg-no-repeat h-[50px]" v-bind:style="{
