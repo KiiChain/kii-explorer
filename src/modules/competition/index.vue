@@ -170,7 +170,9 @@ const earnInfoList = ref([
       meta: {
         i18n: 'competition',
         order: 3,
-        icon: 'material-symbols:trophy'
+        icon: 'material-symbols:trophy',
+        section: 2,
+        weight: 'font-semibold'
       }
     }
   </route>
