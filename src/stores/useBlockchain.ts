@@ -21,7 +21,7 @@ import {
   useStakingStore,
   useWalletStore,
 } from '.';
-import { useBlockModule } from '@/modules/[chain]/block/block';
+// import { useBlockModule } from '@/modules/[chain]/block/block';
 import { DEFAULT } from '@/libs';
 import { hexToRgb, rgbToHsl } from '@/libs/utils';
 
@@ -59,13 +59,14 @@ export const useBlockchain = defineStore('blockchain', {
     },
     computedChainMenu() {
       let currNavItem: VerticalNavItems = [];
+      let section2Item: VerticalNavItems = [];
       const router = useRouter();
       const routes = router?.getRoutes() || [];
       if (this.current && routes) {
         if (this.current?.themeColor) {
           const { color } = hexToRgb(this.current?.themeColor);
           const { h, s, l } = rgbToHsl(color);
-          const themeColor = h + ' ' + s + '% ' + l +'%';
+          const themeColor = h + ' ' + s + '% ' + l + '%';
           document.body.style.setProperty('--p', `${themeColor}`);
           // document.body.style.setProperty('--p', `${this.current?.themeColor}`);
         } else {
@@ -79,7 +80,7 @@ export const useBlockchain = defineStore('blockchain', {
             badgeContent: this.isConsumerChain ? 'Consumer' : undefined,
             badgeClass: 'bg-error',
             children: routes
-              .filter((x) => x.meta.i18n) // defined menu name
+              .filter((x) => x.meta.i18n && !x.meta.section) // defined menu name
               .filter(
                 (x) =>
                   !this.current?.features ||
@@ -89,6 +90,29 @@ export const useBlockchain = defineStore('blockchain', {
                 title: `module.${x.meta.i18n}`,
                 to: { path: x.path.replace(':chain', this.chainName) },
                 icon: { icon: x.meta.icon as string, size: '22' },
+                i18n: true,
+                order: Number(x.meta.order || 100),
+              }))
+              .sort((a, b) => a.order - b.order),
+          },
+        ];
+
+        section2Item = [
+          {
+            title: '',
+            i18n: false,
+            children: routes
+              .filter((x) => x.meta.i18n && x.meta.section === 2)
+              .filter(
+                (x) =>
+                  !this.current?.features ||
+                  this.current.features.includes(String(x.meta.i18n))
+              ) // filter none-custom module
+              .map((x) => ({
+                title: `module.${x.meta.i18n}`,
+                to: { path: x.path.replace(':chain', this.chainName) },
+                icon: { icon: x.meta.icon as string, size: '22' },
+                meta: { weight: x.meta.weight as string || '' },
                 i18n: true,
                 order: Number(x.meta.order || 100),
               }))
@@ -110,9 +134,7 @@ export const useBlockchain = defineStore('blockchain', {
       });
 
       // combine all together
-      return [
-        ...currNavItem,
-      ];
+      return [...currNavItem, ...section2Item];
     },
   },
   actions: {
@@ -128,7 +150,7 @@ export const useBlockchain = defineStore('blockchain', {
       useBaseStore().initial();
       useGovStore().initial();
       useMintStore().initial();
-      useBlockModule().initial();
+      // useBlockModule().initial();
     },
 
     async randomSetupEndpoint() {

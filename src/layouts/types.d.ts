@@ -37,6 +37,9 @@ export interface Icon {
 export interface NavLink extends NavLinkProps {
     title: string
     icon?: Icon
+    meta?: {
+        weight?: string;
+    }
     badgeContent?: string | number
     badgeClass?: string
     disable?: boolean

@@ -2,6 +2,8 @@
   "module": {
     "dashboard": "面板首页",
     "blocks": "区块和交易",
+    "explore": "探索",
+    "competition": "竞争",
     "staking": "质押生息",
     "governance": "社区治理",
     "parameters": "参数",

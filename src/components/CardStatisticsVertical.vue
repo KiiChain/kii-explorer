@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { controlledComputed } from '@vueuse/core'
+import type { StyleValue } from 'vue';
 
 interface Props {
   title: string;
@@ -9,6 +10,8 @@ interface Props {
   stats: string;
   change?: number;
   subtitle?: string;
+  class?: string;
+  style?: StyleValue
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -22,7 +25,7 @@ const isPositive = controlledComputed(
 </script>
 
 <template>
-  <div class="bg-base-100 dark:bg-base100 shadow rounded p-4 h-full">
+  <div class="bg-base-100 dark:bg-base-100 shadow rounded p-4 h-full" :style="props.style" :class="props.class">
     <div class="flex items-center justify-start">
       <div
         v-if="props.icon"

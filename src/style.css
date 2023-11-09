@@ -61,16 +61,32 @@ html[data-theme='dark'] {
   .linear-gradient-tb-bg {
     @apply bg-gradient-to-b from-[#B137BE] via-[#432EBE] to-[#042D82]
   }
+
   .linear-gradient-tb-bg-2 {
     @apply bg-gradient-to-b from-[#3795BE] via-[#762EBE] to-[#5200FF]
   }
+
   .linear-gradient-tb-bg-3 {
     @apply bg-gradient-to-b from-[#B137BE] via-[#432EBE] to-[#042D82]
   }
+
+  .linear-gradient-tb-bg-4 {
+    @apply bg-gradient-to-b from-[#50E3C2] to-[#0070F3]
+  }
+
   .linear-gradient-tl-to-br-bg {
     @apply bg-gradient-to-br from-[#CE43FF] via-[#040DEC] to-[#8482F7]
   }
+
   .linear-gradient-l-to-r-bg {
     @apply bg-gradient-to-r from-[#CE43FF] via-[#040DEC] to-[#8482F7]
+  }
+  
+  .linear-gradient-tl-br-bg-2 {
+    @apply bg-gradient-to-br from-[#64e0da] to-[#1055e8]
+  }
+  
+  .linear-gradient-l-to-r-bg-2 {
+    @apply bg-gradient-to-r from-[#11365d] via-[#07505a] to-[#08604d]
   }
 }
