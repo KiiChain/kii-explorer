@@ -202,7 +202,7 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
     </div>
 
     <!-- 2nd section -->
-    <div class="py-32 px-6 lg:!px-64 bg-base-100 text-black dark:text-white">
+    <div class="py-32 px-6 lg:!px-64 bg-base100 text-black dark:text-white">
       <div class="space-y-2">
         <div class="text-5xl font-bold text-center">How do I earn Tkii and compete?</div>
         <div class="text-xl text-center">
