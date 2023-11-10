@@ -7,9 +7,11 @@ import newFooter from '@/layouts/components/NavFooter.vue';
 import NavbarThemeSwitcher from '@/layouts/components/NavbarThemeSwitcher.vue';
 import NavbarSearch from '@/layouts/components/NavbarSearch.vue';
 import ChainProfile from '@/layouts/components/ChainProfile.vue';
+import kiiLogoDark from '@/assets/kii-branding-logo.png';
+import kiiLogoLight from '@/assets/logo-black.svg';
 
 import { useDashboard } from '@/stores/useDashboard';
-import { useBlockchain } from '@/stores';
+import { useBaseStore, useBlockchain } from '@/stores';
 
 import NavBarI18n from './NavBarI18n.vue';
 import NavBarWallet from './NavBarWallet.vue';
@@ -23,6 +25,7 @@ import type {
 const testnetHelpTextVisible = ref(true);
 
 const dashboard = useDashboard();
+const baseStore = useBaseStore();
 dashboard.initial();
 const blockchain = useBlockchain();
 
@@ -70,7 +73,7 @@ function selected(route: any, nav: NavLink) {
       :class="{ block: sidebarShow, 'hidden xl:!block': !sidebarShow }">
       <div class="flex justify-between mt-1 pl-4 py-4 mb-1">
         <RouterLink to="/" class="flex items-center w-full">
-          <img class="w-1/3" src="../../assets/kii-branding-logo.png" />
+          <img class="w-1/3" :src="baseStore.theme === 'dark' ? kiiLogoDark : kiiLogoLight" />
         </RouterLink>
         <div class="pr-4 cursor-pointer xl:!hidden" @click="sidebarShow = false">
           <Icon icon="mdi-close" class="text-2xl" />

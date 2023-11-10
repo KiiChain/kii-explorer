@@ -157,7 +157,7 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
   <div class="h-full text-white">
 
     <!-- 1st section -->
-    <div class="space-y-5 grow bg-no-repeat bg-cover relative" v-bind:style="{
+    <div class="space-y-5 grow bg-no-repeat bg-cover relative overflow-hidden" v-bind:style="{
       backgroundImage: 'url(' + galaxyBg + ')',
       height: 'calc(100% + 20px)'
     }">
@@ -202,20 +202,19 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
     </div>
 
     <!-- 2nd section -->
-    <div class="py-32 px-6 lg:!px-64 bg-base100 text-black dark:text-white">
+    <div class="py-32 px-6 lg:!px-64 dark:bg-base100 text-black dark:text-white">
       <div class="space-y-2">
         <div class="text-5xl font-bold text-center">How do I earn Tkii and compete?</div>
         <div class="text-xl text-center">
           Once you have secured 10,000 Tkii, you can turn your node into a validator on <a
             href="https://www.kiitestexplorer.io" target="_blank">www.kiitestexplorer.io</a>. Name your validator after
-          your
-          favorite supercar for an extra +1,000 Tkii and share the name in the discord.
+          your favorite supercar for an extra +1,000 Tkii and share the name in the discord.
         </div>
       </div>
 
       <div class="flex flex-col items-center lg:!justify-start lg:!flex-row gap-12 mx-auto py-12">
         <div
-          class="flex flex-col lg:!flex-row justify-center h-auto gap-2 w-full lg:!w-[40%] items-center lg:!items-start flex-wrap shrink-0">
+          class="flex flex-col lg:!flex-row justify-center h-auto gap-4 w-full lg:!w-[40%] items-center lg:!justify-start flex-wrap shrink-0">
           <div class="text-5xl text-transparent font-bold bg-clip-text linear-gradient-tb-bg-4">Start</div>
           <div>+2,500 Tkii available every 24 hours via the faucet in our Discord. </div>
           <div class="text-info">JOIN OUR DISCORD SERVER</div>
@@ -231,7 +230,7 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
 
       <div class="flex flex-col items-center lg:!justify-start lg:!flex-row gap-12 mx-auto py-12">
         <div
-          class="flex flex-col lg:!flex-row justify-center h-auto gap- w-full lg:!w-[40%] items-center lg:!items-start flex-wrap shrink-0">
+          class="flex flex-col lg:!flex-row justify-center h-auto gap-4 w-full lg:!w-[40%] items-center lg:!justify-start flex-wrap shrink-0">
           <div class="text-5xl text-transparent font-bold bg-clip-text linear-gradient-tb-bg-4">Compete</div>
           <div>+2,000 Tkii: Following Kiiglobal on Twitter and Discord.
             +1,000 Tkii: Retweeting our weekly pinned tweet with quote.</div>
@@ -245,7 +244,7 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
 
       <div class="flex flex-col items-center lg:!justify-start lg:!flex-row gap-12 mx-auto py-12">
         <div
-          class="flex flex-col lg:!flex-row justify-center h-auto gap-2 w-full lg:!w-[40%] items-center lg:!items-start flex-wrap shrink-0">
+          class="flex flex-col lg:!flex-row justify-center h-auto gap-4 w-full lg:!w-[40%] items-center lg:!justify-start flex-wrap shrink-0">
           <div class="text-5xl text-transparent font-bold bg-clip-text linear-gradient-tb-bg-4">Earn</div>
           <div>
             <div>
@@ -267,7 +266,9 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
                 <div class="p-1 bg-white rounded">
                   <Icon :icon="earnInfo.icon" class="text-base200 " />
                 </div>
-                {{ earnInfo.title }}
+                <div>
+                  {{ earnInfo.title }}
+                </div>
               </div>
               <div class="text-white">
                 {{ earnInfo.description }}
@@ -296,13 +297,13 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
         coins.
       </div>
       <div class="bg-no-repeat">
-        <div
-          class="grid grid-cols-2 lg:!grid-rows-2 gap-12 lg:!ml-auto w-full h-full my-32" :class="{
-            'lg:!w-1/2': isDarkMode
-          }">
-          <div v-for="earnCard in earnMoreCardsList" class="flex flex-col gap-4 rounded-lg p-6 dark:p-0 shadow-lg dark:shadow-none">
-            <div class="bg-contain bg-no-repeat h-[50px]" v-bind:style="{
-              backgroundImage:  isDarkMode ? 'url(' + earnCard.banner + ')' : '',
+        <div class="grid grid-cols-2 lg:!grid-rows-2 gap-12 lg:!ml-auto w-full h-full my-32" :class="{
+          'lg:!w-1/2': isDarkMode
+        }">
+          <div v-for="earnCard in earnMoreCardsList"
+            class="flex flex-col gap-4 rounded-xl p-6 dark:p-0 shadow-xl bg-base200 dark:bg-transparent text-white dark:shadow-none">
+            <div v-if="isDarkMode" class="bg-contain bg-no-repeat h-[50px]" v-bind:style="{
+              backgroundImage: 'url(' + earnCard.banner + ')',
               backgroundSize: 'auto 50px'
             }" />
             <div class="text-2xl font-semibold flex items-center gap-2">
@@ -333,7 +334,7 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
         </div>
         <div class="flex flex-col lg:!flex-row justify-center gap-2 text-black min-h-[0px]">
           <div v-for="ruleCard in rulesCardsList"
-            class="flex flex-col gap-2 p-6 bg-light-purple rounded-lg flex-1 h-auto">
+            class="flex flex-col gap-2 p-6 bg-light-purple rounded-lg flex-1 h-auto shadow-xl">
             <div class=" text-xl font-semibold flex items-center gap-2">
               <div class="p-1 bg-violet rounded">
                 <Icon :icon="ruleCard.icon" class="text-white " />
@@ -352,12 +353,13 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
 
       <div class="grid grid-rows-2 grid-cols-1 lg:!grid-cols-12 gap-2">
 
-        <div class="lg:!col-span-5 bg-no-repeat p-6 bg-base200 rounded-lg gap-2 space-y-3 shadow-lg dark:shadow-none" v-bind:style="{
-          backgroundImage: isDarkMode ? 'url(' + signUpStepBg1 + ')' : '',
-          backgroundSize: '30%',
-          backgroundPositionY: '50%',
-          backgroundPositionX: '90%'
-        }">
+        <div class="lg:!col-span-5 bg-no-repeat p-6 bg-base200 rounded-lg gap-2 space-y-3 shadow-lg dark:shadow-none"
+          v-bind:style="{
+            backgroundImage: isDarkMode ? 'url(' + signUpStepBg1 + ')' : '',
+            backgroundSize: '30%',
+            backgroundPositionY: '50%',
+            backgroundPositionX: '90%'
+          }">
           <div class="text-xl font-semibold text-white">Step 1</div>
           <div class="w-2/3 text-md text-white">
             Sign up for an account on KIIEX and pass KYC verification (settings -> verification -> level 1). Important to
@@ -365,9 +367,10 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
           </div>
         </div>
 
-        <div class="lg:!col-span-7 bg-cover bg-no-repeat p-6 bg-base200 rounded-lg shadow-lg dark:shadow-none" v-bind:style="{
-          backgroundImage: isDarkMode ? 'url(' + signUpStepBg2 + ')' : '',
-        }">
+        <div class="lg:!col-span-7 bg-cover bg-no-repeat p-6 bg-base200 rounded-lg shadow-lg dark:shadow-none"
+          v-bind:style="{
+            backgroundImage: isDarkMode ? 'url(' + signUpStepBg2 + ')' : '',
+          }">
           <div class="text-xl font-semibold text-white">Step 1</div>
           <div class="w-2/3 text-md text-white">
             Sign up for an account on KIIEX and pass KYC verification (settings -> verification -> level 1). Important to
@@ -404,8 +407,8 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
 
       <div>
         <div class="flex flex-col lg:!flex-row mt-64 gap-12">
-          <div class="flex flex-col gap-y-2 grow order-2 lg:!order-1">
-            <div class="text-4xl font-bold" >What are the dates?</div>
+          <div class="flex flex-col gap-y-2 grow order-2 lg:!order-1 ">
+            <div class="text-4xl font-bold">What are the dates?</div>
             <div>The competition will begin November 1st, 2023. On January 15th, 2024 we will stop the competition and the
               final grid will be assigned. Shortly after, we will airdrop tokens in Mainnet for validating. Tokens will be
               airdropped before day 1 listing on CEX or DEX&amp;s with ample time to set up your validators in mainnet.
@@ -441,11 +444,11 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
 
 
     <!-- 5th section -->
-    <div class="px-6 lg:!px-64 flex flex-col gap-y-2" v-bind:style="{
+    <div class="px-6 lg:!px-64 py-12 flex flex-col gap-y-2" v-bind:style="{
       background: isDarkMode ? `radial-gradient(circle at 90% 40%, #301E46, transparent 20%),
             radial-gradient(circle at 10% 60%, #301E46, transparent 20%)` : ''
     }">
-      <div class="bg-white p-12 rounded-xl space-y-2">
+      <div class="bg-white p-12 rounded-xl space-y-2 shadow-xl">
         <div class="flex justify-between">
           <div class="text-3xl font-bold text-black">What are the rewards?</div>
           <button class="px-4 py-2 bg-violet text-white rounded-lg h-fit text-xs font-semibold">FIND OUT</button>
