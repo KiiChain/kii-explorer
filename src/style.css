@@ -11,13 +11,18 @@ body {
   height: 100%;
 }
 
+@font-face {
+  font-family: "Mayeka_Regular";
+  src: url('/Mayeka_Regular.otf');
+}
+
 body {
   transition: color 0.5s, background-color 0.5s;
   line-height: 1.6;
   /* font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
     Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif; */
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Mayeka_Regular';
   font-size: 15px;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
