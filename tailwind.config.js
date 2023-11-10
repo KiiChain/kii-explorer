@@ -3,9 +3,6 @@ module.exports = {
   darkMode: ["class"],
   content: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
   theme: {
-    fontFamily: {
-      'proxima-bold': ['Proxima Nova Bold', 'sans-serif']
-    },
     extend: {
       colors: {
         yes: '#3fb68b',
