@@ -288,7 +288,7 @@ const currencySign = computed(() => {
       </div>
     </div>
     <div class="text-center my-5 bg-base-200">
-      <RouterLink to="./accounts" class="btn btn-link">Add More Asset</RouterLink>
+      <RouterLink to="./accounts" class="btn btn-link text-black dark:text-white">Add More Asset</RouterLink>
     </div>
   </div>
 </template>

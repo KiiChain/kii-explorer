@@ -73,4 +73,5 @@ export interface TxResponse {
 export interface PaginatedTxs extends PaginatedResponse {
     txs: Tx[]
     tx_responses: TxResponse[]
+    total: number;
 }

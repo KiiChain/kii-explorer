@@ -26,15 +26,18 @@ let isFilterDropdownActive = ref(false);
 let errorMessage = ref('');
 let searchQuery = ref('');
 let latestTransactions = ref<TxResponse[]>([]);
+let transactionsCount = ref(0);
 
 onMounted(async() => {
   const data = await bankStore.fetchLatestTxs(blockStore.current?.assets[0].base ?? '')
 
   latestTransactions.value = data;
+
+  transactionsCount.value = await blockStore.rpc.getTxsCount();
 });
 
 const latestBlocks = computed(() => {
-    return baseStore.recents.reverse().slice(0, 20)
+    return baseStore.recents.reverse().slice(0, 20) 
 })
 
 function computeTx(items: Tx[]) {
@@ -167,12 +170,12 @@ const transactionHistoryChartValue = computed(() => {
 
     <!-- Stats -->
     <div class="grid md:grid-cols-2 gap-2">
-      <CardValue icon="cib:ethereum" title="ETHER PRICE" :value="`$${1999.34.toLocaleString()}`"
+      <CardValue icon="cib:ethereum" title="KII PRICE" :value="`$${1999.34.toLocaleString()}`"
         sub-value="@ 0.0524735 BTC" sub-value-suffix="(+0.10%)" />
       <CardValue icon="material-symbols:globe" title="MARKET CAP" :value="`$${215187658132.00.toLocaleString()}`" />
 
-      <DualCardValue icon="uil:transaction" title="TRANSACTIONS" :value="`$${2456.89.toLocaleString()}`"
-        sub-value="(12.3 TPS)" title2="MED GAS PRICE" value2="21 Gwei" :sub-value2="`$${0.67.toLocaleString()}`" />
+      <DualCardValue icon="uil:transaction" title="TRANSACTIONS" :value="transactionsCount.toString()"
+        sub-value="(10,000 TPS)" title2="MED GAS PRICE" value2="21 Gwei" :sub-value2="`$${0.67.toLocaleString()}`" />
 
       <DualCardValue icon="clarity:block-solid" title="LAST FINALIZED BLOCK" :value="`$${125745680.00.toLocaleString()}`"
         title2="LAST SAFE BLOCK" :value2="`${45615498.00.toLocaleString()}`" />
@@ -238,7 +241,7 @@ const transactionHistoryChartValue = computed(() => {
                 <Icon icon="mingcute:paper-line" class="text-lg" />
               </div>
               <div>
-                <div class=" text-info font-bold">{{ shortenAddress(item.txhash, 25, 0) }}</div>
+                <div class=" text-info font-bold">{{ shortenAddress(item.txhash, 15, 0) }}</div>
                 <div class="text-gray-500"> {{ format.toDay(item.timestamp, 'from') }}</div>
               </div>
             </div>
