@@ -37,7 +37,7 @@ onMounted(async() => {
 });
 
 const latestBlocks = computed(() => {
-    return baseStore.recents.reverse().slice(0, 20)
+    return baseStore.recents.reverse().slice(0, 20) 
 })
 
 function computeTx(items: Tx[]) {
