@@ -51,7 +51,7 @@ export const useBankStore = defineStore('bankstore', {
 
       while (fetch) {
         const pageRequest = new PageRequest();
-        pageRequest.key = key;
+        pageRequest.key = encodeURIComponent(key ?? '') ;
 
         const data = await this.blockchain.rpc.getBankDenomOwners(
           denom,
@@ -76,7 +76,7 @@ export const useBankStore = defineStore('bankstore', {
 
       while (fetch) {
         const pageRequest = new PageRequest();
-        pageRequest.key = key;
+        pageRequest.key = encodeURIComponent(key ?? '') ;
 
         const data = await this.blockchain.rpc.getBankDenomOwners(
           denom,
