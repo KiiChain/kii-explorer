@@ -177,8 +177,7 @@ const transactionHistoryChartValue = computed(() => {
       <DualCardValue icon="uil:transaction" title="TRANSACTIONS" :value="transactionsCount.toString()"
         sub-value="(10,000 TPS)" title2="MED GAS PRICE" value2="21 Gwei" :sub-value2="`$${0.67.toLocaleString()}`" />
 
-      <DualCardValue icon="clarity:block-solid" title="LAST FINALIZED BLOCK" :value="`$${125745680.00.toLocaleString()}`"
-        title2="LAST SAFE BLOCK" :value2="`${45615498.00.toLocaleString()}`" />
+        <CardValue icon="clarity:block-solid" title="BLOCK HEIGHT" :value="latestBlocks[0]?.block.header.height" />
     </div>
 
     <!-- Line Chart -->
