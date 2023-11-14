@@ -172,7 +172,7 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
       <img class="absolute bottom-0 opacity-50" :src="pillars" />
       <img class="absolute -bottom-[65px] w-[80%] left-0 right-0 mx-auto" :src="laptop" />
 
-      <div class="absolute bottom-0 px-6 py-4 rounded-xl ml-[16%] border border-white/20 backdrop-blur-sm">
+      <div class="absolute md:bottom-0 bottom-48 px-6 py-4 rounded-xl ml-[16%] border border-white/20 backdrop-blur-sm">
         <div class="relative space-y-2">
           <div class="text-2xl font-semibold text-white mr-12">All in with</div>
           <div><img :src="kiiExLogo" /></div>
@@ -183,7 +183,7 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
       </div>
 
       <div
-        class="absolute overflow-hidden bottom-2 px-6 py-4 rounded-xl right-[16%] border border-white/20 backdrop-blur-sm">
+        class="absolute overflow-hidden bottom-24 md:bottom-2 px-6 py-4 rounded-xl right-[16%] border border-white/20 backdrop-blur-sm">
         <div class="relative space-y-2">
           <div class="text-xl font-semibold text-white ml-12 text-right">
             <div v-for="text in ['Scalability', 'Connectivity', 'Simplicity']" class="flex gap-2 items-center">
