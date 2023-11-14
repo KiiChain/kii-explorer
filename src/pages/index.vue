@@ -170,14 +170,10 @@ const transactionHistoryChartValue = computed(() => {
 
     <!-- Stats -->
     <div class="grid md:grid-cols-2 gap-2">
-      <CardValue icon="cib:ethereum" title="KII PRICE" :value="`$${1999.34.toLocaleString()}`"
-        sub-value="@ 0.0524735 BTC" sub-value-suffix="(+0.10%)" />
-      <CardValue icon="material-symbols:globe" title="MARKET CAP" :value="`$${215187658132.00.toLocaleString()}`" />
+      <DualCardValue icon="cib:ethereum" title="KII PRICE" :value="`$${1999.34.toLocaleString()}`" sub-value-suffix="(+0.10%)"  title2="GAS PRICE" value2="--"/>
 
       <DualCardValue icon="uil:transaction" title="TRANSACTIONS" :value="transactionsCount.toString()"
-        sub-value="(10,000 TPS)" title2="MED GAS PRICE" value2="21 Gwei" :sub-value2="`$${0.67.toLocaleString()}`" />
-
-        <CardValue icon="clarity:block-solid" title="BLOCK HEIGHT" :value="latestBlocks[0]?.block.header.height" />
+        sub-value="(10,000 TPS)" title2="BLOCK HEIGHT" :value2="latestBlocks[0]?.block.header.height" />
     </div>
 
     <!-- Line Chart -->
@@ -209,7 +205,9 @@ const transactionHistoryChartValue = computed(() => {
                 <Icon icon="mingcute:paper-line" class="text-lg" />
               </div>
               <div>
-                <div class=" text-info font-bold">{{ item.block.header.height }}</div>
+                <RouterLink :to="`/kii/block/${item.block.header.height}`" class=" text-info font-bold">{{
+                  item.block.header.height
+                }}</RouterLink>
                 <div class="text-gray-500">
                   {{ format.toDay(item.block?.header?.time, 'from') }}
                 </div>
@@ -240,7 +238,9 @@ const transactionHistoryChartValue = computed(() => {
                 <Icon icon="mingcute:paper-line" class="text-lg" />
               </div>
               <div>
-                <div class=" text-info font-bold">{{ shortenAddress(item.txhash, 15, 0) }}</div>
+                <RouterLink :to="`/kii/tx/${item.txhash}`" class=" text-info font-bold">
+                  {{ shortenAddress(item.txhash, 15, 0) }}
+                </RouterLink>
                 <div class="text-gray-500"> {{ format.toDay(item.timestamp, 'from') }}</div>
               </div>
             </div>
