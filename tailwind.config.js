@@ -24,7 +24,7 @@ module.exports = {
         '400%': '400%',
       },
       backgroundImage: {
-        'radial-gradient-base-duo': 'radial-gradient(circle at 100%, #000, #1f2937)',
+        'radial-gradient-base-duo': 'radial-gradient(circle at 100%, #000, #0e131a)',
       },
     },
   },

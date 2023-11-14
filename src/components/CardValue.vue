@@ -22,7 +22,7 @@ defineProps<Props>();
     <div class="h-full flex flex-col md:justify-between flex-nowrap min-w-[0px]">
       <div class="text-gray-400 font-semibold w-full truncate">{{ title }}</div>
       <div class="flex flex-col md:!flex-row md:items-center md:gap-2 ">
-        <div class="font-bold text-3xl truncate">{{ value }}</div>
+        <div class="font-bold text-2xl truncate">{{ value }}</div>
         <div v-if="subValue?.length" class="truncate">{{ subValue }}</div>
         <div v-if="subValueSuffix?.length" class="text-success truncate">{{ subValueSuffix }}</div>
       </div>
