@@ -11,7 +11,7 @@ module.exports = {
         main: 'var(--text-main)',
         secondary: 'var(--text-secondary)',
         active: 'var(--bg-active)',
-        'base100': '#0C1116',
+        'base100': '#0c071d',
         'base200': '#1f2937',
         'light-purple': '#e0d2fe',
         'violet': '#8942b5'
@@ -24,7 +24,7 @@ module.exports = {
         '400%': '400%',
       },
       backgroundImage: {
-        'radial-gradient-base-duo': 'radial-gradient(circle at 100%, #000, #0e131a)',
+        'radial-gradient-base-duo': 'radial-gradient(circle at 100%, #000, #0c071d)',
       },
     },
   },

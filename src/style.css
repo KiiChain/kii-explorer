@@ -12,8 +12,8 @@ body {
 }
 
 @font-face {
-  font-family: "Mayeka_Regular";
-  src: url('/Mayeka_Regular.otf');
+  font-family: "Gotham-Light";
+  src: url('/fonts/Gotham-Light.otf');
 }
 
 body {
@@ -22,7 +22,7 @@ body {
   /* font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
     Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif; */
-  font-family: 'Mayeka_Regular';
+  font-family: 'Gotham-Light';
   font-size: 15px;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
