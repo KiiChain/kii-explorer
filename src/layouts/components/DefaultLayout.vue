@@ -8,7 +8,7 @@ import NavbarThemeSwitcher from '@/layouts/components/NavbarThemeSwitcher.vue';
 import NavbarSearch from '@/layouts/components/NavbarSearch.vue';
 import ChainProfile from '@/layouts/components/ChainProfile.vue';
 import kiiLogoDark from '@/assets/kii-branding-logo.png';
-import kiiLogoLight from '@/assets/logo-black.svg';
+import kiiLogoLight from '@/assets/logo-gradient-label-dark.png';
 
 import { useDashboard } from '@/stores/useDashboard';
 import { useBaseStore, useBlockchain } from '@/stores';

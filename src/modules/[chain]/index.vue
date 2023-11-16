@@ -457,7 +457,7 @@ const cardImages = [planet1, planet2, planet3, planet4, planet5, planet6];
       </div>
 
       <div class="grid grid-cols-3 gap-4 px-4 pb-6 mt-4">
-        <label for="PingTokenConvert" class="btn btn-primary hover:text-black dark:hover:text-white">{{
+        <label for="PingTokenConvert" class="btn !bg-violet !border-violet text-white">{{
           $t('index.btn_swap') }}</label>
         <label for="send" class="btn !bg-yes !border-yes text-white" @click="dialog.open('send', {}, updateState)">{{
           $t('account.btn_send') }}</label>
