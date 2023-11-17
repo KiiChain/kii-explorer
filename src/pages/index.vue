@@ -170,7 +170,7 @@ const transactionHistoryChartValue = computed(() => {
 
     <!-- Stats -->
     <div class="grid md:grid-cols-2 gap-2">
-      <DualCardValue icon="cib:ethereum" title="KII PRICE" :value="`$${1999.34.toLocaleString()}`" sub-value-suffix="(+0.10%)"  title2="GAS PRICE" value2="--"/>
+      <DualCardValue icon="ri:token-swap-line" title="KII PRICE" :value="`$${0.20.toLocaleString()}`" sub-value-suffix="(+0.10%)"  title2="GAS PRICE" value2="--"/>
 
       <DualCardValue icon="uil:transaction" title="TRANSACTIONS" :value="transactionsCount.toString()"
         sub-value="(10,000 TPS)" title2="BLOCK HEIGHT" :value2="latestBlocks[0]?.block.header.height" />
