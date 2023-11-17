@@ -153,7 +153,7 @@ const transactionHistoryChartValue = computed(() => {
       <!-- Search Filter Input -->
       <input :placeholder="$t('pages.explore_search_placeholder')" 
         v-model="searchQuery"
-        class="px-4 h-10 bg-transparent flex-1 outline-none text-neutral" />
+        class="px-4 h-10 bg-transparent flex-1 outline-none text-neutral dark:text-white" />
       <!-- <div class="px-4 text-neutral hidden md:!block">{{ chains.length }}/{{ dashboard.length }}</div> -->
 
       <!-- Search Filter Magnify -->
