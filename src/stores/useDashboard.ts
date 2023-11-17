@@ -68,6 +68,7 @@ export interface ChainConfig {
     grpc?: Endpoint[];
   };
   logo: string;
+  altLogo: string;
   versions: {
     application?: string;
     cosmosSdk?: string;
@@ -104,6 +105,7 @@ export interface LocalConfig {
   chain_name: string;
   coin_type: string;
   logo: string;
+  alt_logo: string;
   theme_color?: string;
   min_tx_fee: string;
   rpc: string[] | Endpoint[];
@@ -167,6 +169,7 @@ export function fromLocal(lc: LocalConfig): ChainConfig {
   }
   conf.features = lc.features;
   conf.logo = lc.logo;
+  conf.altLogo = lc.alt_logo;
   conf.keplrFeatures = lc.keplr_features;
   conf.keplrPriceStep = lc.keplr_price_step;
   conf.themeColor = lc.theme_color;
@@ -186,6 +189,7 @@ export function fromDirectory(source: DirectoryChain): ChainConfig {
       tendermint: source.versions?.tendermint_version || '',
     }),
     (conf.logo = pathConvert(source.image));
+    (conf.altLogo = pathConvert(source.image));
   conf.endpoints = source.best_apis;
   return conf;
 }

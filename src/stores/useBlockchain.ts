@@ -46,6 +46,9 @@ export const useBlockchain = defineStore('blockchain', {
     logo(): string {
       return this.current?.logo || '';
     },
+    altLogo(): string {
+      return this.current?.altLogo || '';
+    },
     defaultHDPath(): string {
       const cointype = this.current?.coinType || '118';
       return `m/44'/${cointype}/0'/0/0`;
@@ -73,21 +76,24 @@ export const useBlockchain = defineStore('blockchain', {
           document.body.style.setProperty('--p', '237.65 100% 70%');
         }
 
-
-      const exploreNav = {
-        meta: {
-          i18n: 'explore',
-          section: '',
-          order: 1,
-          icon: 'mdi:magnify'
-        },
-        path: '/'
-      }
+        const exploreNav = {
+          meta: {
+            i18n: 'explore',
+            section: '',
+            order: 1,
+            icon: 'mdi:magnify',
+          },
+          path: '/',
+        };
 
         currNavItem = [
           {
             title: this.current?.prettyName || this.chainName || '',
-            icon: { image: this.current.logo, size: '22' },
+            icon: {
+              image: this.current.logo,
+              altImage: this.current.altLogo,
+              size: '22',
+            },
             i18n: false,
             badgeContent: this.isConsumerChain ? 'Consumer' : undefined,
             badgeClass: 'bg-error',
@@ -124,7 +130,7 @@ export const useBlockchain = defineStore('blockchain', {
                 title: `module.${x.meta.i18n}`,
                 to: { path: x.path.replace(':chain', this.chainName) },
                 icon: { icon: x.meta.icon as string, size: '22' },
-                meta: { weight: x.meta.weight as string || '' },
+                meta: { weight: (x.meta.weight as string) || '' },
                 i18n: true,
                 order: Number(x.meta.order || 100),
               }))

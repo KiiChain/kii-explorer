@@ -31,6 +31,7 @@ export interface NavLinkProps {
 export interface Icon {
     icon?: string,
     image?: string,
+    altImage?: string,
     size: string,
 }
 
