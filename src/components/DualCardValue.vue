@@ -16,9 +16,10 @@ defineProps<Props>();
 </script>
 
 <template>
-    <div class="bg-white dark:bg-base100 shadow-md rounded-lg p-4 h-auto md:h-fit xl:!h-[95px] flex gap-2 xl:divide-x flex-col xl:!flex-row">
+    <div
+        class="bg-white dark:bg-base100 shadow-md rounded-lg p-4 h-auto md:h-fit xl:!h-[95px] flex gap-2 xl:divide-x flex-col xl:!flex-row">
         <div class="flex-1 flex flex-col xl:!flex-row gap-2">
-            <div
+            <div v-if="icon"
                 class="linear-gradient-tl-to-br-bg flex items-center justify-center h-12 w-12 xl:!h-full xl:!w-fit aspect-square linear-gradient-tl-to-br-bg rounded">
                 <Icon :icon="icon" class="text-3xl text-white" />
             </div>
