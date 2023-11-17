@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useBlockchain, useBaseStore, type Endpoint } from '@/stores';
+import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 const chainStore = useBlockchain();
 const baseStore = useBaseStore();
@@ -9,6 +10,8 @@ function changeEndpoint(item: Endpoint) {
   chainStore.setRestEndpoint(item);
   if (chainStore.current) router.push(`/${chainStore.current.chainName}`);
 }
+const isDarkMode = computed(() => baseStore.theme === 'dark');
+
 </script>
 
 <template>
@@ -16,7 +19,8 @@ function changeEndpoint(item: Endpoint) {
     <label tabindex="0" class="flex items-center">
       <div class="p-1 relative mr-3 cursor-pointer">
         <div v-if="chainStore.logo && chainStore.logo !== ''">
-          <img v-lazy="chainStore.logo" alt="" class="w-9 h-9 rounded-full" />
+          <img v-if="isDarkMode"  v-lazy="chainStore.altLogo" alt="" class="w-9 h-9 rounded-full" />
+          <img v-if="!isDarkMode" v-lazy="chainStore.logo" alt="" class="w-9 h-9 rounded-full" />
         </div>
         <div
           class="w-2 h-2 rounded-full bg-yes absolute right-0 bottom-0 shadow"
