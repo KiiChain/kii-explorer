@@ -326,12 +326,7 @@ export const useDashboard = defineStore('dashboard', {
       }
     },
     async loadingFromLocal() {
-      if (
-        window.location.hostname.search('testnet') > -1 ||
-        window.location.hostname.search('localhost') > -1 ||
-        window.location.hostname.search('kiitestexplorer') > -1 ||
-        window.location.hostname.search('vercel') > -1
-      ) {
+      if (import.meta.env.VITE_APP_ENVIRONMENT === "testnet") {
         this.networkType = NetworkType.Testnet;
       }
       const source: Record<string, LocalConfig> =
