@@ -2042,12 +2042,36 @@
 </template>
 <script>
 export default {
-  mounted() {
-    let scriptElement = document.createElement('script')
-    scriptElement.setAttribute('src', './competition/index-A8ICZHl2.js')
-    document.head.appendChild(scriptElement)
+  beforeRouteLeave(to, from, next) {
+    this.removeScript();
+    next();
   },
-}
+  beforeRouteEnter(to, from, next) {
+    next(vm => {
+      vm.loadScript();
+    });
+  },
+  methods: {
+    loadScript() {
+
+      let scriptElement = document.createElement('script')
+      scriptElement.setAttribute('src', './competition/index-A8ICZHl2.js')
+      scriptElement.async = true;
+      document.head.appendChild(scriptElement)
+      console.log('here');
+
+    },
+    removeScript() {
+      const scripts = document.head.getElementsByTagName('script');
+
+      for (let i = scripts.length - 1; i >= 0; i--) {
+        if (scripts[i].src.includes('/competition/index-A8ICZHl2.js')) {
+          scripts[i].parentNode.removeChild(scripts[i]);
+        }
+      }
+    },
+  },
+};
 </script>
 <route>
     {
