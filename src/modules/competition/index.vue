@@ -19,7 +19,6 @@ export default {
       iframeElement.setAttribute('src', './competition/index.html');
       iframeElement.style = "width: 100%; height: 100%;";
       document.getElementById('competitionPage').appendChild(iframeElement);
-      console.log('added', document.getElementById('competitionPage'));
     },
     removeScript() {
       var iframe = document.getElementById('competitionPageContainer');
