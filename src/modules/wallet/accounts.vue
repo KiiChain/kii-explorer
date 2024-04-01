@@ -12,11 +12,15 @@ import {
   scanCompatibleAccounts,
   type LocalKey,
 } from './utils';
+import axios from 'axios';
 
 const dashboard = useDashboard();
 const chainStore = useBlockchain()
 const format = useFormatter();
 const sourceAddress = ref(''); //
+const requestTokenLoader = ref(false);
+const requestTokenMessage = ref('');
+const requestTokenErrorMessage = ref('');
 const selectedSource = ref({} as LocalKey); //
 const importStep = ref('step1')
 
@@ -225,6 +229,31 @@ async function loadBalances(endpoint: string, address: string) {
     delegations.value[address] = res.delegation_responses;
   });
 }
+
+async function requestTestnetTokens(address: string) {
+  try {
+    // Toggle loader
+    requestTokenLoader.value = true;
+    requestTokenErrorMessage.value = '';
+    requestTokenMessage.value = '';
+
+    // Make API request
+    const apiUrl = import.meta.env.VITE_APP_FAUCET_API_URL;
+    const response = await axios.get(`${apiUrl}/faucet?address=${address}&chainId=kiiventador`);
+    requestTokenMessage.value = response.data;
+    // Clear the message after 5 seconds
+    setTimeout(() => {
+      requestTokenMessage.value = '';
+    }, 5000); // 5000 milliseconds = 5 seconds
+  } catch (error) {
+    console.error("Error while requesting testnet tokens:", error);
+    requestTokenErrorMessage.value = 'Error: Unable to request testnet tokens';
+  } finally {
+    // Reset loader
+    requestTokenLoader.value = false;
+  }
+}
+
 </script>
 <template>
   <div>
@@ -283,22 +312,30 @@ async function loadBalances(endpoint: string, address: string) {
               </g>
             </svg>
           </div>
-          <div>
-            <div class=" max-w-md overflow-hidden"><div class="font-bold">{{ key }}</div></div>
-            <div class="dropdown">
-              <label tabindex="0" class=" cursor-pointer">{{ subaccounts.length }} addresses</label>
-              <ul tabindex="0" class=" -left-14 dropdown-content menu p-2 shadow bg-base-200 rounded-box z-50">
-                <li v-for="x in subaccounts">
-                <a>
-                  <img :src="x.account.logo" class="w-8 h-8 mr-2" />
-                  <span class="font-bold capitalize">{{ x.account.chainName }} <br>
-                    <span class="text-xs font-normal sm:w-16 sm:overflow-hidden">{{ x.account.address }}</span>
-                  </span>
-                  <label class=" btn btn-xs !btn-error" @click="removeAddress(x.account.address)">Remove</label>
-                </a>
-              </li>
-              </ul>
+          <div class="flex flex-row space-x-3">
+            <div>
+              <div class=" max-w-md overflow-hidden"><div class="font-bold">{{ key }}</div></div>
+              <div class="dropdown">
+                <label tabindex="0" class=" cursor-pointer">{{ subaccounts.length }} addresses</label>
+                <ul tabindex="0" class=" -left-14 dropdown-content menu p-2 shadow bg-base-200 rounded-box z-50">
+                  <li v-for="x in subaccounts">
+                    <a>
+                      <img :src="x.account.logo" class="w-8 h-8 mr-2" />
+                      <span class="font-bold capitalize">{{ x.account.chainName }} <br>
+                        <span class="text-xs font-normal sm:w-16 sm:overflow-hidden">{{ x.account.address }}</span>
+                      </span>
+                      <label class=" btn btn-xs !btn-error" @click="removeAddress(x.account.address)">Remove</label>
+                    </a>
+                  </li>
+                </ul>
+              </div>
             </div>
+            <div class="btn btn-sm btn-primary hover:text-black dark:hover:text-white" @click="requestTestnetTokens(key)">
+                Request Testnet Tokens
+            </div>
+            <span class="text-accent" v-if="requestTokenLoader">Requesting testnet tokens</span>
+            <span class="text-yes">{{ requestTokenMessage }}</span>
+            <span class="text-error">{{ requestTokenErrorMessage }}</span>
           </div>
         </div>
         <div class="p-4 bg-base-200 mt-2">Delegations</div>

@@ -1,18 +1,30 @@
-
 <template>
- <div id="root"></div>
+  <div id="competitionPage" class="h-full w-full"></div>
 </template>
 <script>
 export default {
-    mounted() {
-        let scriptElement = document.createElement('script')
-        scriptElement.setAttribute('src', './competition/index-A8ICZHl2.js')
-        document.head.appendChild(scriptElement)
-        let stylesheetElement = document.createElement('link')
-        stylesheetElement.setAttribute('rel', 'stylesheet')
-        stylesheetElement.setAttribute('href', './competition/index-Ck6mM4fR.css')
-        document.head.appendChild(stylesheetElement)
+  beforeRouteLeave(to, from, next) {
+    this.removeScript();
+    next();
+  },
+  beforeRouteEnter(to, from, next) {
+    next(vm => {
+      vm.loadScript();
+    })
+  },
+  methods: {
+    loadScript() {
+      let iframeElement = document.createElement('iframe');
+      iframeElement.setAttribute('id', 'competitionPageContainer')
+      iframeElement.setAttribute('src', './competition/index.html');
+      iframeElement.style = "width: 100%; height: 100%;";
+      document.getElementById('competitionPage').appendChild(iframeElement);
     },
+    removeScript() {
+      var iframe = document.getElementById('competitionPageContainer');
+      document.getElementById('competitionPage').removeChild(iframe);
+    }
+  }
 }
 </script>
 <route>
