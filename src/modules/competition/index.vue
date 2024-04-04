@@ -34,7 +34,8 @@ export default {
         order: 3,
         icon: 'material-symbols:trophy',
         section: 2,
-        weight: 'font-semibold'
+        weight: 'font-semibold',
+        disabled: true
       }
     }
   </route>

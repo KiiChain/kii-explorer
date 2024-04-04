@@ -81,7 +81,7 @@ function selected(route: any, nav: NavLink) {
       </div>
       <div v-for="(item, index) of blockchain.computedChainMenu" :key="index" class="px-2">
         <div v-if="isNavGroup(item)" :tabindex="index">
-          <div v-if="index > 0 && index < blockchain.computedChainMenu.length"
+          <div v-if="index > 0 && index < blockchain.computedChainMenu.length && false"
             class="h-[1px] w-full linear-gradient-l-to-r-bg" />
           <div v-for="(el, key) of item?.children" class="menu bg-base-100 dark:bg-base100 w-full !p-0" :key="key">
             <RouterLink v-if="isNavLink(el)" @click="sidebarShow = false"
