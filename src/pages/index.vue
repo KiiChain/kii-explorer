@@ -27,17 +27,30 @@ let errorMessage = ref('');
 let searchQuery = ref('');
 let latestTransactions = ref<TxResponse[]>([]);
 let transactionsCount = ref(0);
+const isLoading = ref(false); 
 
 onMounted(async() => {
-  const data = await bankStore.fetchLatestTxs(blockStore.current?.assets[0].base ?? '')
+  isLoading.value = true;
+  try {
+    const totalTransactionCount = await blockStore.rpc.getTxsCount();
 
-  latestTransactions.value = data;
+    const data = await bankStore.fetchLatestTxs(totalTransactionCount)
 
-  transactionsCount.value = await blockStore.rpc.getTxsCount();
+    latestTransactions.value = data;
+    transactionsCount.value = totalTransactionCount
+  } catch (error) {
+    console.error("Failed to fetch transactions:", error);
+  } finally {
+    isLoading.value = false;
+  }
 });
 
 const latestBlocks = computed(() => {
     return baseStore.recents.reverse().slice(0, 20) 
+})
+
+const latestTransactionList = computed(() => {
+    return latestTransactions?.value?.slice(0, 20) 
 })
 
 function computeTx(items: Tx[]) {
@@ -178,14 +191,14 @@ const transactionHistoryChartValue = computed(() => {
 
     <!-- Line Chart -->
     <div>
-      <div class="px-12 py-6 bg-white shadow-lg rounded-lg space-y-2 dark:bg-base100">
+      <!-- Loading State Display -->
+      <div v-if="isLoading" class="px-12 py-6 bg-white shadow-lg rounded-lg text-center">
+        Loading transactions...
+      </div>
+
+       <!-- Data Display (hidden when loading) -->
+      <div v-else class="px-12 py-6 bg-white shadow-lg rounded-lg space-y-2 dark:bg-base100">
         <div>Transaction History in {{ transactionHistoryChartValue.labels.length }} days</div>
-        <!-- <div class="flex items-center gap-2">
-          <div class="text-2xl font-semibold">$ {{ 32.18.toLocaleString() }}</div>
-          <div class="flex items-center">
-            <Icon icon="mdi:chevron-up" /> <div>1.2 %</div>
-          </div>
-        </div> -->
         <LineChart :series="transactionHistoryChartValue.series.reverse()" :labels="transactionHistoryChartValue.labels.reverse()" />
       </div>
     </div>
@@ -195,7 +208,7 @@ const transactionHistoryChartValue = computed(() => {
       <table class="table rounded bg-[#F9F9F9] dark:bg-base100 shadow">
         <thead>
           <tr class="">
-            <td colspan="3" class="text-info">LATEST BLOCKS</td>
+            <th colspan="3" class="text-info">LATEST BLOCKS</th>
           </tr>
         </thead>
         <tr v-for="item in latestBlocks" class="border-y-solid border-y-1 border-[#EAECF0]">
@@ -228,10 +241,10 @@ const transactionHistoryChartValue = computed(() => {
       <table class="table rounded bg-[#F9F9F9] dark:bg-base100 shadow">
         <thead>
           <tr class="">
-            <td colspan="3" class="text-info">LATEST TRANSACTIONS</td>
+            <th colspan="3" class="text-info">LATEST TRANSACTIONS</th>
           </tr>
         </thead>
-        <tr v-for="item in latestTransactions" class="border-y-solid border-y-1 border-[#EAECF0]">
+        <tr v-for="item in latestTransactionList" class="border-y-solid border-y-1 border-[#EAECF0]">
           <td class="py-4">
             <div class="flex gap-3 items-center">
               <div class="p-2 rounded-full bg-base-300">

@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import dayjs from 'dayjs';
 
 import { useBlockchain } from './useBlockchain';
 import { useStakingStore } from './useStakingStore';
@@ -10,6 +11,7 @@ import {
   type Tx,
   type TxResponse,
 } from '@/types';
+import { isDateWithinLast30Days } from '@/libs/utils';
 
 export const useBankStore = defineStore('bankstore', {
   state: () => {
@@ -108,14 +110,32 @@ export const useBankStore = defineStore('bankstore', {
       }
       return trace;
     },
-    async fetchLatestTxs(denom: string): Promise<TxResponse[]> {
-      const pageRequest = new PageRequest();
-      pageRequest.limit = 20;
-      const data = await this.blockchain.rpc.getLatestTxs(
-        
-      );
+    async fetchLatestTxs(totalCount: number): Promise<TxResponse[]> {
+      let key = undefined;
+      let fetch = true;
+      let allData: TxResponse[] = [];
+      let currentPage = 1;
 
-      return data.tx_responses;
+      const totalPage = Math.ceil(totalCount / 100);
+
+      while (fetch && currentPage <= totalPage) {
+
+        const data = await this.blockchain.rpc.getLatestTxs(
+          currentPage
+        );
+
+        const filterTxResponses = data.tx_responses.filter(item => isDateWithinLast30Days(item.timestamp));
+
+        if (filterTxResponses.length) {
+          allData = [...allData, ...filterTxResponses];
+        } else {
+          fetch = false;
+        }
+        
+        currentPage = currentPage + 1;
+      }
+
+      return allData;
     },
   },
 });
