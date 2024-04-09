@@ -42,6 +42,7 @@ const latestBlocks = computed(() => {
 
 function computeTx(items: Tx[]) {
   const initialDenom = blockStore.current?.assets[0].base ?? '';
+
   const total = items.reduce((accumulator, currentTx) => {
     const message = currentTx.body.messages[0];
     const messageAmount = Array.isArray(message.amount) ? message.amount[0] : message.amount;
@@ -130,7 +131,7 @@ const transactionHistoryChartValue = computed(() => {
 
 <template>
   <div class="space-y-5">
-    <div class="font-bold text-2xl">Welcome {{ walletStore.shortAddress }}</div>
+    <div class="font-bold text-2xl"> {{ walletStore.shortAddress?`Welcome ${walletStore.shortAddress}`:'' }}</div>
 
     <!-- Search -->
     <div class="flex items-center rounded-lg bg-base-100 dark:bg-base100 p-2 rounded-xl w-full shadow">

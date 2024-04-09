@@ -111,9 +111,14 @@ export const useBankStore = defineStore('bankstore', {
     async fetchLatestTxs(denom: string): Promise<TxResponse[]> {
       const pageRequest = new PageRequest();
       pageRequest.limit = 20;
-      const data = await this.blockchain.rpc.getLatestTxs(
-        
-      );
+      const data = await this.blockchain.rpc.getLatestTxs();
+
+      return data.tx_responses;
+    },
+    async fetchLatestTxsEvm(denom: string): Promise<TxResponse[]> {
+      const pageRequest = new PageRequest();
+      pageRequest.limit = 20;
+      const data = await this.blockchain.rpc.getLatestTxsEvm();
 
       return data.tx_responses;
     },

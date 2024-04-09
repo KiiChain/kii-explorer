@@ -1,33 +1,32 @@
 {
-    "chain_name": "kiichain",
-    "api": ["https://a.sentry.testnet.kiivalidator.com", "https://b.sentry.testnet.kiivalidator.com"],
-    "rpc": [
-      "https://a.sentrytestnet.kiivalidator.com:26658",
-      "https://b.sentrytestnet.kiivalidator.com:26658"
-    ],
-    "snapshot_provider": "",
-    "sdk_version": "0.45.11",
-    "coin_type": "118",
-    "min_tx_fee": "800",
-    "addr_prefix": "kii",
-    "logo": "/logo-gradient.svg",
-    "alt_logo": "/logo-white.svg",
-    "theme_color": "#161723",
-    "assets": [
-      {
-        "base": "tkii",
-        "symbol": "KII",
-        "exponent": "6",
-        "coingecko_id": "",
-        "logo": ""
-      },
-      {
-        "base": "tekii",
-        "symbol": "eKII",
-        "exponent": "6",
-        "coingecko_id": "",
-        "logo": ""
-      }
-    ]
-  }
-  
+  "chain_name": "kiichain",
+  "api": ["https://a.sentry.testnet.kiivalidator.com", "https://b.sentry.testnet.kiivalidator.com"],
+  "rpc": [
+    "https://a.sentry.testnet.kiivalidator.com:26658",
+    "https://b.sentry.testnet.kiivalidator.com:26658"
+  ],
+  "snapshot_provider": "",
+  "sdk_version": "0.45.11",
+  "coin_type": "118",
+  "min_tx_fee": "800",
+  "addr_prefix": "kii",
+  "logo": "/logo-gradient.svg",
+  "alt_logo": "/logo-white.svg",
+  "theme_color": "#161723",
+  "assets": [
+    {
+      "base": "tkii",
+      "symbol": "KII",
+      "exponent": "6",
+      "coingecko_id": "",
+      "logo": ""
+    },
+    {
+      "base": "tekii",
+      "symbol": "eKII",
+      "exponent": "6",
+      "coingecko_id": "",
+      "logo": ""
+    }
+  ]
+}

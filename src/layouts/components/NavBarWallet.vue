@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { useBaseStore, useBlockchain, useWalletStore } from '@/stores';
 import { Icon } from '@iconify/vue';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import { createWalletClient, custom } from 'viem'
+import { addressEnCode } from '@/libs';
+import { fromHex } from '@cosmjs/encoding';
+import { testnet } from '@/libs/web3';
 
 const walletStore = useWalletStore();
 const chainStore = useBlockchain();
@@ -9,9 +13,39 @@ const baseStore = useBaseStore();
 // walletStore.$subscribe((m, s) => {
 //   console.log(m, s);
 // });
-function walletStateChange(res: any) {
-  walletStore.setConnectedWallet(res.detail?.value);
+const isKiichain = window.location.pathname.search('kiichain') > -1;
+
+async function walletStateChange(res: any) {
+  let walletVal = res.detail.value
+  if(isKiichain){
+
+    
+    const client = createWalletClient({
+      chain: testnet,
+      // @ts-ignore
+      transport: custom(window.ethereum),
+    })
+
+    try{
+      await client.switchChain({ id: testnet.id }) 
+    }
+    catch(err){
+      await client.addChain({ chain: testnet })
+    }
+
+    const accounts = await client.requestAddresses() 
+    const kiiAddress = addressEnCode('kii', fromHex(accounts[0].replace('0x','')))
+    walletVal = {
+      cosmosAddress: kiiAddress,
+      hdPath: "m/44'/118/0'/0/0",
+      wallet: "Metamask"
+    }
+  }
+  
+  walletStore.setConnectedWallet(walletVal);
+  await walletStore.loadMyAsset()
 }
+
 let showCopyToast = ref(0);
 async function copyAdress(address: string) {
   try {
@@ -43,7 +77,7 @@ const tipMsg = computed(() => {
     </label>
     <div tabindex="0"
       class="dropdown-content menu shadow p-2 bg-base-100 dark:bg-base100 rounded w-52 md:!w-64 overflow-auto shadow-2xl">
-      <label v-if="!walletStore?.currentAddress" for="PingConnectWallet" class="btn btn-sm btn-primary hover:text-black dark:hover:text-white">
+      <label v-if="!walletStore?.currentAddress" @click="walletStateChange" for="PingConnectWallet" class="btn btn-sm btn-primary hover:text-black dark:hover:text-white">
         <Icon icon="mdi:wallet" /><span class="ml-1 block">Connect Wallet</span>
       </label>
       <div class="px-2 mb-1 text-gray-500 dark:text-gray-400 font-semibold">
@@ -84,9 +118,12 @@ const tipMsg = computed(() => {
     </div>
   </div>
   <Teleport to="body">
-    <ping-connect-wallet :chain-id="baseStore.currentChainId" :hd-path="chainStore.defaultHDPath"
+    <div :class="isKiichain?'hidden':''">
+      <ping-connect-wallet :chain-id="baseStore.currentChainId" :hd-path="chainStore.defaultHDPath"
       :addr-prefix="chainStore.current?.bech32Prefix || 'cosmos'" @connect="walletStateChange"
       @keplr-config="walletStore.suggestChain()" />
+    </div>
+    
   </Teleport>
 </template>
 

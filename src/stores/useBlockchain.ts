@@ -25,6 +25,8 @@ import {
 import { DEFAULT } from '@/libs';
 import { hexToRgb, rgbToHsl } from '@/libs/utils';
 
+const isKiichain = window.location.pathname.search('kiichain') > -1;
+
 export const useBlockchain = defineStore('blockchain', {
   state: () => {
     return {
@@ -83,7 +85,7 @@ export const useBlockchain = defineStore('blockchain', {
             order: 1,
             icon: 'mdi:magnify',
           },
-          path: '/',
+          path: isKiichain?'/kiichain':'/',
         };
 
         currNavItem = [
