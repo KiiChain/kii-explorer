@@ -608,13 +608,13 @@ const buySkiiTransaction = (swapAmount: number) => {
       </div>
 
       <div class="grid grid-cols-3 gap-4 px-4 pb-6 mt-4">
-        <label
+        <!-- <label
           id="show-modal"
           @click="showModal = true"
           for="PingTokenConvert"
           class="btn !bg-violet !border-violet text-white"
           >{{ $t('index.btn_swap') }}</label
-        >
+        > -->
         <label
           for="send"
           class="btn !bg-yes !border-yes text-white"
@@ -622,12 +622,12 @@ const buySkiiTransaction = (swapAmount: number) => {
           @click="dialog.open('send', {}, updateState)"
           >{{ $t('account.btn_send') }}</label
         >
-        <label
+        <!-- <label
           class="btn !bg-yes !border-yes text-white"
           :class="isKiichain ? '' : 'hidden'"
           @click="showSendModal = true"
           >{{ $t('account.btn_send') }}</label
-        >
+        > -->
         <label
           for="delegate"
           class="btn !bg-info !border-info text-white"
@@ -657,7 +657,7 @@ const buySkiiTransaction = (swapAmount: number) => {
 
         <div :class="isKiichain ? '' : 'hidden'">
           <!-- Swap Modal -->
-          <Modal :show="showModal" @close="showModal = false">
+          <!-- <Modal :show="showModal" @close="showModal = false">
             <template #header>
               <h1 class="text-2xl">Swap KII and sKII</h1>
             </template>
@@ -685,10 +685,12 @@ const buySkiiTransaction = (swapAmount: number) => {
                       <span class="text-green-500">{{
                         isActive
                           ? `sKII Balance: ${format.formatToken(
-                              walletStore.balanceOfStakingToken
+                              walletStore.balanceOfStakingToken,
+                              false
                             )}`
                           : `KII Balance: ${format.formatToken(
-                              walletStore.balanceOfStakingToken
+                              walletStore.balanceOfStakingToken,
+                              false
                             )}`
                       }}</span>
                     </div>
@@ -714,7 +716,7 @@ const buySkiiTransaction = (swapAmount: number) => {
                 </div>
               </div>
             </template>
-          </Modal>
+          </Modal> -->
           <!-- Send Modal -->
           <Modal :show="showSendModal" @close="showSendModal = false">
             <template #header>
@@ -732,7 +734,8 @@ const buySkiiTransaction = (swapAmount: number) => {
                     <div class="flex justify-center py-2">
                       <span class="text-green-500">{{
                         `sKII Balance: ${format.formatToken(
-                          walletStore.balanceOfStakingToken
+                          walletStore.balanceOfStakingToken,
+                          false
                         )}`
                       }}</span>
                     </div>

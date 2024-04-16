@@ -50,6 +50,44 @@ export const walletClient = createWalletClient({
 
 export const [account] = await walletClient.getAddresses();
 
+export async function buySkii(
+  amount: number,
+  loading?: Ref<boolean>
+) {
+  try {
+    if(loading){
+        loading.value = true;
+    }
+    const swapBalance = await publicClient.readContract({
+      address: BANK_CONTRACT_ADDRESS,
+      abi: bankAbi,
+      functionName: 'getAllSpendableBalances',
+      args:[SWAP_CONTRACT_ADDRESS]
+    })
+    console.log(swapBalance)
+    const { request } = await publicClient.simulateContract({
+      account,
+      address: SWAP_CONTRACT_ADDRESS,
+      abi: swapAbi,
+      functionName: 'buySkii',
+      value: parseEther(amount.toString()) ,
+    });
+    const hash = await walletClient.writeContract(request);
+    const transaction = await publicClient.waitForTransactionReceipt( 
+      { hash: hash }
+    )
+    if(loading && transaction){
+      loading.value = false;
+    }
+    return transaction
+  } catch (err) {
+    console.log(err)
+    if(loading){
+      loading.value = false;
+    }
+  }
+}
+
 export async function stakeToValidator(
   validatorAddress: string,
   amount: number,
@@ -61,20 +99,31 @@ export async function stakeToValidator(
     if(loading){
         loading.value = true;
     }
-    const { request } = await publicClient.simulateContract({
-      account,
-      address: STAKING_CONTRACT_ADDRESS,
-      abi: stakingAbi,
-      functionName: 'delegate',
-      args: [valHexAcc, amount * 10 ** 6],
-    });
-    const hash = await walletClient.writeContract(request);
-    const transaction = await publicClient.waitForTransactionReceipt( 
-      { hash: hash }
-    )
-    if(loading && transaction){
-      loading.value = false;
-    }
+
+    // convert to sKii
+    await buySkii(amount, loading)
+    .then(async (tx) => {
+      if(tx){
+        const { request } = await publicClient.simulateContract({
+          account,
+          address: STAKING_CONTRACT_ADDRESS,
+          abi: stakingAbi,
+          functionName: 'delegate',
+          args: [valHexAcc, amount * 10 ** 6],
+        });
+        const hash = await walletClient.writeContract(request);
+        const transaction = await publicClient.waitForTransactionReceipt( 
+          { hash: hash }
+        )
+        if(loading && transaction){
+          loading.value = false;
+        }
+      }
+
+    })
+    .catch(err => console.log(err))
+
+
   } catch (err) {
     if(loading){
       loading.value = false;
@@ -150,38 +199,10 @@ export async function send(
   }
 }
 
-export async function buySkii(
-  amount: number,
-  loading?: Ref<boolean>
-) {
-  try {
-    if(loading){
-        loading.value = true;
-    }
-    const data = await publicClient.readContract({
-      address: BANK_CONTRACT_ADDRESS,
-      abi: bankAbi,
-      functionName: 'getAllSpendableBalances',
-      args:[SWAP_CONTRACT_ADDRESS]
-    })
-    const { request } = await publicClient.simulateContract({
-      account,
-      address: SWAP_CONTRACT_ADDRESS,
-      abi: swapAbi,
-      functionName: 'buySkii',
-      value: parseEther(amount.toString()) ,
-    });
-    const hash = await walletClient.writeContract(request);
-    const transaction = await publicClient.waitForTransactionReceipt( 
-      { hash: hash }
-    )
-    if(loading && transaction){
-      loading.value = false;
-    }
-  } catch (err) {
-    console.log(err)
-    if(loading){
-      loading.value = false;
-    }
-  }
+export const getEvmTransactionInfo = async (hash: string) => {
+  const transactionReceipt = await publicClient.getTransactionReceipt({ 
+    hash: hash as any
+  })
+
+  return transactionReceipt
 }

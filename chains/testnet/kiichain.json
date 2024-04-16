@@ -16,14 +16,7 @@
   "assets": [
     {
       "base": "tkii",
-      "symbol": "KII",
-      "exponent": "6",
-      "coingecko_id": "",
-      "logo": ""
-    },
-    {
-      "base": "tekii",
-      "symbol": "eKII",
+      "symbol": "sKII",
       "exponent": "6",
       "coingecko_id": "",
       "logo": ""

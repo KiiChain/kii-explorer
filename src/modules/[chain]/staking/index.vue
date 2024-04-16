@@ -506,65 +506,55 @@ const stakeTransaction = (validatorAddress: string, toStakeAmount: number) => {
                       "
                     >
                       <template #header>
-                        <h1 class="text-2xl">Stake sKII</h1>
+                        <h1 class="text-2xl">Stake KII</h1>
                       </template>
                       <template #body>
-                        <div class="w-full">
-                          Stake your sKII to the many validators and earn more
-                          sKII!
-                          <div class="py-4">
-                            Use <span class="text-green-500">sKII</span> to
-                            stake in validators for rewards. Exchange your
-                            <span class="text-green-500">sKII</span> to
-                            <span class="text-green-500">KII</span> for paying
-                            gas fees and deploying smart contracts on
-                            Kiichain!<br /><br />
-                            <strong
-                              >NOTE: You will need KII to pay for staking gas
-                              fees.</strong
-                            >
+                    <div class="w-full">
+                      Stake your KII to the many validators and to earn more KII!
+                      <div class="py-4">
+                        Use <span class="text-green-500">KII</span> to stake in
+                        validators for rewards.
+                      </div>
+                      <div class="w-full">
+                        <div class="flex-col">
+                          <div class="flex justify-center py-2">
+                            <span class="text-green-500">{{
+                              `KII Balance: ${format.formatToken(
+                                walletStore.balanceOfStakingToken,
+                                false
+                              )}`
+                            }}</span>
                           </div>
-                          <div class="w-full">
-                            <div class="flex-col">
-                              <div class="flex justify-center py-2">
-                                <span class="text-green-500">{{
-                                  `sKII Balance: ${format.formatToken(
-                                    walletStore.balanceOfStakingToken
-                                  )}`
-                                }}</span>
-                              </div>
-                              <div
-                                class="flex flex-col justify-center gap-4 py-2"
-                              >
-                                <input
-                                  class="w-full rounded p-1"
-                                  type="number"
-                                  placeholder="Enter number of tokens to stake..."
-                                  min="0.000001"
-                                  step="0.000001"
-                                  v-model.number="toStakeAmount"
-                                />
-                                <span class="truncate">{{
-                                  v.operator_address
-                                }}</span>
-                              </div>
-                              <div class="flex justify-center w-full py-2">
-                                <button
-                                  class="w-full rounded-lg bg-[#432ebe] text-white p-2"
-                                  @click="
-                                    stakeTransaction(
-                                      v.operator_address,
-                                      toStakeAmount
-                                    )
-                                  "
-                                >
-                                  Stake sKII
-                                </button>
-                              </div>
-                            </div>
+                          <div class="flex flex-col justify-center gap-4 py-2">
+                            <input
+                              class="w-full rounded p-1"
+                              type="number"
+                              placeholder="Enter number of tokens to stake..."
+                              min="0.000001"
+                              step="0.000001"
+                              v-model.number="toStakeAmount"
+                            />
+                            <span class="truncate">{{
+                              v.operator_address
+                            }}</span>
+                          </div>
+                          <div class="flex justify-center w-full py-2">
+                            <button
+                              class="w-full rounded-lg bg-[#432ebe] text-white p-2"
+                              @click="
+                                stakeTransaction(
+                                  v.operator_address,
+                                  toStakeAmount
+                                )
+                              "
+                            >
+                              Stake KII
+                            </button>
                           </div>
                         </div>
-                      </template>
+                      </div>
+                    </div>
+                  </template>
                     </Modal>
 
                     <!-- Loading Modal -->

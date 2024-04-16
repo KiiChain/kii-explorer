@@ -232,28 +232,22 @@ const stakeTransaction = (validatorAddress: string, toStakeAmount: number) => {
                   @close="(selectedValidator = '') && (showStakeModal = false)"
                 >
                   <template #header>
-                    <h1 class="text-2xl">Stake sKII</h1>
+                    <h1 class="text-2xl">Stake KII</h1>
                   </template>
                   <template #body>
                     <div class="w-full">
-                      Stake your sKII to the many validators and earn more sKII!
+                      Stake your KII to the many validators and to earn more KII!
                       <div class="py-4">
-                        Use <span class="text-green-500">sKII</span> to stake in
-                        validators for rewards. Exchange your
-                        <span class="text-green-500">sKII</span> to
-                        <span class="text-green-500">KII</span> for paying gas
-                        fees and deploying smart contracts on Kiichain!<br /><br />
-                        <strong
-                          >NOTE: You will need KII to pay for staking gas
-                          fees.</strong
-                        >
+                        Use <span class="text-green-500">KII</span> to stake in
+                        validators for rewards.
                       </div>
                       <div class="w-full">
                         <div class="flex-col">
                           <div class="flex justify-center py-2">
                             <span class="text-green-500">{{
-                              `sKII Balance: ${format.formatToken(
-                                walletStore.balanceOfStakingToken
+                              `KII Balance: ${format.formatToken(
+                                walletStore.balanceOfStakingToken,
+                                false
                               )}`
                             }}</span>
                           </div>
@@ -280,7 +274,7 @@ const stakeTransaction = (validatorAddress: string, toStakeAmount: number) => {
                                 )
                               "
                             >
-                              Stake sKII
+                              Stake KII
                             </button>
                           </div>
                         </div>
