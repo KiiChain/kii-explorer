@@ -22,11 +22,13 @@ import type {
 import type { Coin } from '@cosmjs/amino';
 import Countdown from '@/components/Countdown.vue';
 import { useRoute } from 'vue-router';
+import { getWalletBalance } from '@/libs/web3';
 
 const props = defineProps(['address', 'chain']);
 
 const route = useRoute();
 const walletAddress = route.params.address;
+const chain = route.params.chain;
 const walletStore = useWalletStore();
 
 const blockchain = useBlockchain();
@@ -41,12 +43,25 @@ const rewards = ref({} as DelegatorRewards);
 const balances = ref([] as Coin[]);
 const unbonding = ref([] as UnbondingResponses[]);
 const unbondingTotal = ref(0);
+const evmWalletBalance = ref()
+
 const chart = {};
+const isKiichain = chain === 'kiichain';
+const isEvmAddress = (walletAddress?.length === 42 && walletAddress?.includes('0x'))
+
 const combinedTxs = computed(() => {
   return [...txs.value, ...receivedTxs.value].sort((a, b) => parseInt(b.height) - parseInt(a.height));
 });
-onMounted(() => {
-  loadAccount(props.address);
+onMounted(async() => {
+  if (walletAddress) {
+    if (isEvmAddress) {
+      evmWalletBalance.value = await getWalletBalance(blockchain.current?.assets[0].base ?? '')
+      console.log(evmWalletBalance.value)
+    } else {
+      loadAccount(props.address);
+    }
+  }
+
 });
 const totalAmountByCategory = computed(() => {
   let sumDel = 0;
@@ -133,6 +148,9 @@ function loadAccount(address: string) {
 function updateEvent() {
   loadAccount(props.address);
 }
+
+const walletBalance = computed(() => evmWalletBalance.value);
+
 </script>
 <template>
   <div v-if="account">
@@ -168,14 +186,14 @@ function updateEvent() {
         <h2 class="card-title mb-4">{{ $t('account.assets') }}</h2>
         <!-- button -->
         <div class="flex justify-end mb-4 pr-5">
-            <label
+            <!-- <label
               v-if="!hideButtons"
               for="send"
               class="btn btn-primary btn-sm mr-2 hover:text-black dark:hover:text-white"
               @click="dialog.open('send', {}, updateEvent)"
               >{{ $t('account.btn_send') }}</label
-            >
-            <label
+            > -->
+            <!-- <label
               v-if="!hideButtons"
               for="transfer"
               class="btn btn-primary btn-sm  hover:text-black dark:hover:text-white"
@@ -189,7 +207,7 @@ function updateEvent() {
                 )
               "
               >{{ $t('account.btn_transfer') }}</label
-            >
+            > -->
           </div>
       </div>
       <div class="grid md:!grid-cols-3">
@@ -215,7 +233,7 @@ function updateEvent() {
               </div>
               <div class="flex-1">
                 <div class="text-sm font-semibold">
-                  {{ format.formatToken(balanceItem) }}
+                  {{ isKiichain?format.formatToken(walletBalance):format.formatToken(balanceItem) }}
                 </div>
                 <div class="text-xs">
                   {{ format.calculatePercent(balanceItem.amount, totalAmount) }}

@@ -66,7 +66,7 @@ export const useBlockchain = defineStore('blockchain', {
       let currNavItem: VerticalNavItems = [];
       let section2Item: VerticalNavItems = [];
       const router = useRouter();
-      const routes = router?.getRoutes()?.filter(route => !route.meta.disabled) || [];
+      let routes = router?.getRoutes()?.filter(route => !route.meta.disabled) || [];
       if (this.current && routes) {
         if (this.current?.themeColor) {
           const { color } = hexToRgb(this.current?.themeColor);

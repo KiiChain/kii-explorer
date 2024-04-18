@@ -13,10 +13,11 @@ import { onMounted, ref } from 'vue';
 import { Icon } from '@iconify/vue';
 import type { Key, SlashingParam, Validator } from '@/types';
 import { formatSeconds } from '@/libs/utils';
-import { stakeToValidator } from '@/libs/web3';
+import { getRewardsBalance, getWalletBalance, stakeToValidator } from '@/libs/web3';
 import Modal from '@/components/Modal.vue';
 // @ts-ignore
 import PulseLoader from 'vue-spinner/src/PulseLoader.vue'
+import { toETHAddress } from '../../../libs/address';
 
 const staking = useStakingStore();
 const base = useBaseStore();
@@ -37,17 +38,24 @@ const showStakeModal = ref(false);
 const selectedValidator = ref('');
 const toStakeAmount = ref(0);
 const loading = ref(false);
+const evmWalletBalance = ref();
+const rewardBalance = ref();
+const loadingMessage = ref('');
 
 const props = defineProps(['validator', 'chain']);
 const isKiichain = props.chain === 'kiichain';
 
-onMounted(() => {
+onMounted(async() => {
   staking.fetchInacitveValdiators().then((res) => {
     unbondList.value = res;
   });
   chainStore.rpc.getSlashingParams().then((res) => {
     slashing.value = res.params;
   });
+  if(isKiichain){
+    evmWalletBalance.value = await getWalletBalance(chainStore.current?.assets[0].base ?? '')
+    rewardBalance.value = await getRewardsBalance(chainStore.current?.assets[0].base ?? '')
+  }
 });
 
 async function fetchChange() {
@@ -222,8 +230,13 @@ fetchChange();
 loadAvatars();
 
 const stakeTransaction = (validatorAddress: string, toStakeAmount: number) => {
-  stakeToValidator(validatorAddress, toStakeAmount, loading);
+  loadingMessage.value = "Converting KII to sKII (Staked KII)..."
+  stakeToValidator(validatorAddress, toStakeAmount, loading, loadingMessage);
 };
+
+const walletBalance = computed(() => evmWalletBalance.value);
+const walletRewardBalance = computed(() => rewardBalance.value);
+
 </script>
 <template>
   <div>
@@ -519,7 +532,7 @@ const stakeTransaction = (validatorAddress: string, toStakeAmount: number) => {
                         <div class="flex-col">
                           <div class="flex justify-center py-2">
                             <span class="text-green-500">{{
-                              `KII Balance: ${format.formatToken(
+                              `KII Balance: ${isKiichain?format.formatToken(walletBalance):format.formatToken(
                                 walletStore.balanceOfStakingToken,
                                 false
                               )}`
@@ -535,7 +548,7 @@ const stakeTransaction = (validatorAddress: string, toStakeAmount: number) => {
                               v-model.number="toStakeAmount"
                             />
                             <span class="truncate">{{
-                              v.operator_address
+                              `Validator: ${toETHAddress(v.operator_address)}`
                             }}</span>
                           </div>
                           <div class="flex justify-center w-full py-2">
@@ -560,7 +573,7 @@ const stakeTransaction = (validatorAddress: string, toStakeAmount: number) => {
                     <!-- Loading Modal -->
                     <Modal :show="loading" @close="loading = false">
                       <template #header>
-                        <h1 class="text-2xl">Please wait...</h1>
+                        <h1 class="text-2xl">{{ loadingMessage }}</h1>
                       </template>
                       <template #body>
                         <PulseLoader />

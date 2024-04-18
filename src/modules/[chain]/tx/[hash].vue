@@ -19,11 +19,11 @@ const tx = ref(
   }
 );
 const evmTx = ref()
-const isKiichain = props.chain === 'kiichain'
+const isEvmTxHash = (props.hash.length === 66 && props.hash.includes('0x'))
 
 if (props.hash) {
   // hex format hash
-  if (props.hash.length === 66 && props.hash.includes('0x')) {
+  if (isEvmTxHash) {
     getEvmTransactionInfo(props.hash).then((x) => (evmTx.value = x));
   } else {
     blockchain.rpc.getTx(props.hash).then((x) => (tx.value = x));
@@ -46,7 +46,7 @@ const messages = computed(() => {
           <tbody>
             <tr>
               <td>{{ $t('tx.tx_hash') }}</td>
-              <td>{{ isKiichain?evmTx.transactionHash:tx.tx_response.txhash }}</td>
+              <td>{{ isEvmTxHash?evmTx.transactionHash:tx.tx_response.txhash }}</td>
             </tr>
             <tr>
               <td>{{ $t('account.height') }}</td>
@@ -88,7 +88,7 @@ const messages = computed(() => {
             <tr>
               <td>{{ $t('tx.gas') }}</td>
               <td>
-                {{ isKiichain? `${formatEther(evmTx.gasUsed)} KII`:  `${tx.tx_response?.gas_used} / ${tx.tx_response?.gas_wanted}` }}
+                {{ isEvmTxHash? `${formatEther(evmTx.gasUsed)} KII`:  `${tx.tx_response?.gas_used} / ${tx.tx_response?.gas_wanted}` }}
               </td>
             </tr>
             <tr :class="tx.tx?.auth_info?.fee?.amount?'':'hidden'">
@@ -132,7 +132,7 @@ const messages = computed(() => {
       class="bg-base-100 dark:bg-base100 px-4 pt-3 pb-4 rounded shadow"
     >
       <h2 class="card-title truncate mb-2">JSON</h2>
-      <JsonPretty :data="isKiichain?evmTx:tx" :deep="3" />
+      <JsonPretty :data="isEvmTxHash?evmTx:tx" :deep="3" />
     </div>
   </div>
 </template>

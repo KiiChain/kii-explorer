@@ -22,10 +22,17 @@ import ProposalListItem from '@/components/ProposalListItem.vue';
 import ArrayObjectElement from '@/components/dynamic/ArrayObjectElement.vue';
 import DonutChart from '@/components/charts/DonutChart.vue';
 import { shortenAddress } from '@/libs/utils';
-import { buySkii, send } from '@/libs/web3';
+import {
+  buySkii,
+  getRewardsBalance,
+  getWalletBalance,
+  send,
+  withdrawRewardsBalance,
+} from '@/libs/web3';
 import type { DenomOwner } from '@/types';
 import Modal from '@/components/Modal.vue';
 import Toggle from '@/components/Toggle.vue';
+import { toETHAddress } from '../../../libs/address';
 
 import planet1 from '@/assets/images/misc/planet-1.png';
 import planet2 from '@/assets/images/misc/planet-2.png';
@@ -35,7 +42,7 @@ import planet5 from '@/assets/images/misc/planet-5.png';
 import planet6 from '@/assets/images/misc/planet-6.png';
 import { useRoute } from 'vue-router';
 // @ts-ignore
-import PulseLoader from 'vue-spinner/src/PulseLoader.vue'
+import PulseLoader from 'vue-spinner/src/PulseLoader.vue';
 
 const props = defineProps(['chain']);
 
@@ -56,13 +63,19 @@ const showSendModal = ref(false);
 const isActive = ref(false);
 const toSwapAmount = ref(0);
 const toSendAmount = ref(0);
-const destinationAddress = ref('')
+const destinationAddress = ref('');
 const loading = ref(false);
+const showRewardsModal = ref(false);
+const selectedValidator = ref('');
+const rewardBalance = ref();
+const loadingMessage = ref('');
+
 const route = useRoute();
 const selectedChain = route.params.chain || 'kii';
 const isKiichain = selectedChain === 'kiichain';
 
 const topDenomOwners = ref([] as DenomOwner[]);
+const evmWalletBalance = ref();
 
 onMounted(async () => {
   store.loadDashboard();
@@ -76,10 +89,18 @@ onMounted(async () => {
   topDenomOwners.value = data;
   // if(!(coinInfo.value && coinInfo.value.name)) {
   // }
+  if (isKiichain) {
+    evmWalletBalance.value = await getWalletBalance(
+      blockchain.current?.assets[0].base ?? ''
+    );
+    rewardBalance.value = await getRewardsBalance(
+      blockchain.current?.assets[0].base ?? ''
+    );
+  }
 });
 const ticker = computed(() => store.coinInfo.tickers[store.tickerIndex]);
 
-const isLoading = computed(() => loading.value)
+const isLoading = computed(() => loading.value);
 
 const currName = ref('');
 blockchain.$subscribe(async (m, s) => {
@@ -206,14 +227,21 @@ const amount = computed({
 
 const cardImages = [planet1, planet2, planet3, planet4, planet5, planet6];
 
-const sendTransaction = (destinationAddress: string, toSendAmount: number) => {
-  send(destinationAddress, toSendAmount, blockchain.current?.assets[0].base || '', loading)
+// const sendTransaction = (toSendAmount: number) => {
+//   buySkii(toSendAmount, loading)
+// };
+
+const withdrawRewardsTransaction = () => {
+  loadingMessage.value = 'Withdrawing KII Rewards...';
+  withdrawRewardsBalance(
+    blockchain.current?.assets[0].base ?? '',
+    loading,
+    loadingMessage
+  );
 };
 
-const buySkiiTransaction = (swapAmount: number) => {
-  buySkii(swapAmount, loading)
-};
-
+const walletBalance = computed(() => evmWalletBalance.value);
+const walletRewardBalance = computed(() => rewardBalance.value);
 </script>
 
 <template>
@@ -472,7 +500,9 @@ const buySkiiTransaction = (swapAmount: number) => {
         class="flex justify-between px-4 pt-4 pb-2 text-lg font-semibold text-main text-white"
       >
         <span class="truncate">{{
-          walletStore.currentAddress || 'Not Connected'
+          (isKiichain
+            ? toETHAddress(walletStore.currentAddress)
+            : walletStore.currentAddress) || 'Not Connected'
         }}</span>
         <RouterLink
           v-if="walletStore.currentAddress"
@@ -487,7 +517,11 @@ const buySkiiTransaction = (swapAmount: number) => {
         <div class="bg-gray-100 dark:bg-base-200 rounded-sm px-4 py-3">
           <div class="text-sm mb-1">{{ $t('account.balance') }}</div>
           <div class="text-lg font-semibold text-main">
-            {{ format.formatToken(walletStore.balanceOfStakingToken) }}
+            {{
+              isKiichain
+                ? format.formatToken(walletBalance)
+                : format.formatToken(walletStore.balanceOfStakingToken)
+            }}
           </div>
           <div class="text-sm" :class="color">
             ${{ format.tokenValue(walletStore.balanceOfStakingToken) }}
@@ -587,6 +621,7 @@ const buySkiiTransaction = (swapAmount: number) => {
                   >
                   <label
                     for="withdraw"
+                    :class="isKiichain ? 'hidden' : ''"
                     class="btn !btn-xs !btn-primary hover:!text-black dark:hover:!text-white btn-ghost rounded-sm"
                     @click="
                       dialog.open(
@@ -600,6 +635,69 @@ const buySkiiTransaction = (swapAmount: number) => {
                   >
                     {{ $t('index.btn_withdraw_reward') }}
                   </label>
+                  <label
+                    class="btn !btn-xs !btn-primary hover:!text-black dark:hover:!text-white btn-ghost rounded-sm"
+                    :class="isKiichain ? '' : 'hidden'"
+                    @click="(showRewardsModal = true) && (selectedValidator = item.delegation.validator_address)"
+                  >
+                    {{ $t('index.btn_withdraw_reward') }}
+                  </label>
+
+                  <ping-token-convert
+                    :class="!isKiichain ? '' : 'hidden'"
+                    :chain-name="blockchain?.current?.prettyName"
+                    :endpoint="blockchain?.endpoint?.address"
+                    :hd-path="walletStore?.connectedWallet?.hdPath"
+                  ></ping-token-convert>
+
+                  <Teleport to="body">
+                    <div :class="isKiichain ? '' : 'hidden'">
+                      <!-- Rewards Modal -->
+                      <Modal
+                        :show="
+                          selectedValidator === item.delegation.validator_address &&showRewardsModal === true
+                        "
+                        @close="
+                          (selectedValidator = '') && (showRewardsModal = false)
+                        "
+                      >
+                        <template #header>
+                          <h1 class="text-2xl">Withdraw KII Rewards</h1>
+                        </template>
+                        <template #body>
+                          <div class="w-full">
+                            Withdraw your earned KII rewards!
+                            <div class="w-full">
+                              <div class="flex-col">
+                                <div class="flex justify-center py-2">
+                                  <span class="text-green-500">{{
+                                    `Outstanding Rewards Balance: ${
+                                      isKiichain
+                                        ? format.formatToken(
+                                            walletRewardBalance
+                                          )
+                                        : format.formatToken(
+                                            walletStore.balanceOfStakingToken,
+                                            false
+                                          )
+                                    }`
+                                  }}</span>
+                                </div>
+                                <div class="flex justify-center w-full py-2">
+                                  <button
+                                    class="w-full rounded-lg bg-[#432ebe] text-white p-2"
+                                    @click="withdrawRewardsTransaction()"
+                                  >
+                                    Withdraw KII Rewards
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </template>
+                      </Modal>
+                    </div>
+                  </Teleport>
                 </div>
               </td>
             </tr>
@@ -717,8 +815,9 @@ const buySkiiTransaction = (swapAmount: number) => {
               </div>
             </template>
           </Modal> -->
+
           <!-- Send Modal -->
-          <Modal :show="showSendModal" @close="showSendModal = false">
+          <!-- <Modal :show="showSendModal" @close="showSendModal = false">
             <template #header>
               <h1 class="text-2xl">Send sKII</h1>
             </template>
@@ -758,7 +857,7 @@ const buySkiiTransaction = (swapAmount: number) => {
                     <div class="flex justify-center w-full py-2">
                       <button
                         class="w-full rounded-lg bg-[#432ebe] text-white p-2"
-                        @click="sendTransaction(destinationAddress, toSendAmount)"
+                        @click="sendTransaction(toSendAmount)"
                       >
                         Send sKII
                       </button>
@@ -767,7 +866,8 @@ const buySkiiTransaction = (swapAmount: number) => {
                 </div>
               </div>
             </template>
-          </Modal>
+          </Modal> -->
+
           <!-- Loading Modal -->
           <Modal :show="isLoading" @close="loading = false">
             <template #header>

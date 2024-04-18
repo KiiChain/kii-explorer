@@ -18,9 +18,10 @@ import {
 } from '@/libs';
 import type { Coin, Delegation, PaginatedTxs, Validator } from '@/types';
 import Modal from '@/components/Modal.vue';
-import { stakeToValidator } from '@/libs/web3';
+import { getRewardsBalance, getWalletBalance, stakeToValidator, withdrawRewardsBalance } from '@/libs/web3';
 // @ts-ignore
 import PulseLoader from 'vue-spinner/src/PulseLoader.vue'
+import { toETHAddress } from '../../../libs/address';
 
 const props = defineProps(['validator', 'chain']);
 
@@ -48,9 +49,14 @@ const addresses = ref(
 );
 const selfBonded = ref({} as Delegation);
 const showStakeModal = ref(false);
+const showRewardsModal = ref(false);
 const selectedValidator = ref('');
 const toStakeAmount = ref(0);
 const loading = ref(false);
+const evmWalletBalance = ref()
+const rewardBalance = ref()
+const loadingMessage = ref('');
+
 const isKiichain = props.chain === 'kiichain';
 
 addresses.value.account = operatorAddressToAccount(validator);
@@ -94,7 +100,7 @@ const logo = (identity?: string) => {
     ? url
     : `https://s3.amazonaws.com/keybase_processed_uploads/${url}`;
 };
-onMounted(() => {
+onMounted(async() => {
   if (validator) {
     staking.fetchValidator(validator).then((res) => {
       v.value = res.validator;
@@ -144,6 +150,10 @@ onMounted(() => {
         }
       });
     });
+    if(isKiichain){
+      evmWalletBalance.value = await getWalletBalance(blockchain.current?.assets[0].base ?? '')
+      rewardBalance.value = await getRewardsBalance(blockchain.current?.assets[0].base ?? '')
+    }
   }
 });
 let showCopyToast = ref(0);
@@ -171,8 +181,18 @@ const tipMsg = computed(() => {
 });
 
 const stakeTransaction = (validatorAddress: string, toStakeAmount: number) => {
-  stakeToValidator(validatorAddress, toStakeAmount, loading);
+  loadingMessage.value = "Converting KII to sKII (Staked KII)..."
+  stakeToValidator(validatorAddress, toStakeAmount, loading, loadingMessage);
 };
+
+const withdrawRewardsTransaction = () => {
+  loadingMessage.value = "Withdrawing KII Rewards..."
+  withdrawRewardsBalance(blockchain.current?.assets[0].base ?? '', loading, loadingMessage);
+};
+
+const walletBalance = computed(() => evmWalletBalance.value);
+const walletRewardBalance = computed(() => rewardBalance.value);
+
 </script>
 <template>
   <div>
@@ -217,19 +237,15 @@ const stakeTransaction = (validatorAddress: string, toStakeAmount: number) => {
                 class="btn btn-primary btn-sm w-full hover:text-black dark:hover:text-white"
                 :class="isKiichain ? '' : 'hidden'"
                 @click="
-                  (selectedValidator = v.operator_address) &&
-                    (showStakeModal = true)
+                  ((selectedValidator = v.operator_address) && (showStakeModal = true) && (showRewardsModal = false))
                 "
                 >{{ $t('account.btn_delegate') }}</label
-              >'
+              >
               <Teleport to="body">
                 <!-- Stake Modal -->
                 <Modal
-                  :show="
-                    selectedValidator === v.operator_address &&
-                    (showStakeModal = true)
-                  "
-                  @close="(selectedValidator = '') && (showStakeModal = false)"
+                  :show="((selectedValidator === v.operator_address) && (showStakeModal === true))"
+                  @close="((selectedValidator = '') && (showStakeModal = false))"
                 >
                   <template #header>
                     <h1 class="text-2xl">Stake KII</h1>
@@ -245,7 +261,7 @@ const stakeTransaction = (validatorAddress: string, toStakeAmount: number) => {
                         <div class="flex-col">
                           <div class="flex justify-center py-2">
                             <span class="text-green-500">{{
-                              `KII Balance: ${format.formatToken(
+                              `KII Balance: ${isKiichain?format.formatToken(walletBalance):format.formatToken(
                                 walletStore.balanceOfStakingToken,
                                 false
                               )}`
@@ -261,7 +277,7 @@ const stakeTransaction = (validatorAddress: string, toStakeAmount: number) => {
                               v-model.number="toStakeAmount"
                             />
                             <span class="truncate">{{
-                              v.operator_address
+                              `Validator: ${toETHAddress(v.operator_address)}`
                             }}</span>
                           </div>
                           <div class="flex justify-center w-full py-2">
@@ -283,10 +299,47 @@ const stakeTransaction = (validatorAddress: string, toStakeAmount: number) => {
                   </template>
                 </Modal>
 
+                <!-- Rewards Modal -->
+                <Modal
+                  :show="((selectedValidator === v.operator_address) && (showRewardsModal === true))"
+                  @close="((selectedValidator = '') && (showRewardsModal = false))"
+                >
+                  <template #header>
+                    <h1 class="text-2xl">Withdraw KII Rewards</h1>
+                  </template>
+                  <template #body>
+                    <div class="w-full">
+                      Withdraw your earned KII rewards!
+                      <div class="w-full">
+                        <div class="flex-col">
+                          <div class="flex justify-center py-2">
+                            <span class="text-green-500">{{
+                              `Outstanding Rewards Balance: ${isKiichain?format.formatToken(walletRewardBalance):format.formatToken(
+                                walletStore.balanceOfStakingToken,
+                                false
+                              )}`
+                            }}</span>
+                          </div>
+                          <div class="flex justify-center w-full py-2">
+                            <button
+                              class="w-full rounded-lg bg-[#432ebe] text-white p-2"
+                              @click="
+                                withdrawRewardsTransaction()
+                              "
+                            >
+                              Withdraw KII Rewards
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+                </Modal>
+
                 <!-- Loading Modal -->
                 <Modal :show="loading" @close="loading = false">
                   <template #header>
-                    <h1 class="text-2xl">Please wait...</h1>
+                    <h1 class="text-2xl">{{ loadingMessage }}</h1>
                   </template>
                   <template #body>
                     <PulseLoader />
@@ -498,6 +551,7 @@ const stakeTransaction = (validatorAddress: string, toStakeAmount: number) => {
             <label
               for="withdraw_commission"
               class="btn btn-primary w-full hover:text-black dark:hover:text-white"
+              :class="isKiichain?'hidden':''"
               @click="
                 dialog.open('withdraw_commission', {
                   validator_address: v.operator_address,
@@ -505,6 +559,11 @@ const stakeTransaction = (validatorAddress: string, toStakeAmount: number) => {
               "
               >{{ $t('account.btn_withdraw') }}</label
             >
+            <label
+              class="btn btn-primary w-full hover:text-black dark:hover:text-white"
+              :class="isKiichain?'':'hidden'"
+              @click="((selectedValidator = v.operator_address) && (showRewardsModal = true) && (showStakeModal = false))"
+              >{{ $t('account.btn_withdraw') }}</label>
           </div>
         </div>
       </div>
