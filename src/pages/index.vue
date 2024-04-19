@@ -11,7 +11,7 @@ import { Icon } from '@iconify/vue';
 import { computed, onMounted, ref } from 'vue';
 import router from '@/router'
 import type {  Tx, TxResponse } from '@/types';
-import { shortenAddress } from '@/libs/utils';
+import { isDateWithinDays, shortenAddress } from '@/libs/utils';
 
 dayjs.extend(relativeTime);
 
@@ -27,17 +27,36 @@ let errorMessage = ref('');
 let searchQuery = ref('');
 let latestTransactions = ref<TxResponse[]>([]);
 let transactionsCount = ref(0);
+let transactionHistoryFilters = ref<number[]>([7,14,31])
+let selectedTransactionHistoryFilter = ref<number>(7); //
+const isLoading = ref(false); 
 
 onMounted(async() => {
-  const data = await bankStore.fetchLatestTxs(blockStore.current?.assets[0].base ?? '')
+  isLoading.value = true;
+  try {
+    const totalTransactionCount = await blockStore.rpc.getTxsCount();
 
-  latestTransactions.value = data;
+    const data = await bankStore.fetchLatestTxs(totalTransactionCount)
 
-  transactionsCount.value = await blockStore.rpc.getTxsCount();
+    latestTransactions.value = data;
+    transactionsCount.value = totalTransactionCount
+  } catch (error) {
+    console.error("Failed to fetch transactions:", error);
+  } finally {
+    isLoading.value = false;
+  }
 });
+
+const latestTransactionFiltered = computed(() => {
+  return latestTransactions.value.filter(latestTransaction => isDateWithinDays(latestTransaction.timestamp, +selectedTransactionHistoryFilter.value));
+})
 
 const latestBlocks = computed(() => {
     return baseStore.recents.reverse().slice(0, 20) 
+})
+
+const latestTransactionList = computed(() => {
+    return latestTransactions?.value?.slice(0, 20) 
 })
 
 function computeTx(items: Tx[]) {
@@ -94,8 +113,13 @@ function toggleIsFilterDropdown() {
   isFilterDropdownActive.value = !isFilterDropdownActive.value;
 }
 
+function handleSelectTransactionHistoryFilter(event: Event) {
+  const target = event.target as HTMLSelectElement
+  selectedTransactionHistoryFilter.value = +target.value;
+}
+
 const transactionHistory = computed(() => {
-  return latestTransactions?.value?.reduce((history, currentItem) => {
+  return latestTransactionFiltered?.value?.reduce((history, currentItem) => {
     const txDate = dayjs(currentItem.timestamp).format('MMM D YYYY');
 
     if (Object.keys(history).some((existingHistory: any) => dayjs(existingHistory.date).isSame(txDate, 'd'))) {
@@ -179,14 +203,21 @@ const transactionHistoryChartValue = computed(() => {
 
     <!-- Line Chart -->
     <div>
-      <div class="px-12 py-6 bg-white shadow-lg rounded-lg space-y-2 dark:bg-base100">
-        <div>Transaction History in {{ transactionHistoryChartValue.labels.length }} days</div>
-        <!-- <div class="flex items-center gap-2">
-          <div class="text-2xl font-semibold">$ {{ 32.18.toLocaleString() }}</div>
-          <div class="flex items-center">
-            <Icon icon="mdi:chevron-up" /> <div>1.2 %</div>
-          </div>
-        </div> -->
+      <!-- Loading State Display -->
+      <div v-if="isLoading" class="px-12 py-6 bg-white shadow-lg rounded-lg text-center">
+        Loading transactions...
+      </div>
+
+       <!-- Data Display (hidden when loading) -->
+      <div v-else class="px-12 py-6 bg-white shadow-lg rounded-lg space-y-2 dark:bg-base100">
+        <div class="flex justify-between items-center">
+          <span>Transaction History</span>
+          <select @change="handleSelectTransactionHistoryFilter($event)" class="select select-bordered">
+            <option v-for="transactionHistoryFilter in transactionHistoryFilters" :key="transactionHistoryFilter" :value="transactionHistoryFilter">
+              {{ transactionHistoryFilter }} days
+            </option>
+          </select>
+        </div>
         <LineChart :series="transactionHistoryChartValue.series.reverse()" :labels="transactionHistoryChartValue.labels.reverse()" />
       </div>
     </div>
@@ -196,7 +227,7 @@ const transactionHistoryChartValue = computed(() => {
       <table class="table rounded bg-[#F9F9F9] dark:bg-base100 shadow">
         <thead>
           <tr class="">
-            <td colspan="3" class="text-info">LATEST BLOCKS</td>
+            <th colspan="3" class="text-info">LATEST BLOCKS</th>
           </tr>
         </thead>
         <tr v-for="item in latestBlocks" class="border-y-solid border-y-1 border-[#EAECF0]">
@@ -229,10 +260,10 @@ const transactionHistoryChartValue = computed(() => {
       <table class="table rounded bg-[#F9F9F9] dark:bg-base100 shadow">
         <thead>
           <tr class="">
-            <td colspan="3" class="text-info">LATEST TRANSACTIONS</td>
+            <th colspan="3" class="text-info">LATEST TRANSACTIONS</th>
           </tr>
         </thead>
-        <tr v-for="item in latestTransactions" class="border-y-solid border-y-1 border-[#EAECF0]">
+        <tr v-for="item in latestTransactionList" class="border-y-solid border-y-1 border-[#EAECF0]">
           <td class="py-4">
             <div class="flex gap-3 items-center">
               <div class="p-2 rounded-full bg-base-300">

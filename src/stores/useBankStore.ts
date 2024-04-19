@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import dayjs from 'dayjs';
 
 import { useBlockchain } from './useBlockchain';
 import { useStakingStore } from './useStakingStore';
@@ -108,19 +109,40 @@ export const useBankStore = defineStore('bankstore', {
       }
       return trace;
     },
-    async fetchLatestTxs(denom: string): Promise<TxResponse[]> {
-      const pageRequest = new PageRequest();
-      pageRequest.limit = 20;
-      const data = await this.blockchain.rpc.getLatestTxs();
+    async fetchLatestTxs(totalCount: number): Promise<TxResponse[]> {
+      let key = undefined;
+      let fetch = true;
+      let allData: TxResponse[] = [];
+      let currentPage = 1;
 
-      return data.tx_responses;
-    },
-    async fetchLatestTxsEvm(denom: string): Promise<TxResponse[]> {
-      const pageRequest = new PageRequest();
-      pageRequest.limit = 20;
-      const data = await this.blockchain.rpc.getLatestTxsEvm();
+      // Current date
+      let currentDate = dayjs();
+      let oneMonthAgoDate = currentDate.subtract(1, 'month');
 
-      return data.tx_responses;
+      const totalPage = Math.ceil(totalCount / 100);
+
+      while (fetch && currentPage <= totalPage) {
+
+        const data = await this.blockchain.rpc.getLatestTxs(
+          currentPage
+        );
+
+        if (data.tx_responses.length) {
+          allData = [...allData, ...data.tx_responses];
+        } else {
+          fetch = false;
+        }
+
+        const givenDate = dayjs(data.tx_responses[data.tx_responses.length - 1].timestamp);
+
+        if (givenDate.isBefore(oneMonthAgoDate)) {
+          break;
+        }
+        
+        currentPage = currentPage + 1;
+      }
+
+      return allData;
     },
   },
 });

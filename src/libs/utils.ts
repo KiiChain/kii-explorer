@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 export function getLocalObject(name: string) {
   const text = localStorage.getItem(name);
   if (text) {
@@ -225,11 +227,14 @@ export const formatAmount = (
       ? num
       : num.toFixed(decimalPlaces);
 
-  console.log(
-    'formattedAmount',
-    formattedAmount,
-    parseInt(num.toString()) === num && !addDecimal
-  );
-
   return formattedAmount + AMOUNT_ABBREVIATIONS[abbreviationIndex];
 };
+
+export const isDateWithinDays = (dateToCheck: string | Date, interval: number): boolean => {
+  const today = dayjs(); 
+  const daysAgo = today.subtract(interval, 'day'); 
+
+  const checkDate = dayjs(dateToCheck); 
+
+  return checkDate.isAfter(daysAgo) && (checkDate.isBefore(today) || checkDate.isSame(today));
+}
