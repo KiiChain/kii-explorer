@@ -230,11 +230,11 @@ export const formatAmount = (
   return formattedAmount + AMOUNT_ABBREVIATIONS[abbreviationIndex];
 };
 
-export const isDateWithinLast30Days = (dateToCheck: string | Date): boolean => {
+export const isDateWithinDays = (dateToCheck: string | Date, interval: number): boolean => {
   const today = dayjs(); 
-  const thirtyDaysAgo = today.subtract(30, 'day'); 
+  const daysAgo = today.subtract(interval, 'day'); 
 
   const checkDate = dayjs(dateToCheck); 
 
-  return checkDate.isAfter(thirtyDaysAgo) && (checkDate.isBefore(today) || checkDate.isSame(today));
+  return checkDate.isAfter(daysAgo) && (checkDate.isBefore(today) || checkDate.isSame(today));
 }
