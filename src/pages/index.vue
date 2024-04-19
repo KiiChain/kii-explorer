@@ -213,7 +213,7 @@ const transactionHistoryChartValue = computed(() => {
           <span>Transaction History</span>
           <select @change="handleSelectTransactionHistoryFilter($event)" class="select select-bordered">
             <option v-for="transactionHistoryFilter in transactionHistoryFilters" :key="transactionHistoryFilter" :value="transactionHistoryFilter">
-              {{ transactionHistoryFilter }}
+              {{ transactionHistoryFilter }} days
             </option>
           </select>
         </div>
