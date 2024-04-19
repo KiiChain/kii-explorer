@@ -11,7 +11,6 @@ import {
   type Tx,
   type TxResponse,
 } from '@/types';
-import { isDateWithinLast30Days } from '@/libs/utils';
 
 export const useBankStore = defineStore('bankstore', {
   state: () => {
@@ -116,6 +115,10 @@ export const useBankStore = defineStore('bankstore', {
       let allData: TxResponse[] = [];
       let currentPage = 1;
 
+      // Current date
+      let currentDate = dayjs();
+      let oneMonthAgoDate = currentDate.subtract(1, 'month');
+
       const totalPage = Math.ceil(totalCount / 100);
 
       while (fetch && currentPage <= totalPage) {
@@ -124,12 +127,16 @@ export const useBankStore = defineStore('bankstore', {
           currentPage
         );
 
-        const filterTxResponses = data.tx_responses.filter(item => isDateWithinLast30Days(item.timestamp));
-
-        if (filterTxResponses.length) {
-          allData = [...allData, ...filterTxResponses];
+        if (data.tx_responses.length) {
+          allData = [...allData, ...data.tx_responses];
         } else {
           fetch = false;
+        }
+
+        const givenDate = dayjs(data.tx_responses[data.tx_responses.length - 1].timestamp);
+
+        if (givenDate.isBefore(oneMonthAgoDate)) {
+          break;
         }
         
         currentPage = currentPage + 1;

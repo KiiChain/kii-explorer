@@ -11,7 +11,7 @@ import { Icon } from '@iconify/vue';
 import { computed, onMounted, ref } from 'vue';
 import router from '@/router'
 import type {  Tx, TxResponse } from '@/types';
-import { shortenAddress } from '@/libs/utils';
+import { isDateWithinDays, shortenAddress } from '@/libs/utils';
 
 dayjs.extend(relativeTime);
 
@@ -27,6 +27,8 @@ let errorMessage = ref('');
 let searchQuery = ref('');
 let latestTransactions = ref<TxResponse[]>([]);
 let transactionsCount = ref(0);
+let transactionHistoryFilters = ref<number[]>([7,14,31])
+let selectedTransactionHistoryFilter = ref<number>(7); //
 const isLoading = ref(false); 
 
 onMounted(async() => {
@@ -44,6 +46,10 @@ onMounted(async() => {
     isLoading.value = false;
   }
 });
+
+const latestTransactionFiltered = computed(() => {
+  return latestTransactions.value.filter(latestTransaction => isDateWithinDays(latestTransaction.timestamp, +selectedTransactionHistoryFilter.value));
+})
 
 const latestBlocks = computed(() => {
     return baseStore.recents.reverse().slice(0, 20) 
@@ -106,8 +112,13 @@ function toggleIsFilterDropdown() {
   isFilterDropdownActive.value = !isFilterDropdownActive.value;
 }
 
+function handleSelectTransactionHistoryFilter(event: Event) {
+  const target = event.target as HTMLSelectElement
+  selectedTransactionHistoryFilter.value = +target.value;
+}
+
 const transactionHistory = computed(() => {
-  return latestTransactions?.value?.reduce((history, currentItem) => {
+  return latestTransactionFiltered?.value?.reduce((history, currentItem) => {
     const txDate = dayjs(currentItem.timestamp).format('MMM D YYYY');
 
     if (Object.keys(history).some((existingHistory: any) => dayjs(existingHistory.date).isSame(txDate, 'd'))) {
@@ -198,7 +209,14 @@ const transactionHistoryChartValue = computed(() => {
 
        <!-- Data Display (hidden when loading) -->
       <div v-else class="px-12 py-6 bg-white shadow-lg rounded-lg space-y-2 dark:bg-base100">
-        <div>Transaction History in {{ transactionHistoryChartValue.labels.length }} days</div>
+        <div class="flex justify-between items-center">
+          <span>Transaction History</span>
+          <select @change="handleSelectTransactionHistoryFilter($event)" class="select select-bordered">
+            <option v-for="transactionHistoryFilter in transactionHistoryFilters" :key="transactionHistoryFilter" :value="transactionHistoryFilter">
+              {{ transactionHistoryFilter }} days
+            </option>
+          </select>
+        </div>
         <LineChart :series="transactionHistoryChartValue.series.reverse()" :labels="transactionHistoryChartValue.labels.reverse()" />
       </div>
     </div>
