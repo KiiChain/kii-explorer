@@ -52,12 +52,13 @@ onMounted(async () => {
   if(isKiichain){
     const gasPrice = await publicClient.getGasPrice() 
     gasPriceEvm.value = gasPrice.toString()
-    latestTransactions.value = await bankStore.fetchLatestTxsEvm(blockStore.current?.assets[0].base ?? '');
+    // latestTransactions.value = await bankStore.fetchLatestTxsEvm(blockStore.current?.assets[0].base ?? '');
     transactionsCount.value = await blockStore.rpc.getTxsCountEvm();
     return
   }
-  latestTransactions.value = await bankStore.fetchLatestTxs(blockStore.current?.assets[0].base ?? '');
-  transactionsCount.value = await blockStore.rpc.getTxsCount();
+  const txCount = await blockStore.rpc.getTxsCount();
+  transactionsCount.value = txCount
+  latestTransactions.value = await bankStore.fetchLatestTxs(txCount);
 });
 
 const latestBlocks = computed(() => {
