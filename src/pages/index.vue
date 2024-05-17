@@ -32,6 +32,7 @@ let selectedTransactionHistoryFilter = ref<number>(7); //
 const isLoading = ref(false); 
 
 onMounted(async() => {
+  location.replace('/kiichain')
   isLoading.value = true;
   try {
     const totalTransactionCount = await blockStore.rpc.getTxsCount();

@@ -6,6 +6,7 @@ import { ref } from 'vue';
 import newFooter from '@/layouts/components/NavFooter.vue';
 import NavbarThemeSwitcher from '@/layouts/components/NavbarThemeSwitcher.vue';
 import NavbarSearch from '@/layouts/components/NavbarSearch.vue';
+import NavBarChainSelector from '@/layouts/components/NavBarChainSelector.vue'
 import ChainProfile from '@/layouts/components/ChainProfile.vue';
 import kiiLogoDark from '@/assets/kii-branding-logo.png';
 import kiiLogoLight from '@/assets/logo-gradient-label-dark.png';
@@ -234,6 +235,7 @@ function selected(route: any, nav: NavLink) {
         <NavBarI18n class="hidden md:!inline-block" />
         <NavbarThemeSwitcher class="!inline-block" />
         <NavbarSearch class="!inline-block" />
+        <NavBarChainSelector />
         <NavBarWallet />
       </div>
 

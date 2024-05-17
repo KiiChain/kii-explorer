@@ -86,6 +86,7 @@ const tipMsg = computed(() => {
       <div>
         <a v-if="walletStore.currentAddress"
           class="block py-2 px-2 hover:bg-gray-100 dark:hover:bg-[#353f5a] rounded cursor-pointer"
+          :class="isKiichain?'hidden':''"
           style="overflow-wrap: anywhere" @click="copyAdress(walletStore.currentAddress)">
           {{ walletStore.currentAddress }}
         </a>

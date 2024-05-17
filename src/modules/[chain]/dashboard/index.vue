@@ -734,16 +734,18 @@ const walletRewardBalance = computed(() => rewardBalance.value);
           >{{ $t('account.btn_delegate') }}</label
         >
         <RouterLink
+          :to="`/${selectedChain}/account/${(isKiichain
+            ? toETHAddress(walletStore.currentAddress)
+            : walletStore.currentAddress)}`"
+          class="btn !bg-error !border-error text-white"
+          >My Account
+        </RouterLink>
+        <RouterLink
           :to="`/${selectedChain}/staking`"
           class="btn !bg-info !border-info text-white"
           :class="isKiichain ? '' : 'hidden'"
           >{{ $t('account.btn_delegate') }}</RouterLink
         >
-        <RouterLink
-          to="/wallet/receive"
-          class="btn !bg-info !border-info text-white hidden"
-          >{{ $t('index.receive') }}
-        </RouterLink>
       </div>
       <Teleport to="body">
         <ping-token-convert

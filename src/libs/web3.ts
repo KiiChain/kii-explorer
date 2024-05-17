@@ -209,9 +209,9 @@ export const getEvmTransactionInfo = async (hash: string) => {
   return transactionReceipt
 }
 
-export const getWalletBalance = async (denom: string) => {
+export const getWalletBalance = async (denom: string, address?: `0x${string}`) => {
   const balance = await publicClient.getBalance({ 
-    address: account,
+    address: address ?? account,
   })
 
   return {
@@ -294,6 +294,90 @@ export const withdrawRewardsBalance = async (denom:string, loading?: Ref<boolean
     if(loading && loadingMessage){
       loading.value = false;
       loadingMessage.value = ''
+    }
+  }
+}
+
+export async function redelegateStake(
+  validatorSrcAddress: string,
+  validatorDestAddress: string,
+  amount: number,
+  loading?: Ref<boolean>,
+  loadingMessage?: Ref<string>
+) {
+  try {
+    const valAcc = operatorAddressToAccount(validatorSrcAddress);
+    const valHexAcc = toETHAddress(valAcc);
+    const valAccDest = operatorAddressToAccount(validatorDestAddress);
+    const valHexAccDest = toETHAddress(valAccDest);
+    if(loading){
+        loading.value = true;
+    }
+
+    if(loading && loadingMessage){
+      loading.value = true
+      loadingMessage.value = `Relocating Stake to validator ${valHexAccDest}`
+    } 
+    const { request } = await publicClient.simulateContract({
+      account,
+      address: STAKING_CONTRACT_ADDRESS,
+      abi: stakingAbi,
+      functionName: 'beginRedelegate',
+      args: [valHexAcc, valHexAccDest, amount * 10 ** 6],
+    });
+    const hash = await walletClient.writeContract(request);
+    const transaction = await publicClient.waitForTransactionReceipt( 
+      { hash: hash }
+    )
+    if(loading && transaction && loadingMessage){
+      loading.value = false;
+      loadingMessage.value = ''
+    }
+    window.location.reload()
+  } catch (err) {
+    if(loading){
+      loading.value = false;
+    }
+  }
+}
+
+
+export async function undelegateStake(
+  validatorAddress: string,
+  amount: number,
+  loading?: Ref<boolean>,
+  loadingMessage?: Ref<string>
+) {
+  try {
+    const valAcc = operatorAddressToAccount(validatorAddress);
+    const valHexAcc = toETHAddress(valAcc);
+    if(loading){
+        loading.value = true;
+    }
+
+    if(loading && loadingMessage){
+      loading.value = true
+      loadingMessage.value = `Undelegating Stake from validator ${valHexAcc}`
+    } 
+    const { request } = await publicClient.simulateContract({
+      account,
+      address: STAKING_CONTRACT_ADDRESS,
+      abi: stakingAbi,
+      functionName: 'undelegate',
+      args: [valHexAcc, amount * 10 ** 6],
+    });
+    const hash = await walletClient.writeContract(request);
+    const transaction = await publicClient.waitForTransactionReceipt( 
+      { hash: hash }
+    )
+    if(loading && transaction && loadingMessage){
+      loading.value = false;
+      loadingMessage.value = ''
+    }
+    window.location.reload()
+  } catch (err) {
+    if(loading){
+      loading.value = false;
     }
   }
 }

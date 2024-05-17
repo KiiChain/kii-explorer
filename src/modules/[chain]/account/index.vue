@@ -4,6 +4,7 @@ import { useBaseStore, useBlockchain, useFormatter } from '@/stores';
 import { PageRequest, type AuthAccount, type Pagination } from '@/types';
 import { onMounted } from 'vue';
 import PaginationBar from '@/components/PaginationBar.vue';
+import { toETHAddress } from '@/libs';
 const props = defineProps(['chain']);
 
 const chainStore = useBlockchain()
@@ -11,6 +12,7 @@ const chainStore = useBlockchain()
 const accounts = ref([] as AuthAccount[])
 const pageRequest = ref(new PageRequest())
 const pageResponse = ref({} as Pagination)
+const isKiichain = props.chain === 'kiichain';
 
 onMounted(() => {
   pageload(1)
@@ -66,7 +68,7 @@ function showPubkey(v: any) {
             </thead>
             <tr v-for="acc in accounts">
                 <td>{{ showType(acc['@type']) }}</td>
-                <td><RouterLink :to="`/${chain}/account/${showAddress(acc)}`">{{ showAddress(acc) }}</RouterLink></td>
+                <td><RouterLink :to="`/${chain}/account/${isKiichain?toETHAddress(showAddress(acc)):showAddress(acc)}`">{{ isKiichain?toETHAddress(showAddress(acc)):showAddress(acc) }}</RouterLink></td>
                 <td>{{ showAccountNumber(acc) }}</td>
                 <td>{{ showSequence(acc) }}</td>
                 <td>{{ showPubkey(acc) }}</td>

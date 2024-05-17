@@ -26,6 +26,7 @@ import { DEFAULT } from '@/libs';
 import { hexToRgb, rgbToHsl } from '@/libs/utils';
 
 const isKiichain = window.location.pathname.search('kiichain') > -1;
+// const wallet = useWalletStore()
 
 export const useBlockchain = defineStore('blockchain', {
   state: () => {
@@ -67,6 +68,7 @@ export const useBlockchain = defineStore('blockchain', {
       let section2Item: VerticalNavItems = [];
       const router = useRouter();
       let routes = router?.getRoutes()?.filter(route => !route.meta.disabled) || [];
+
       if (this.current && routes) {
         if (this.current?.themeColor) {
           const { color } = hexToRgb(this.current?.themeColor);
