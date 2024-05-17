@@ -1,523 +1,380 @@
-<script lang="ts" setup>
-import MdEditor from 'md-editor-v3';
-import PriceMarketChart from '@/components/charts/PriceMarketChart.vue';
+<script setup lang="ts">
+// @ts-ignore
+import {
+  useWalletStore,
+  useBlockchain,
+  useBaseStore,
+  useFormatter,
+  useBankStore,
+} from '@/stores';
+import CardValue from '@/components/CardValue.vue';
+import DualCardValue from '@/components/DualCardValue.vue';
+import LineChart from '@/components/charts/LineChart.vue';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 
 import { Icon } from '@iconify/vue';
-import {
-  useBlockchain,
-  useFormatter,
-  useTxDialog,
-  useWalletStore,
-  useStakingStore,
-  useParamStore,
-  useBankStore,
-useBaseStore,
-} from '@/stores';
-import { onMounted, ref } from 'vue';
-import { useIndexModule, colorMap } from './indexStore';
-import { computed } from '@vue/reactivity';
-
-import CardStatisticsVertical from '@/components/CardStatisticsVertical.vue';
-import ProposalListItem from '@/components/ProposalListItem.vue';
-import ArrayObjectElement from '@/components/dynamic/ArrayObjectElement.vue'
-import DonutChart from '@/components/charts/DonutChart.vue';
+import { computed, onMounted, ref } from 'vue';
+import router from '@/router';
+import type { Tx, TxResponse } from '@/types';
 import { shortenAddress } from '@/libs/utils';
-import type { DenomOwner } from '@/types';
+import { defineChain, createPublicClient, http, decodeFunctionData, parseUnits } from 'viem'
+import bankAbi from '@/assets/abi/bank.json'
+import { useRoute } from 'vue-router';
+import { testnet } from '@/libs/web3';
 
-import planet1 from '@/assets/images/misc/planet-1.png';
-import planet2 from '@/assets/images/misc/planet-2.png';
-import planet3 from '@/assets/images/misc/planet-3.png';
-import planet4 from '@/assets/images/misc/planet-4.png';
-import planet5 from '@/assets/images/misc/planet-5.png';
-import planet6 from '@/assets/images/misc/planet-6.png';
+dayjs.extend(relativeTime);
 
-const props = defineProps(['chain']);
-
-const baseStore = useBaseStore();
-const blockchain = useBlockchain();
-const store = useIndexModule();
 const walletStore = useWalletStore();
-const bankStore = useBankStore();
 const format = useFormatter();
-const dialog = useTxDialog();
-const stakingStore = useStakingStore();
-const paramStore = useParamStore()
-const coinInfo = computed(() => {
-  return store.coinInfo;
-});
+const blockStore = useBlockchain();
+const baseStore = useBaseStore();
+const bankStore = useBankStore();
+const route = useRoute();
+const selectedChain = route.params.chain || 'kii';
 
-const topDenomOwners = ref([] as DenomOwner[]);
+let isFilterDropdownActive = ref(false);
+
+let errorMessage = ref('');
+let searchQuery = ref('');
+let latestTransactions = ref<TxResponse[]>([]);
+let transactionsCount = ref(0);
+let gasPriceEvm = ref('');
+
+const isKiichain = selectedChain === 'kiichain'
+
+const publicClient = createPublicClient({
+  chain: testnet,
+  transport: http(),
+})
 
 onMounted(async () => {
-  store.loadDashboard();
-  walletStore.loadMyAsset();
-  paramStore.handleAbciInfo()
-
-  const data = await bankStore.fetchTopDenomOwners(blockchain.current?.assets[0].base ?? '')
-
-  topDenomOwners.value = data;
-  // if(!(coinInfo.value && coinInfo.value.name)) {
-  // }
-});
-const ticker = computed(() => store.coinInfo.tickers[store.tickerIndex]);
-
-const currName = ref("")
-blockchain.$subscribe(async (m, s) => {
-  if (s.chainName !== currName.value) {
-    currName.value = s.chainName
-    store.loadDashboard();
-    walletStore.loadMyAsset();
-    paramStore.handleAbciInfo()
-
-    const data = await bankStore.fetchTopDenomOwners(blockchain.current?.assets[0].base ?? '')
-
-    topDenomOwners.value = data;
+  if(isKiichain){
+    const gasPrice = await publicClient.getGasPrice() 
+    gasPriceEvm.value = gasPrice.toString()
+    latestTransactions.value = await bankStore.fetchLatestTxsEvm(blockStore.current?.assets[0].base ?? '');
+    transactionsCount.value = await blockStore.rpc.getTxsCountEvm();
+    return
   }
+  const txCount = await blockStore.rpc.getTxsCount();
+  transactionsCount.value = txCount
+  latestTransactions.value = await bankStore.fetchLatestTxs(txCount);
 });
-function shortName(name: string, id: string) {
-  return name.toLowerCase().startsWith('ibc/') ||
-    name.toLowerCase().startsWith('0x')
-    ? id
-    : name;
+
+const latestBlocks = computed(() => {
+  return baseStore.recents.reverse().slice(0, 20);
+});
+
+
+// TODO: does not work.  Verify currentTx outputs an object
+// function computeTx(items: Tx[]) {
+//   const initialDenom = blockStore.current?.assets[0].base ?? '';
+
+//   const total = items.reduce(
+//     (accumulator, currentTx) => {
+//       console.log();
+//       const message = currentTx.body.messages[0];
+//       const messageAmount = Array.isArray(message.amount)
+//         ? message.amount[0]
+//         : message.amount;
+
+//       // Assuming denom is the same for all transactions, otherwise you'd need to handle varying denoms
+//       const denom = initialDenom;
+
+//       // Sum amounts as integers then convert back to string
+//       const amount = (
+//         parseInt(accumulator.amount) + parseInt(messageAmount.amount)
+//       ).toString();
+
+//       return {
+//         denom,
+//         amount,
+//       };
+//     },
+//     { denom: initialDenom, amount: '0' }
+//   );
+
+//   return format.formatToken(total);
+// }
+
+function confirm() {
+  errorMessage.value = '';
+  const key = searchQuery.value;
+  if (!key) {
+    errorMessage.value = 'Please enter a value!';
+    return;
+  }
+  const height = /^\d+$/;
+  const txhash = /^[A-Z\d]{64}$/;
+  const addr = /^[a-z\d]+1[a-z\d]{38,58}$/;
+
+  const current = blockStore?.current?.chainName || '';
+  const routeParams = router?.currentRoute?.value;
+
+  if (!Object.values(routeParams?.params ?? '').includes(key)) {
+    if (height.test(key)) {
+      router.push({ path: `/${current}/block/${key}` });
+    } else if (txhash.test(key)) {
+      router.push({ path: `/${current}/tx/${key}` });
+      //     this.$router.push({ name: 'transaction', params: { chain: c.chain_name, hash: key } })
+    } else if (addr.test(key)) {
+      router.push({ path: `/${current}/account/${key}` });
+    } else {
+      errorMessage.value = 'The input not recognized';
+    }
+  }
 }
 
-const comLinks = [
-  {
-    name: 'Website',
-    icon: 'mdi-web',
-    href: store.homepage,
-  },
-  {
-    name: 'Twitter',
-    icon: 'mdi-twitter',
-    href: store.twitter,
-  },
-  {
-    name: 'Telegram',
-    icon: 'mdi-telegram',
-    href: store.telegram,
-  },
-  {
-    name: 'Github',
-    icon: 'mdi-github',
-    href: store.github,
-  },
-];
+// function toggleIsFilterDropdown() {
+//   isFilterDropdownActive.value = !isFilterDropdownActive.value;
+// }
 
-// wallet box
-const change = computed(() => {
-  const token = walletStore.balanceOfStakingToken;
-  return token ? format.priceChanges(token.denom) : 0;
-});
-const color = computed(() => {
-  switch (true) {
-    case change.value > 0:
-      return 'text-green-600';
-    case change.value === 0:
-      return 'text-grey-500';
-    case change.value < 0:
-      return 'text-red-600';
-  }
+const transactionHistory = computed(() => {
+  return latestTransactions?.value?.reduce((history, currentItem) => {
+    const txDate = dayjs(currentItem.timestamp).format('MMM D YYYY');
+
+    if (
+      Object.keys(history).some((existingHistory: any) =>
+        dayjs(existingHistory.date).isSame(txDate, 'd')
+      )
+    ) {
+      history[txDate] = {
+        tx: [...history[txDate].tx, currentItem],
+      };
+    } else {
+      history[txDate] = {
+        tx: [currentItem],
+      };
+    }
+    return history;
+  }, {} as any);
 });
 
-async function updateState() {
-  walletStore.loadMyAsset()
+const transactionHistoryChartValue = computed(() => {
+  const getAmount = (item: TxResponse) => {
+    if(isKiichain){
+      return Number(item.events.find(ev => ev.type === 'transfer')?.attributes.find(att => att.key === 'amount')?.value.replace(/\D/g,'')) || 0
+    }
+    return item.tx.body.messages[0]?.amount?(Array.isArray(item.tx.body.messages[0]['amount'])
+      ? item.tx.body.messages[0]['amount'][0]['amount']
+      : item.tx.body.messages[0]['amount']['amount']):0;
+  };
 
-  const data = await bankStore.fetchTopDenomOwners(blockchain.current?.assets[0].base ?? '')
-
-  topDenomOwners.value = data;
-}
-
-function trustColor(v: string) {
-  return `text-${colorMap(v)}`
-}
-
-const quantity = ref(100)
-const qty = computed({
-  get: () => {
-    return parseFloat(quantity.value.toFixed(6))
-  },
-  set: val => {
-    quantity.value = val
-  }
-})
-const amount = computed({
-  get: () => {
-    return quantity.value * ticker.value.converted_last.usd || 0
-  },
-  set: val => {
-    quantity.value = val / ticker.value.converted_last.usd || 0
-  }
-})
-
-const topAccountHolders = computed(() => {
-  const data = topDenomOwners.value;
-
-  if (Array.isArray(data)) {
-    const topData = data.slice(0, 10).map((x) => parseFloat(x.balance.amount));
-    const otherData = data.slice(10, data.length);
-
-    const otherDataTotal = otherData.reduce(
-      (accumulator, x) => accumulator + parseFloat(x.balance.amount),
-      0
-    );
-
-    return [...topData, otherDataTotal];
-  }
-
-  return [];
+  return {
+    series: Object.values(transactionHistory?.value || {}).map((data: any) => ({
+      data: data.tx
+        .reduce(
+          (total: number, curr: any) =>
+            (total = total + Number(getAmount(curr))),
+          0
+        )
+        .toString(),
+    })),
+    labels: Object.keys(transactionHistory?.value || {})?.map((date: string) =>
+      dayjs(date).format('MMM D')
+    ),
+  };
 });
-
-const topAccountAddresses = computed(() => {
-  const data = topDenomOwners.value;
-
-  if (Array.isArray(data)) {
-    const topData = data.slice(0, 10).map((x) => shortenAddress(x.address));
-
-    return [...topData, 'Other accounts'];
-  }
-
-  return [];
-});
-
-const cardImages = [planet1, planet2, planet3, planet4, planet5, planet6];
 
 </script>
 
 <template>
-  <div>
-    <div v-if="coinInfo && coinInfo.name" class="bg-base-100 dark:bg-base100 rounded shadow mb-4">
-      <div class="grid grid-cols-2 md:grid-cols-3 p-4">
-        <div class="col-span-2 md:col-span-1">
-          <div class="text-xl font-semibold text-main">
-            {{ coinInfo.name }} (<span class="uppercase">{{
-              coinInfo.symbol
-            }}</span>)
-          </div>
-          <div class="text-xs mt-2">
-            {{ $t('index.rank') }}:
-            <div class="badge text-xs badge-error bg-[#fcebea] dark:bg-[#41384d] text-red-400">
-              #{{ coinInfo.market_cap_rank }}
-            </div>
-          </div>
-
-          <div class="my-4 flex flex-wrap items-center">
-            <a v-for="(item, index) of comLinks" :key="index" :href="item.href"
-              class="link link-primary px-2 py-1 rounded-sm no-underline hover:text-primary hover:bg-gray-100 dark:hover:bg-slate-800 flex items-center">
-              <Icon :icon="item?.icon" />
-              <span class="ml-1 text-sm uppercase">{{ item?.name }}</span>
-            </a>
-          </div>
-
-          <div>
-            <div class="dropdown dropdown-hover w-full">
-              <label>
-                <div
-                  class="bg-gray-100 dark:bg-[#384059] flex items-center justify-between px-4 py-2 cursor-pointer rounded">
-                  <div>
-                    <div class="font-semibold text-xl text-[#666] dark:text-white">
-                      {{ ticker?.market?.name || '' }}
-                    </div>
-                    <div class="text-info text-sm">
-                      {{ shortName(ticker?.base, ticker.coin_id) }}/{{
-                        shortName(ticker?.target, ticker.target_coin_id)
-                      }}
-                    </div>
-                  </div>
-
-                  <div class="text-right">
-                    <div class="text-xl font-semibold text-[#666] dark:text-white">
-                      ${{ ticker.converted_last.usd }}
-                    </div>
-                    <div class="text-sm" :class="store.priceColor">
-                      {{ store.priceChange }}%
-                    </div>
-                  </div>
-                </div>
-              </label>
-              <div class="dropdown-content pt-1">
-                <div class="h-64 overflow-auto w-full shadow rounded">
-                  <ul class="menu w-full bg-gray-100 rounded dark:bg-[#384059]">
-                    <li v-for="(item, index) in store.coinInfo.tickers" :key="index" @click="store.selectTicker(index)">
-                      <div class="flex items-center justify-between hover:bg-base-100 dark:bg-base100">
-                        <div class="flex-1">
-                          <div class="text-main text-sm" :class="trustColor(item.trust_score)">
-                            {{ item?.market?.name }}
-                          </div>
-                          <div class="text-sm text-gray-500 dark:text-gray-400">
-                            {{ shortName(item?.base, item.coin_id) }}/{{
-                              shortName(item?.target, item.target_coin_id)
-                            }}
-                          </div>
-                        </div>
-
-                        <div class="text-base text-main">
-                          ${{ item.converted_last.usd }}
-                        </div>
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            <div class="flex">
-              <label class="btn btn-primary !px-1 my-5 mr-2 hover:text-black dark:hover:text-white" for="calculator">
-                <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ffffff"
-                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                  <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                  <g id="SVGRepo_iconCarrier">
-                    <rect x="4" y="2" width="16" height="20" rx="2"></rect>
-                    <line x1="8" x2="16" y1="6" y2="6"></line>
-                    <line x1="16" x2="16" y1="14" y2="18"></line>
-                    <path d="M16 10h.01"></path>
-                    <path d="M12 10h.01"></path>
-                    <path d="M8 10h.01"></path>
-                    <path d="M12 14h.01"></path>
-                    <path d="M8 14h.01"></path>
-                    <path d="M12 18h.01"></path>
-                    <path d="M8 18h.01"></path>
-                  </g>
-                </svg>
-              </label>
-              <!-- Put this part before </body> tag -->
-              <input type="checkbox" id="calculator" class="modal-toggle" />
-              <div class="modal">
-                <div class="modal-box">
-                  <h3 class="text-lg font-bold">{{ $t('index.price_calculator') }}</h3>
-                  <div class="flex flex-col w-full mt-5">
-                    <div class="grid h-20 flex-grow card rounded-box place-items-center">
-                      <div class="join w-full">
-                        <label class="join-item btn">
-                          <span class="uppercase">{{ coinInfo.symbol }}</span>
-                        </label>
-                        <input type="number" v-model="qty" min="0" placeholder="Input a number"
-                          class="input grow input-bordered join-item" />
-                      </div>
-                    </div>
-                    <div class="divider">=</div>
-                    <div class="grid h-20 flex-grow card rounded-box place-items-center">
-                      <div class="join w-full">
-                        <label class="join-item btn">
-                          <span>USD</span>
-                        </label>
-                        <input type="number" v-model="amount" min="0" placeholder="Input amount"
-                          class="join-item grow input input-bordered" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <label class="modal-backdrop" for="calculator">{{ $t('index.close') }}</label>
-              </div>
-              <a class="my-5 !text-white btn grow"
-                :class="{ '!btn-success': store.trustColor === 'green', '!btn-warning': store.trustColor === 'yellow' }"
-                :href="ticker.trade_url" target="_blank">
-                {{ $t('index.buy') }} {{ coinInfo.symbol || '' }}
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-span-2">
-          <PriceMarketChart />
-        </div>
-      </div>
-      <div class="h-[1px] w-full bg-gray-100 dark:bg-[#384059]"></div>
-      <div class="max-h-[250px] overflow-auto p-4 text-sm">
-        <MdEditor :model-value="coinInfo.description?.en" previewOnly></MdEditor>
-      </div>
-      <div class="mx-4 flex flex-wrap items-center">
-        <div v-for="tag in coinInfo.categories"
-          class="mr-2 mb-4 text-xs bg-gray-100 dark:bg-[#384059] px-3 rounded-full py-1">
-          {{ tag }}
-        </div>
-      </div>
+  <div class="space-y-5">
+    <div class="font-bold text-2xl">
+      {{
+        walletStore.shortAddress ? `Welcome ${walletStore.shortAddress}` : ''
+      }}
     </div>
 
-    <div class="grid md:grid-cols-2 gap-4">
-      <div v-for="(item, key) in store.stats" :key="key" class="relative">
-        <div class="absolute left-0 top-0 right-0 bottom-0 bg-no-repeat bg-right-bottom bg-15%" v-bind:style="{
-          backgroundImage: baseStore.theme === 'dark' ? 'url(' + cardImages[key] + ')' : '',
-          opacity: '0.75',
-          backgroundPosition: 'bottom -20% right -5%',
-        }" />
-        <CardStatisticsVertical v-bind="item" class="dark:bg-radial-gradient-base-duo" />
-      </div>
-    </div>
-
-    <!-- <div v-if="blockchain.supportModule('governance')" class="bg-base-100 dark:bg-base100 rounded mt-4 shadow">
-      <div class="px-4 pt-4 pb-2 text-lg font-semibold text-main">
-        {{ $t('index.active_proposals') }}
-      </div>
-      <div class="px-4 pb-4">
-        <ProposalListItem :proposals="store?.proposals" />
-      </div>
-      <div class="pb-8 text-center" v-if="store.proposals?.proposals?.length === 0">
-        {{ $t('index.no_active_proposals') }}
-      </div>
-    </div> -->
-
-    <div class="linear-gradient-tb-bg dark:bg-none dark:bg-[#101c28] rounded mt-4 shadow">
-      <div class="flex justify-between px-4 pt-4 pb-2 text-lg font-semibold text-main text-white">
-        <span class="truncate">{{ walletStore.currentAddress || 'Not Connected' }}</span>
-        <RouterLink v-if="walletStore.currentAddress"
-          class="float-right text-sm cursor-pointert link link-primary no-underline font-medium text-white"
-          :to="`/${chain}/account/${walletStore.currentAddress}`">{{ $t('index.more') }}</RouterLink>
-      </div>
-      <div class="grid grid-cols-1 md:!grid-cols-4 auto-cols-auto gap-4 px-4 pb-6">
-        <div class="bg-gray-100 dark:bg-base-200 rounded-sm px-4 py-3">
-          <div class="text-sm mb-1">{{ $t('account.balance') }}</div>
-          <div class="text-lg font-semibold text-main">
-            {{ format.formatToken(walletStore.balanceOfStakingToken) }}
-          </div>
-          <div class="text-sm" :class="color">
-            ${{ format.tokenValue(walletStore.balanceOfStakingToken) }}
-          </div>
-        </div>
-        <div class="bg-gray-100 dark:bg-base-200 rounded-sm px-4 py-3">
-          <div class="text-sm mb-1">{{ $t('module.staking') }}</div>
-          <div class="text-lg font-semibold text-main">
-            {{ format.formatToken(walletStore.stakingAmount) }}
-          </div>
-          <div class="text-sm" :class="color">
-            ${{ format.tokenValue(walletStore.stakingAmount) }}
-          </div>
-        </div>
-        <div class="bg-gray-100 dark:bg-base-200 rounded-sm px-4 py-3">
-          <div class="text-sm mb-1">{{ $t('index.reward') }}</div>
-          <div class="text-lg font-semibold text-main">
-            {{ format.formatToken(walletStore.rewardAmount) }}
-          </div>
-          <div class="text-sm" :class="color">
-            ${{ format.tokenValue(walletStore.rewardAmount) }}
-          </div>
-        </div>
-        <div class="bg-gray-100 dark:bg-base-200 rounded-sm px-4 py-3">
-          <div class="text-sm mb-1">{{ $t('index.unbonding') }}</div>
-          <div class="text-lg font-semibold text-main">
-            {{ format.formatToken(walletStore.unbondingAmount) }}
-          </div>
-          <div class="text-sm" :class="color">
-            ${{ format.tokenValue(walletStore.unbondingAmount) }}
-          </div>
-        </div>
-      </div>
-
-      <div v-if="walletStore.delegations.length > 0" class="px-4 pb-4 overflow-auto">
-        <table class="table table-compact w-full table-zebra">
-          <thead>
-            <tr>
-              <th>{{ $t('account.validator') }}</th>
-              <th>{{ $t('account.delegations') }}</th>
-              <th>{{ $t('account.rewards') }}</th>
-              <th>{{ $t('staking.actions') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(item, index) in walletStore.delegations" :key="index">
-              <td>
-                <RouterLink class="link dark:text-white link-primary no-underline"
-                  :to="`/${chain}/staking/${item?.delegation?.validator_address}`">
-                  {{
-                    format.validatorFromBech32(
-                      item?.delegation?.validator_address
-                    )
-                  }}
-                </RouterLink>
-              </td>
-              <td>{{ format.formatToken(item?.balance) }}</td>
-              <td>
-                {{
-                  format.formatTokens(
-                    walletStore?.rewards?.rewards?.find(
-                      (el) =>
-                        el?.validator_address ===
-                        item?.delegation?.validator_address
-                    )?.reward)
-                }}
-              </td>
-              <td>
-                <div>
-                  <label for="delegate"
-                    class="btn !btn-xs !btn-primary hover:!text-black dark:hover:!text-white rounded-sm mr-2"
-                    @click="dialog.open('delegate', { validator_address: item.delegation.validator_address }, updateState)">
-                    {{ $t('account.btn_delegate') }}
-                  </label>
-                  <label for="withdraw"
-                    class="btn !btn-xs !btn-primary hover:!text-black dark:hover:!text-white btn-ghost rounded-sm"
-                    @click="dialog.open('withdraw', { validator_address: item.delegation.validator_address }, updateState)">
-                    {{ $t('index.btn_withdraw_reward') }}
-                  </label>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="grid grid-cols-3 gap-4 px-4 pb-6 mt-4">
-        <label for="PingTokenConvert" class="btn !bg-violet !border-violet text-white">{{
-          $t('index.btn_swap') }}</label>
-        <label for="send" class="btn !bg-yes !border-yes text-white" @click="dialog.open('send', {}, updateState)">{{
-          $t('account.btn_send') }}</label>
-        <label for="delegate" class="btn !bg-info !border-info text-white"
-          @click="dialog.open('delegate', {}, updateState)">{{ $t('account.btn_delegate') }}</label>
-        <RouterLink to="/wallet/receive" class="btn !bg-info !border-info text-white hidden">{{ $t('index.receive') }}
-        </RouterLink>
-      </div>
-      <Teleport to="body">
-        <ping-token-convert :chain-name="blockchain?.current?.prettyName" :endpoint="blockchain?.endpoint?.address"
-          :hd-path="walletStore?.connectedWallet?.hdPath"></ping-token-convert>
-      </Teleport>
-    </div>
-
-    <div class="flex w-full flex-col md:flex-row gap-4 mt-4">
-      <!-- <div class="bg-base-100 dark:bg-base100 rounded mt-4">
-        <div class="px-4 pt-4 pb-2 text-lg font-semibold text-main">
-          {{ $t('index.top_account_holders') }}
-        </div>
-        <div class="pb-2">
-          <DonutChart :series="topAccountHolders" :labels="topAccountAddresses" />
+    <!-- Search -->
+    <div
+      class="flex items-center rounded-lg bg-base-100 dark:bg-base100 p-2 rounded-xl w-full shadow"
+    >
+      <!-- Search Filter Dropdown -->
+      <!-- <div class="relative flex gap-2 items-center linear-gradient-tb-bg text-white rounded px-3 py-2 cursor-pointer"
+        @click="toggleIsFilterDropdown">
+        <Icon icon="icon-park-outline:setting-config" class="text-lg fill-white" />
+        <div>All Filters</div>
+        <Icon icon="mdi:chevron-up" class="text-lg fill-white transition-all ease-in-out"
+          :class="!isFilterDropdownActive && 'rotate-180'" />
+        <div v-if="isFilterDropdownActive"
+          class="absolute -bottom-32 right-0 bg-white border rounded border-info text-black divide-y w-full">
+          <div class="px-4 py-2 hover:bg-gray-100">Filter 1</div>
+          <div class="px-4 py-2 hover:bg-gray-100">Filter 2</div>
+          <div class="px-4 py-2 hover:bg-gray-100">Filter 3</div>
         </div>
       </div> -->
-      <div class="linear-gradient-tb-bg-2 dark:linear-gradient-l-to-r-bg-2 dark:bg-base-100 rounded-lg text-white grow basis-0 min-w-0">
-        <div class="flex items-center gap-1 px-4 pt-4 pb-2 ">
-          <div class="p-2 rounded shadow bg-white/[0.2]">
-            <Icon class="text-white" icon="icon-park-outline:more-app" size="32" />
-          </div>
-          <div class="text-2xl font-semibold text-main text-white">
-            {{ $t('index.app_versions') }}
-          </div>
-        </div>
-        <!-- Application Version -->
-        <ArrayObjectElement :value="paramStore.appVersion?.items" :thead="false" />
-        <div class="h-4"></div>
-      </div>
 
-      <div v-if="!store.coingeckoId"
-        class="linear-gradient-tl-to-br-bg dark:linear-gradient-l-to-r-bg-2 dark:bg-base-100 rounded-lg text-white grow basis-0 min-w-0">
-        <div class="flex items-center gap-1 px-4 pt-4 pb-2">
-          <div class="p-2 rounded shadow bg-white/[0.2]">
-            <Icon class="text-white" icon="ri:node-tree" size="32" />
-          </div>
-          <div class="text-2xl font-semibold text-main text-white">
-            {{ $t('index.node_info') }}
-          </div>
-        </div>
-        <ArrayObjectElement :value="paramStore.nodeVersion?.items" :thead="false" />
-        <div class="h-4"></div>
+      <!-- Search Filter Input -->
+      <input
+        :placeholder="$t('pages.explore_search_placeholder')"
+        v-model="searchQuery"
+        class="px-4 h-10 bg-transparent flex-1 outline-none text-neutral dark:text-white"
+      />
+      <!-- <div class="px-4 text-neutral hidden md:!block">{{ chains.length }}/{{ dashboard.length }}</div> -->
+
+      <!-- Search Filter Magnify -->
+      <div
+        class="linear-gradient-tb-bg p-2 w-fit h-fit rounded-lg cursor-pointer"
+      >
+        <Icon icon="mdi:magnify" class="text-2xl text-white" @click="confirm" />
       </div>
+    </div>
+    <div class="mt-2 text-center text-sm text-error" v-show="errorMessage">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Stats -->
+    <div class="grid md:grid-cols-2 gap-2">
+      <DualCardValue
+        icon="ri:token-swap-line"
+        title="KII PRICE"
+        :value="`$${(0.0).toLocaleString()}`"
+        sub-value-suffix="(+0.10%)"
+        title2="GAS PRICE"
+        :value2="isKiichain?`${gasPriceEvm} tekii`:'--'"
+      />
+
+      <DualCardValue
+        icon="uil:transaction"
+        title="TRANSACTIONS"
+        :value="transactionsCount.toString()"
+        :sub-value="isKiichain?'':`(10,000 TPS)`"
+        title2="BLOCK HEIGHT"
+        :value2="latestBlocks[0]?.block.header.height"
+      />
+    </div>
+
+    <!-- Line Chart -->
+    <div>
+      <div
+        class="px-12 py-6 bg-white shadow-lg rounded-lg space-y-2 dark:bg-base100"
+      >
+        <div>
+          Transaction History in
+          {{ transactionHistoryChartValue.labels.length }} days
+        </div>
+        <!-- <div class="flex items-center gap-2">
+          <div class="text-2xl font-semibold">$ {{ 32.18.toLocaleString() }}</div>
+          <div class="flex items-center">
+            <Icon icon="mdi:chevron-up" /> <div>1.2 %</div>
+          </div>
+        </div> -->
+        <LineChart
+          :series="transactionHistoryChartValue.series.reverse()"
+          :labels="transactionHistoryChartValue.labels.reverse()"
+        />
+      </div>
+    </div>
+
+    <!-- Tables -->
+    <div class="grid grid-cols-2 gap-2 items-start">
+      <table class="table rounded bg-[#F9F9F9] dark:bg-base100 shadow">
+        <thead>
+          <tr class="">
+            <td colspan="3" class="text-info">LATEST BLOCKS</td>
+          </tr>
+        </thead>
+        <tr
+          v-for="item in latestBlocks"
+          class="border-y-solid border-y-1 border-[#EAECF0]"
+        >
+          <td class="py-4">
+            <div class="flex gap-3 items-center">
+              <div class="p-2 rounded-full bg-base-300">
+                <Icon icon="mingcute:paper-line" class="text-lg" />
+              </div>
+              <div>
+                <RouterLink
+                  :to="`/${selectedChain}/block/${item.block.header.height}`"
+                  class="text-info font-bold"
+                  >{{ item.block.header.height }}</RouterLink
+                >
+                <div class="text-gray-500">
+                  {{ format.toDay(item.block?.header?.time, 'from') }}
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="py-4">
+            <div>
+              <span class="text-black dark:text-white">Fee Recipient </span>
+              <span class="text-info font-semibold">{{
+                format.validator(item.block?.header?.proposer_address)
+              }}</span>
+            </div>
+            <div class="text-gray-500">
+              {{ item.block?.data?.txs.length }} txs
+            </div>
+          </td>
+          <!-- <td class="py-4 text-info font-semibold"> {{ item.block?.data?.txs ? computeTx(item.block.data.txs) : 'No transactions' }}</td> -->
+        </tr>
+      </table>
+
+      <table class="table rounded bg-[#F9F9F9] dark:bg-base100 shadow">
+        <thead>
+          <tr class="">
+            <td colspan="3" class="text-info">LATEST TRANSACTIONS</td>
+          </tr>
+        </thead>
+        <tr
+          v-for="item in latestTransactions"
+          class="border-y-solid border-y-1 border-[#EAECF0]"
+        >
+          <td class="py-4">
+            <div class="flex gap-3 items-center">
+              <div class="p-2 rounded-full bg-base-300">
+                <Icon icon="mingcute:paper-line" class="text-lg" />
+              </div>
+              <div>
+                <RouterLink
+                  :to="`/${selectedChain}/tx/${item.txhash}`"
+                  class="text-info font-bold"
+                >
+                  {{ shortenAddress(item.txhash, 15, 0) }}
+                </RouterLink>
+                <div class="text-gray-500">
+                  {{ format.toDay(item.timestamp, 'from') }}
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="py-4">
+            <div class="flex justify-center space-x-1">
+              <span class="text-black dark:text-white">From: </span>
+              <span class="text-info font-semibold">{{
+                shortenAddress(
+                  isKiichain?(item.events.find(ev => ev.type === 'transfer')?.attributes.find(att => att.key === 'sender')?.value || ''):(item.tx.body.messages[0]['from_address'] || ''),
+                  20,
+                  0
+                )
+              }}</span>
+            </div>
+            <div class="flex justify-center space-x-1">
+              <span class="text-black dark:text-white">To: </span>
+              <span class="text-info font-semibold">{{
+                shortenAddress(
+                  isKiichain?(item.events.find(ev => ev.type === 'transfer')?.attributes.find(att => att.key === 'recipient')?.value || ''):(item.tx.body.messages[0]['to_address'] || ''),
+                  20,
+                  0
+                )
+              }}</span>
+            </div>
+          </td>
+          <td class="py-4 text-info font-semibold">
+            {{
+                !isKiichain ? format.formatToken(
+                  Array.isArray(item.tx.body.messages[0]['amount'])
+                    ? item.tx.body.messages[0]['amount'][0]
+                    : item.tx.body.messages[0]['amount']
+                ):format.formatToken({ 
+                  denom: item.events.find(ev => ev.type === 'transfer')?.attributes.find(att => att.key === 'amount')?.value.replace(/[^A-Za-z]/g, "") || 'tkii' ,
+                  amount: item.events.find(ev => ev.type === 'transfer')?.attributes.find(att => att.key === 'amount')?.value.replace(/\D/g,'') || '0' 
+                })
+            }}
+          </td>
+        </tr>
+      </table>
     </div>
   </div>
 </template>
-
-<route>
-  {
-    meta: {
-      i18n: 'dashboard',
-      order: 2,
-      icon: 'material-symbols:dashboard-outline'
-    }
-  }
-</route>

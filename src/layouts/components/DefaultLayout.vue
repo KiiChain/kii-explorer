@@ -6,6 +6,7 @@ import { ref } from 'vue';
 import newFooter from '@/layouts/components/NavFooter.vue';
 import NavbarThemeSwitcher from '@/layouts/components/NavbarThemeSwitcher.vue';
 import NavbarSearch from '@/layouts/components/NavbarSearch.vue';
+import NavBarChainSelector from '@/layouts/components/NavBarChainSelector.vue'
 import ChainProfile from '@/layouts/components/ChainProfile.vue';
 import kiiLogoDark from '@/assets/kii-branding-logo.png';
 import kiiLogoLight from '@/assets/logo-gradient-label-dark.png';
@@ -46,6 +47,7 @@ const changeOpen = (index: Number) => {
   }
 };
 const showDiscord = window.location.host.search('ping.pub') > -1;
+const isKiichain = window.location.pathname.search('kiichain') > -1;
 
 function isNavGroup(nav: VerticalNavItems | any): nav is NavGroup {
   return (<NavGroup>nav).children !== undefined;
@@ -212,10 +214,10 @@ function selected(route: any, nav: NavLink) {
         <!-- testnet helptext -->
         <div class="xl:!ml-64 px-3 pt-4 h-screen flex flex-col">
           <div 
-          class="h-8 overflow-hidden flex items-center text-center w-full flex items-center bg-300% justify-center linear-gradient-l-to-r-bg animate-gradient text-white relative transition-all ease-in-out relative"
-          :class="testnetHelpTextVisible ? 'h-64' : 'h-[0px]'"
+          class="h-8 overflow-hidden items-center text-center w-full bg-300% justify-center linear-gradient-l-to-r-bg animate-gradient text-white relative transition-all ease-in-out"
+          :class="isKiichain?'hidden':'flex'"
           >
-          <span class="font-semibold">This is TESTNET</span>
+          <span class="font-semibold">We have deployed a new testnet.  Check out <a href="/kiichain" class="underline">Kiichain Testnet</a> now.</span>
           <!-- <Icon icon="bi:x" class="right-0 cursor-pointer absolute right-0 mr-2 hover:rotate-90 transition-all ease-in-out rounded-full border border-white/50" @click="testnetHelpTextVisible = false" /> -->
         </div>
       
@@ -233,6 +235,7 @@ function selected(route: any, nav: NavLink) {
         <NavBarI18n class="hidden md:!inline-block" />
         <NavbarThemeSwitcher class="!inline-block" />
         <NavbarSearch class="!inline-block" />
+        <NavBarChainSelector />
         <NavBarWallet />
       </div>
 
