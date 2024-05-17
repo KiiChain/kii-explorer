@@ -205,7 +205,7 @@ const transactionHistoryChartValue = computed(() => {
     <!-- Line Chart -->
     <div>
       <!-- Loading State Display -->
-      <div v-if="isLoading" class="px-12 py-6 bg-white shadow-lg rounded-lg text-center">
+      <div v-if="isLoading" class="px-12 py-6 shadow-lg rounded-lg text-center">
         Loading transactions...
       </div>
 
@@ -224,80 +224,83 @@ const transactionHistoryChartValue = computed(() => {
     </div>
 
     <!-- Tables -->
-    <div class="grid grid-cols-2 gap-2 items-start">
-      <table class="table rounded bg-[#F9F9F9] dark:bg-base100 shadow">
-        <thead>
-          <tr class="">
-            <th colspan="3" class="text-info">LATEST BLOCKS</th>
-          </tr>
-        </thead>
-        <tr v-for="item in latestBlocks" class="border-y-solid border-y-1 border-[#EAECF0]">
-          <td class="py-4">
-            <div class="flex gap-3 items-center">
-              <div class="p-2 rounded-full bg-base-300">
-                <Icon icon="mingcute:paper-line" class="text-lg" />
-              </div>
-              <div>
-                <RouterLink :to="`/kii/block/${item.block.header.height}`" class=" text-info font-bold">{{
-                  item.block.header.height
-                }}</RouterLink>
-                <div class="text-gray-500">
-                  {{ format.toDay(item.block?.header?.time, 'from') }}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-start overflow-hidden">
+      <div class="w-full overflow-x-auto">
+        <table class="table rounded bg-[#F9F9F9] dark:bg-base100 shadow">
+          <thead>
+            <tr class="">
+              <th colspan="3" class="text-info">LATEST BLOCKS</th>
+            </tr>
+          </thead>
+          <tr v-for="item in latestBlocks" class="border-y-solid border-y-1 border-[#EAECF0]">
+            <td class="py-4 whitespace-nowrap md:whitespace-normal">
+              <div class="flex gap-3 items-center">
+                <div class="p-2 rounded-full bg-base-300">
+                  <Icon icon="mingcute:paper-line" class="text-lg" />
+                </div>
+                <div>
+                  <RouterLink :to="`/kii/block/${item.block.header.height}`" class=" text-info font-bold">{{
+                    item.block.header.height
+                  }}</RouterLink>
+                  <div class="text-gray-500">
+                    {{ format.toDay(item.block?.header?.time, 'from') }}
+                  </div>
                 </div>
               </div>
-            </div>
-          </td>
-          <td class="py-4">
-            <div>
-              <span class=" text-black dark:text-white">Fee Recipient </span>
-              <span class=" text-info font-semibold">{{ format.validator(item.block?.header?.proposer_address) }}</span>
-            </div>
-            <div class="text-gray-500">{{ item.block?.data?.txs.length }} txs</div>
-          </td>
-          <td class="py-4 text-info font-semibold"> {{ item.block?.data?.txs ? computeTx(item.block.data.txs) : 'No transactions' }}</td>
-        </tr>
-      </table>
-
-      <table class="table rounded bg-[#F9F9F9] dark:bg-base100 shadow">
-        <thead>
-          <tr class="">
-            <th colspan="3" class="text-info">LATEST TRANSACTIONS</th>
-          </tr>
-        </thead>
-        <tr v-for="item in latestTransactionList" class="border-y-solid border-y-1 border-[#EAECF0]">
-          <td class="py-4">
-            <div class="flex gap-3 items-center">
-              <div class="p-2 rounded-full bg-base-300">
-                <Icon icon="mingcute:paper-line" class="text-lg" />
-              </div>
+            </td>
+            <td class="py-4 whitespace-nowrap md:whitespace-normal">
               <div>
-                <RouterLink :to="`/kii/tx/${item.txhash}`" class=" text-info font-bold">
-                  {{ shortenAddress(item.txhash, 15, 0) }}
-                </RouterLink>
-                <div class="text-gray-500"> {{ format.toDay(item.timestamp, 'from') }}</div>
+                <span class=" text-black dark:text-white">Fee Recipient </span>
+                <span class=" text-info font-semibold">{{ format.validator(item.block?.header?.proposer_address) }}</span>
               </div>
-            </div>
-          </td>
-          <td class="py-4">
-            <div class="flex justify-center space-x-1">
-              <span class=" text-black dark:text-white">From: </span>
-              <span class=" text-info font-semibold">{{ shortenAddress(item.tx.body.messages[0]['from_address'] || '', 20, 0) }}</span>
-            </div>
-            <div class="flex justify-center space-x-1">
-              <span class=" text-black dark:text-white">To: </span>
-              <span class=" text-info font-semibold">{{ shortenAddress(item.tx.body.messages[0]['to_address'] || '', 20, 0) }}</span>
-            </div>
-          </td>
-          <td class="py-4 text-info font-semibold">
-            {{ format.formatToken(
-              Array.isArray(item.tx.body.messages[0]['amount']) 
-                ? item.tx.body.messages[0]['amount'][0]
-                :item.tx.body.messages[0]['amount']
-            )}}
-          </td>
-        </tr>
-      </table>
+              <div class="text-gray-500">{{ item.block?.data?.txs.length }} txs</div>
+            </td>
+            <td class="py-4 whitespace-nowrap md:whitespace-normal text-info font-semibold"> {{ item.block?.data?.txs ? computeTx(item.block.data.txs) : 'No transactions' }}</td>
+          </tr>
+        </table>
+      </div>
 
+      <div class="w-full overflow-x-auto">
+        <table class="table rounded bg-[#F9F9F9] dark:bg-base100 shadow">
+          <thead>
+            <tr class="">
+              <th colspan="3" class="text-info">LATEST TRANSACTIONS</th>
+            </tr>
+          </thead>
+          <tr v-for="item in latestTransactionList" class="border-y-solid border-y-1 border-[#EAECF0]">
+            <td class="py-4 whitespace-nowrap md:whitespace-normal">
+              <div class="flex gap-3 items-center">
+                <div class="p-2 rounded-full bg-base-300">
+                  <Icon icon="mingcute:paper-line" class="text-lg" />
+                </div>
+                <div>
+                  <RouterLink :to="`/kii/tx/${item.txhash}`" class=" text-info font-bold">
+                    {{ shortenAddress(item.txhash, 15, 0) }}
+                  </RouterLink>
+                  <div class="text-gray-500"> {{ format.toDay(item.timestamp, 'from') }}</div>
+                </div>
+              </div>
+            </td>
+            <td class="py-4 whitespace-nowrap md:whitespace-normal">
+              <div class="flex justify-center space-x-1">
+                <span class=" text-black dark:text-white">From: </span>
+                <span class=" text-info font-semibold">{{ shortenAddress(item.tx.body.messages[0]['from_address'] || '', 20, 0) }}</span>
+              </div>
+              <div class="flex justify-center space-x-1">
+                <span class=" text-black dark:text-white">To: </span>
+                <span class=" text-info font-semibold">{{ shortenAddress(item.tx.body.messages[0]['to_address'] || '', 20, 0) }}</span>
+              </div>
+            </td>
+            <td class="py-4 whitespace-nowrap md:whitespace-normal text-info font-semibold">
+              {{ format.formatToken(
+                Array.isArray(item.tx.body.messages[0]['amount']) 
+                  ? item.tx.body.messages[0]['amount'][0]
+                  :item.tx.body.messages[0]['amount']
+              )}}
+            </td>
+          </tr>
+        </table>
+      </div>
     </div>
 
   </div>

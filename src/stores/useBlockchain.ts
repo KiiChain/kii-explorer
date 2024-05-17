@@ -90,6 +90,40 @@ export const useBlockchain = defineStore('blockchain', {
           path: isKiichain?'/kiichain':'/',
         };
 
+        const newRoute = {
+          path: '/new-route',
+          meta: {
+            i18n: 'newRoute',
+            icon: 'new-icon',
+            order: 50,
+            section: false
+          }
+        };
+
+        const children = [...routes, exploreNav]
+          .filter((x) => x.meta.i18n && !x.meta.section)
+          .filter(
+            (x) =>
+              !this.current?.features ||
+              this.current.features.includes(String(x.meta.i18n))
+          )
+          .map((x) => ({
+            title: `module.${x.meta.i18n}`,
+            to: { path: x.path.replace(':chain', this.chainName) },
+            icon: { icon: x.meta.icon as string, size: '22' },
+            i18n: true,
+            order: Number(x.meta.order || 100),
+          }))
+          .sort((a, b) => a.order - b.order);
+
+        children.push({
+          title: `Token Faucet`,
+          to: { path: '/wallet/accounts' },
+          icon: { icon: 'ion:water', size: '22' },
+          i18n: true,
+          order: Number(newRoute.meta.order || 100),
+        });
+
         currNavItem = [
           {
             title: this.current?.prettyName || this.chainName || '',
@@ -101,21 +135,7 @@ export const useBlockchain = defineStore('blockchain', {
             i18n: false,
             badgeContent: this.isConsumerChain ? 'Consumer' : undefined,
             badgeClass: 'bg-error',
-            children: [...routes, exploreNav]
-              .filter((x) => x.meta.i18n && !x.meta.section) // defined menu name
-              .filter(
-                (x) =>
-                  !this.current?.features ||
-                  this.current.features.includes(String(x.meta.i18n))
-              ) // filter none-custom module
-              .map((x) => ({
-                title: `module.${x.meta.i18n}`,
-                to: { path: x.path.replace(':chain', this.chainName) },
-                icon: { icon: x.meta.icon as string, size: '22' },
-                i18n: true,
-                order: Number(x.meta.order || 100),
-              }))
-              .sort((a, b) => a.order - b.order),
+            children
           },
         ];
 
