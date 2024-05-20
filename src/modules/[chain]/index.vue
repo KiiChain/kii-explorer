@@ -31,7 +31,7 @@ const blockStore = useBlockchain();
 const baseStore = useBaseStore();
 const bankStore = useBankStore();
 const route = useRoute();
-const selectedChain = route.params.chain || 'kii';
+const selectedChain = route.params.chain || 'kiichain';
 
 let isFilterDropdownActive = ref(false);
 
