@@ -6,6 +6,11 @@ import { createWalletClient, custom } from 'viem'
 import { addressEnCode } from '@/libs';
 import { fromHex } from '@cosmjs/encoding';
 import { testnet } from '@/libs/web3';
+import router from '@/router';
+
+if (!(window as any).ethereum) {
+  router.push('/install-metamask')
+}
 
 const walletStore = useWalletStore();
 const chainStore = useBlockchain();
