@@ -45,12 +45,12 @@ export const publicClient = createPublicClient({
   transport: http(),
 });
 
-export const walletClient = createWalletClient({
+export const walletClient = (window as any).ethereum && createWalletClient({
   chain: testnet,
   transport: custom((window as any).ethereum),
 });
 
-export const [account] = await walletClient.getAddresses();
+export const [account] = await walletClient?.getAddresses() || [];
 
 export async function buySkii(
   amount: number,
