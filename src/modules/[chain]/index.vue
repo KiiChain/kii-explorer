@@ -49,17 +49,23 @@ const publicClient = createPublicClient({
 })
 
 onMounted(async () => {
-  baseStore.fetchLatest()
-  if(isKiichain){
-    const gasPrice = await publicClient.getGasPrice() 
-    gasPriceEvm.value = gasPrice.toString()
-    latestTransactions.value = await bankStore.fetchLatestTxsEvm(blockStore.current?.assets[0].base ?? '');
-    transactionsCount.value = await blockStore.rpc.getTxsCountEvm();
-    return
+  try{
+    baseStore.fetchLatest()
+    if(isKiichain){
+      const gasPrice = await publicClient.getGasPrice() 
+      gasPriceEvm.value = gasPrice.toString()
+      latestTransactions.value = await bankStore.fetchLatestTxsEvm(blockStore.current?.assets[0].base ?? '');
+      transactionsCount.value = await blockStore.rpc.getTxsCountEvm();
+      return
+    }
+    const txCount = await blockStore.rpc.getTxsCount();
+    transactionsCount.value = txCount
+    latestTransactions.value = await bankStore.fetchLatestTxs(txCount);
   }
-  const txCount = await blockStore.rpc.getTxsCount();
-  transactionsCount.value = txCount
-  latestTransactions.value = await bankStore.fetchLatestTxs(txCount);
+  catch(err){
+    console.log(err)
+  }
+
 });
 
 const latestBlocks = computed(() => {
