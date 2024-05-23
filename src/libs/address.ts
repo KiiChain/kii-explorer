@@ -71,6 +71,9 @@ export function valconsToBase64(address: string) {
 }
 
 export function toETHAddress(cosmosAddress: string) {
+  if(!cosmosAddress){
+    return ""
+  }
   return `0x${toHex(fromBech32(cosmosAddress).data)}`;
 }
 
