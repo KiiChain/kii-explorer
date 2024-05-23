@@ -19,8 +19,10 @@ app.use(LazyLoad, { component: true });
 // Mount vue app
 app.mount('#app');
 
-// // fetch latest block every 6s
-// const blockStore = useBaseStore();
+// fetch latest block every 6s
+const blockStore = useBaseStore();
+blockStore.fetchLatest()
+
 // const requestCounter = ref(0);
 // setInterval(() => {
 //   requestCounter.value += 1;
