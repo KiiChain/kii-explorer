@@ -31,6 +31,16 @@ let transactionHistoryFilters = ref<number[]>([7,14,31])
 let selectedTransactionHistoryFilter = ref<number>(7); //
 const isLoading = ref(false); 
 
+// fetch latest block every 6s
+const requestCounter = ref(0);
+setInterval(() => {
+  requestCounter.value += 1;
+  if (requestCounter.value < 5) {
+    // max allowed request
+    baseStore.fetchLatest().finally(() => (requestCounter.value -= 1));
+  }
+}, 6000);
+
 onMounted(async() => {
   isLoading.value = true;
   try {
