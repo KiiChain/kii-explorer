@@ -34,7 +34,6 @@ const isLoading = ref(false);
 onMounted(async() => {
   isLoading.value = true;
   try {
-    baseStore.fetchLatest()
     const totalTransactionCount = await blockStore.rpc.getTxsCount();
 
     const data = await bankStore.fetchLatestTxs(totalTransactionCount)

@@ -121,8 +121,7 @@ export const useBankStore = defineStore('bankstore', {
 
       const totalPage = Math.ceil(totalCount / 100);
 
-      while (fetch && currentPage <= totalPage) {
-
+      while (fetch && currentPage <= totalPage && currentPage < 3) {
         const data = await this.blockchain.rpc.getLatestTxs(
           currentPage
         );
