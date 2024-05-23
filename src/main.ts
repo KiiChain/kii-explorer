@@ -20,14 +20,14 @@ app.use(LazyLoad, { component: true });
 app.mount('#app');
 
 // fetch latest block every 6s
-const blockStore = useBaseStore();
-const requestCounter = ref(0);
-setInterval(() => {
-  requestCounter.value += 1;
-  if (requestCounter.value < 5) {
-    // max allowed request
-    blockStore.fetchLatest()
-    .catch(err => console.log(err))
-    .finally(() => (requestCounter.value -= 1));
-  }
-}, 6000);
+// const blockStore = useBaseStore();
+// const requestCounter = ref(0);
+// setInterval(() => {
+//   requestCounter.value += 1;
+//   if (requestCounter.value < 5) {
+//     // max allowed request
+//     blockStore.fetchLatest()
+//     .catch(err => console.log(err))
+//     .finally(() => (requestCounter.value -= 1));
+//   }
+// }, 6000);
