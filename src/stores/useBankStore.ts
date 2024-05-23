@@ -120,7 +120,9 @@ export const useBankStore = defineStore('bankstore', {
       let oneMonthAgoDate = currentDate.subtract(1, 'month');
 
       const totalPage = Math.ceil(totalCount / 100);
-
+      console.log(totalPage)
+        console.log(totalCount)
+        console.log(currentPage)
       while (fetch && currentPage <= totalPage) {
         console.log(totalPage)
         console.log(totalCount)
