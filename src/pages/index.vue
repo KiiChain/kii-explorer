@@ -36,10 +36,10 @@ onMounted(async() => {
   try {
     const totalTransactionCount = await blockStore.rpc.getTxsCount();
 
-    const data = await bankStore.fetchLatestTxs(totalTransactionCount)
+    // const data = await bankStore.fetchLatestTxs(totalTransactionCount)
 
-    latestTransactions.value = data;
-    transactionsCount.value = totalTransactionCount
+    // latestTransactions.value = data;
+    // transactionsCount.value = totalTransactionCount
   } catch (error) {
     console.error("Failed to fetch transactions:", error);
   } finally {
@@ -118,38 +118,38 @@ function handleSelectTransactionHistoryFilter(event: Event) {
   selectedTransactionHistoryFilter.value = +target.value;
 }
 
-// const transactionHistory = computed(() => {
-//   return latestTransactionFiltered?.value?.reduce((history, currentItem) => {
-//     const txDate = dayjs(currentItem.timestamp).format('MMM D YYYY');
+const transactionHistory = computed(() => {
+  return latestTransactionFiltered?.value?.reduce((history, currentItem) => {
+    const txDate = dayjs(currentItem.timestamp).format('MMM D YYYY');
 
-//     if (Object.keys(history).some((existingHistory: any) => dayjs(existingHistory.date).isSame(txDate, 'd'))) {
-//       history[txDate] = {
-//         tx: [...history[txDate].tx, currentItem]
-//       }
-//     } else {
-//       history[txDate] = {
-//         tx: [currentItem]
-//       }
-//     }
-//     return history;
+    if (Object.keys(history).some((existingHistory: any) => dayjs(existingHistory.date).isSame(txDate, 'd'))) {
+      history[txDate] = {
+        tx: [...history[txDate].tx, currentItem]
+      }
+    } else {
+      history[txDate] = {
+        tx: [currentItem]
+      }
+    }
+    return history;
 
-//   }, {} as any)
-// });
+  }, {} as any)
+});
 
-// const transactionHistoryChartValue = computed(() => {
-//   const getAmount = (item: TxResponse) => {
-//     return Array.isArray(item.tx.body.messages[0]['amount'])
-//       ? item.tx.body.messages[0]['amount'][0]['amount']
-//       : item.tx.body.messages[0]['amount']['amount']
-//   }
+const transactionHistoryChartValue = computed(() => {
+  const getAmount = (item: TxResponse) => {
+    return Array.isArray(item.tx.body.messages[0]['amount'])
+      ? item.tx.body.messages[0]['amount'][0]['amount']
+      : item.tx.body.messages[0]['amount']['amount']
+  }
 
-//   return {
-//     series: Object.values(transactionHistory?.value || {}).map((data: any) => ({
-//       data: data.tx.reduce((total: number, curr: any) => total = total + Number(getAmount(curr)), 0).toString(),
-//     })),
-//     labels: Object.keys(transactionHistory?.value || {})?.map((date: string) => dayjs(date).format('MMM D'))
-//   }
-// })
+  return {
+    series: Object.values(transactionHistory?.value || {}).map((data: any) => ({
+      data: data.tx.reduce((total: number, curr: any) => total = total + Number(getAmount(curr)), 0).toString(),
+    })),
+    labels: Object.keys(transactionHistory?.value || {})?.map((date: string) => dayjs(date).format('MMM D'))
+  }
+})
 
 </script>
 
@@ -209,7 +209,7 @@ function handleSelectTransactionHistoryFilter(event: Event) {
       </div>
 
        <!-- Data Display (hidden when loading) -->
-      <!-- <div v-else class="px-12 py-6 bg-white shadow-lg rounded-lg space-y-2 dark:bg-base100">
+      <div v-else class="px-12 py-6 bg-white shadow-lg rounded-lg space-y-2 dark:bg-base100">
         <div class="flex justify-between items-center">
           <span>Transaction History</span>
           <select @change="handleSelectTransactionHistoryFilter($event)" class="select select-bordered">
@@ -219,7 +219,7 @@ function handleSelectTransactionHistoryFilter(event: Event) {
           </select>
         </div>
         <LineChart :series="transactionHistoryChartValue.series.reverse()" :labels="transactionHistoryChartValue.labels.reverse()" />
-      </div> -->
+      </div>
     </div>
 
     <!-- Tables -->
