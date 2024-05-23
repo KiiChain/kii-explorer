@@ -50,7 +50,6 @@ const publicClient = createPublicClient({
 
 onMounted(async () => {
   try{
-    baseStore.fetchLatest()
     if(isKiichain){
       const gasPrice = await publicClient.getGasPrice() 
       gasPriceEvm.value = gasPrice.toString()
