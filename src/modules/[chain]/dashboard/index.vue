@@ -18,20 +18,14 @@ import { useIndexModule, colorMap } from '../indexStore';
 import { computed } from '@vue/reactivity';
 
 import CardStatisticsVertical from '@/components/CardStatisticsVertical.vue';
-import ProposalListItem from '@/components/ProposalListItem.vue';
 import ArrayObjectElement from '@/components/dynamic/ArrayObjectElement.vue';
-import DonutChart from '@/components/charts/DonutChart.vue';
-import { shortenAddress } from '@/libs/utils';
 import {
-  buySkii,
   getRewardsBalance,
   getWalletBalance,
-  send,
   withdrawRewardsBalance,
 } from '@/libs/web3';
 import type { DenomOwner } from '@/types';
 import Modal from '@/components/Modal.vue';
-import Toggle from '@/components/Toggle.vue';
 import { toETHAddress } from '../../../libs/address';
 
 import planet1 from '@/assets/images/misc/planet-1.png';
@@ -53,17 +47,11 @@ const walletStore = useWalletStore();
 const bankStore = useBankStore();
 const format = useFormatter();
 const dialog = useTxDialog();
-const stakingStore = useStakingStore();
 const paramStore = useParamStore();
 const coinInfo = computed(() => {
   return store.coinInfo;
 });
-const showModal = ref(false);
-const showSendModal = ref(false);
-const isActive = ref(false);
-const toSwapAmount = ref(0);
-const toSendAmount = ref(0);
-const destinationAddress = ref('');
+
 const loading = ref(false);
 const showRewardsModal = ref(false);
 const selectedValidator = ref('');
@@ -91,7 +79,7 @@ onMounted(async () => {
   // }
   if (isKiichain) {
     evmWalletBalance.value = await getWalletBalance(
-      blockchain.current?.assets[0].base ?? ''
+      blockchain.current?.assets[0].base ?? '',
     );
     rewardBalance.value = await getRewardsBalance(
       blockchain.current?.assets[0].base ?? ''
@@ -502,7 +490,7 @@ const walletRewardBalance = computed(() => rewardBalance.value);
         <span class="truncate">{{
           (isKiichain
             ? toETHAddress(walletStore.currentAddress)
-            : walletStore.currentAddress) || 'Not Connected'
+            : walletStore.currentAddress) || 'Wallet not connected'
         }}</span>
         <RouterLink
           v-if="walletStore.currentAddress"
@@ -513,6 +501,7 @@ const walletRewardBalance = computed(() => rewardBalance.value);
       </div>
       <div
         class="grid grid-cols-1 md:!grid-cols-4 auto-cols-auto gap-4 px-4 pb-6"
+        :class="walletStore.currentAddress?'':'hidden'"
       >
         <div class="bg-gray-100 dark:bg-base-200 rounded-sm px-4 py-3">
           <div class="text-sm mb-1">{{ $t('account.balance') }}</div>
@@ -559,6 +548,7 @@ const walletRewardBalance = computed(() => rewardBalance.value);
       <div
         v-if="walletStore.delegations.length > 0"
         class="px-4 pb-4 overflow-auto"
+        :class="walletStore.currentAddress?'':'hidden'"
       >
         <table class="table table-compact w-full table-zebra">
           <thead>
@@ -705,7 +695,7 @@ const walletRewardBalance = computed(() => rewardBalance.value);
         </table>
       </div>
 
-      <div class="grid grid-cols-3 gap-4 px-4 pb-6 mt-4">
+      <div class="grid grid-cols-3 gap-4 px-4 pb-6 mt-4" :class="walletStore.currentAddress?'':'hidden'">
         <!-- <label
           id="show-modal"
           @click="showModal = true"

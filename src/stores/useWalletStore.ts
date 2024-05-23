@@ -10,6 +10,7 @@ import type {
 } from '@/types';
 import { useStakingStore } from './useStakingStore';
 import router from '@/router'
+import { getWalletBalance } from '@/libs/web3';
 
 export const useWalletStore = defineStore('walletStore', {
   state: () => {
