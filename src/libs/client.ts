@@ -289,7 +289,10 @@ export class CosmosRestClient extends BaseRestClient<RequestRegistry> {
     return this.request(this.registry.tx_txs, {}, `${query}`);
   }
   async getLatestTxsEvm(page?: PageRequest) {
-    if(!page) page = new PageRequest()
+    if(!page){
+      page = new PageRequest()
+      page.limit = 20;
+    }
     const query = `?query=transfer.msg_index='0'&order_by=2&pagination.limit=${page.limit}&pagination.offset=${page.offset||0}`;
     return this.request(this.registry.tx_txs, {}, `${query}&${page.toQueryString()}`);
   }

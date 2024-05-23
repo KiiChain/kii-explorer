@@ -49,16 +49,23 @@ const publicClient = createPublicClient({
 })
 
 onMounted(async () => {
-  if(isKiichain){
-    const gasPrice = await publicClient.getGasPrice() 
-    gasPriceEvm.value = gasPrice.toString()
-    latestTransactions.value = await bankStore.fetchLatestTxsEvm(blockStore.current?.assets[0].base ?? '');
-    transactionsCount.value = await blockStore.rpc.getTxsCountEvm();
-    return
+  try{
+    baseStore.fetchLatest()
+    if(isKiichain){
+      const gasPrice = await publicClient.getGasPrice() 
+      gasPriceEvm.value = gasPrice.toString()
+      latestTransactions.value = await bankStore.fetchLatestTxsEvm(blockStore.current?.assets[0].base ?? '');
+      transactionsCount.value = await blockStore.rpc.getTxsCountEvm();
+      return
+    }
+    const txCount = await blockStore.rpc.getTxsCount();
+    transactionsCount.value = txCount
+    latestTransactions.value = await bankStore.fetchLatestTxs(txCount);
   }
-  const txCount = await blockStore.rpc.getTxsCount();
-  transactionsCount.value = txCount
-  latestTransactions.value = await bankStore.fetchLatestTxs(txCount);
+  catch(err){
+    console.log(err)
+  }
+
 });
 
 const latestBlocks = computed(() => {
@@ -129,52 +136,52 @@ function confirm() {
 //   isFilterDropdownActive.value = !isFilterDropdownActive.value;
 // }
 
-const transactionHistory = computed(() => {
-  return latestTransactions?.value?.reduce((history, currentItem) => {
-    const txDate = dayjs(currentItem.timestamp).format('MMM D YYYY');
+// const transactionHistory = computed(() => {
+//   return latestTransactions?.value?.reduce((history, currentItem) => {
+//     const txDate = dayjs(currentItem.timestamp).format('MMM D YYYY');
 
-    if (
-      Object.keys(history).some((existingHistory: any) =>
-        dayjs(existingHistory.date).isSame(txDate, 'd')
-      )
-    ) {
-      history[txDate] = {
-        tx: [...history[txDate].tx, currentItem],
-      };
-    } else {
-      history[txDate] = {
-        tx: [currentItem],
-      };
-    }
-    return history;
-  }, {} as any);
-});
+//     if (
+//       Object.keys(history).some((existingHistory: any) =>
+//         dayjs(existingHistory.date).isSame(txDate, 'd')
+//       )
+//     ) {
+//       history[txDate] = {
+//         tx: [...history[txDate].tx, currentItem],
+//       };
+//     } else {
+//       history[txDate] = {
+//         tx: [currentItem],
+//       };
+//     }
+//     return history;
+//   }, {} as any);
+// });
 
-const transactionHistoryChartValue = computed(() => {
-  const getAmount = (item: TxResponse) => {
-    if(isKiichain){
-      return Number(item.events.find(ev => ev.type === 'transfer')?.attributes.find(att => att.key === 'amount')?.value.replace(/\D/g,'')) || 0
-    }
-    return item.tx.body.messages[0]?.amount?(Array.isArray(item.tx.body.messages[0]['amount'])
-      ? item.tx.body.messages[0]['amount'][0]['amount']
-      : item.tx.body.messages[0]['amount']['amount']):0;
-  };
+// const transactionHistoryChartValue = computed(() => {
+//   const getAmount = (item: TxResponse) => {
+//     if(isKiichain){
+//       return Number(item.events.find(ev => ev.type === 'transfer')?.attributes.find(att => att.key === 'amount')?.value.replace(/\D/g,'')) || 0
+//     }
+//     return item.tx.body.messages[0]?.amount?(Array.isArray(item.tx.body.messages[0]['amount'])
+//       ? item.tx.body.messages[0]['amount'][0]['amount']
+//       : item.tx.body.messages[0]['amount']['amount']):0;
+//   };
 
-  return {
-    series: Object.values(transactionHistory?.value || {}).map((data: any) => ({
-      data: data.tx
-        .reduce(
-          (total: number, curr: any) =>
-            (total = total + Number(getAmount(curr))),
-          0
-        )
-        .toString(),
-    })),
-    labels: Object.keys(transactionHistory?.value || {})?.map((date: string) =>
-      dayjs(date).format('MMM D')
-    ),
-  };
-});
+//   return {
+//     series: Object.values(transactionHistory?.value || {}).map((data: any) => ({
+//       data: data.tx
+//         .reduce(
+//           (total: number, curr: any) =>
+//             (total = total + Number(getAmount(curr))),
+//           0
+//         )
+//         .toString(),
+//     })),
+//     labels: Object.keys(transactionHistory?.value || {})?.map((date: string) =>
+//       dayjs(date).format('MMM D')
+//     ),
+//   };
+// });
 
 </script>
 
@@ -246,7 +253,7 @@ const transactionHistoryChartValue = computed(() => {
     </div>
 
     <!-- Line Chart -->
-    <div>
+    <!-- <div>
       <div
         class="px-12 py-6 bg-white shadow-lg rounded-lg space-y-2 dark:bg-base100"
       >
@@ -254,18 +261,12 @@ const transactionHistoryChartValue = computed(() => {
           Transaction History in
           {{ transactionHistoryChartValue.labels.length }} days
         </div>
-        <!-- <div class="flex items-center gap-2">
-          <div class="text-2xl font-semibold">$ {{ 32.18.toLocaleString() }}</div>
-          <div class="flex items-center">
-            <Icon icon="mdi:chevron-up" /> <div>1.2 %</div>
-          </div>
-        </div> -->
         <LineChart
           :series="transactionHistoryChartValue.series.reverse()"
           :labels="transactionHistoryChartValue.labels.reverse()"
         />
       </div>
-    </div>
+    </div> -->
 
     <!-- Tables -->
     <div class="grid grid-cols-2 gap-2 items-start">
