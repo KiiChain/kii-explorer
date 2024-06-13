@@ -18,7 +18,7 @@ export const useBankStore = defineStore('bankstore', {
       supply: {} as Coin,
       balances: {} as Record<string, Coin[]>,
       totalSupply: { supply: [] as Coin[] },
-      ibcDenoms: {} as Record<string, DenomTrace>
+      ibcDenoms: {} as Record<string, DenomTrace>,
     };
   },
   getters: {
@@ -52,7 +52,7 @@ export const useBankStore = defineStore('bankstore', {
 
       while (fetch) {
         const pageRequest = new PageRequest();
-        pageRequest.key = encodeURIComponent(key ?? '') ;
+        pageRequest.key = encodeURIComponent(key ?? '');
 
         const data = await this.blockchain.rpc.getBankDenomOwners(
           denom,
@@ -77,7 +77,7 @@ export const useBankStore = defineStore('bankstore', {
 
       while (fetch) {
         const pageRequest = new PageRequest();
-        pageRequest.key = encodeURIComponent(key ?? '') ;
+        pageRequest.key = encodeURIComponent(key ?? '');
 
         const data = await this.blockchain.rpc.getBankDenomOwners(
           denom,
@@ -122,9 +122,7 @@ export const useBankStore = defineStore('bankstore', {
       const totalPage = Math.ceil(totalCount / 100);
 
       while (fetch && currentPage <= totalPage && currentPage < 3) {
-        const data = await this.blockchain.rpc.getLatestTxs(
-          currentPage
-        );
+        const data = await this.blockchain.rpc.getLatestTxs(currentPage);
 
         if (data.tx_responses.length) {
           allData = [...allData, ...data.tx_responses];
@@ -132,12 +130,14 @@ export const useBankStore = defineStore('bankstore', {
           fetch = false;
         }
 
-        const givenDate = dayjs(data.tx_responses[data.tx_responses.length - 1].timestamp);
+        const givenDate = dayjs(
+          data.tx_responses[data.tx_responses.length - 1].timestamp
+        );
 
         if (givenDate.isBefore(oneMonthAgoDate)) {
           break;
         }
-        
+
         currentPage = currentPage + 1;
       }
 
@@ -145,8 +145,8 @@ export const useBankStore = defineStore('bankstore', {
     },
     async fetchLatestTxsEvm(denom: string): Promise<TxResponse[]> {
       const data = await this.blockchain.rpc.getLatestTxsEvm();
-  
-      return data.tx_responses;
+
+      return data!;
     },
   },
 });
