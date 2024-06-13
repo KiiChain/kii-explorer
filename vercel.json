@@ -1,5 +1,5 @@
 {
-  "redirects": [
-    { "source": "/", "destination": "/kiichain" }
+  "routes": [
+    { "src": "/[^.]+", "dest": "/", "status": 200 }
   ]
 }
