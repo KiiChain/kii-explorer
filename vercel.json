@@ -1,6 +1,6 @@
 {
   "redirects": [
-    { "src": "/[^.]+", "destination": "/" },
-    { "src": "/", "destination": "/kiichain" }
+    { "source": "/[^.]+", "destination": "/" },
+    { "source": "/", "destination": "/kiichain" }
   ]
 }
