@@ -1,6 +1,6 @@
 {
-  "routes": [
-    { "src": "/[^.]+", "dest": "/", "status": 200 },
-    { "src": "/", "dest": "/kiichain", "status": 200 }
+  "redirects": [
+    { "src": "/[^.]+", "destination": "/" },
+    { "src": "/", "destination": "/kiichain" }
   ]
 }
