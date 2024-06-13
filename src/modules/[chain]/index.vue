@@ -16,7 +16,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import { Icon } from '@iconify/vue';
 import { computed, onMounted, ref } from 'vue';
 import router from '@/router';
-import type { Tx, TxResponse } from '@/types';
+import type { Coin, Tx, TxResponse } from '@/types';
 import { shortenAddress } from '@/libs/utils';
 import { defineChain, createPublicClient, http, decodeFunctionData, parseUnits } from 'viem'
 import bankAbi from '@/assets/abi/bank.json'
@@ -71,6 +71,17 @@ const latestBlocks = computed(() => {
   return baseStore.recents.reverse().slice(0, 20);
 });
 
+const getAmountEVM = (transaction : TxResponse): Coin=>{
+  const data = transaction.tx.body.messages[0].amount;
+  const amount = Array.isArray(data)?data[0].amount:data.amount || '0'
+    const denom = Array.isArray(data)?data[0].denom:data.denom || 'tkii'
+
+  return {
+    amount,
+    denom
+  }
+
+}
 
 // TODO: does not work.  Verify currentTx outputs an object
 // function computeTx(items: Tx[]) {
@@ -344,7 +355,7 @@ function confirm() {
               <span class="text-black dark:text-white">From: </span>
               <span class="text-info font-semibold">{{
                 shortenAddress(
-                  isKiichain?(item.events.find(ev => ev.type === 'transfer')?.attributes.find(att => att.key === 'sender')?.value || ''):(item.tx.body.messages[0]['from_address'] || ''),
+                  item.tx.body.messages[0]['from_address'] || '',
                   20,
                   0
                 )
@@ -354,7 +365,7 @@ function confirm() {
               <span class="text-black dark:text-white">To: </span>
               <span class="text-info font-semibold">{{
                 shortenAddress(
-                  isKiichain?(item.events.find(ev => ev.type === 'transfer')?.attributes.find(att => att.key === 'recipient')?.value || ''):(item.tx.body.messages[0]['to_address'] || ''),
+                  item.tx.body.messages[0]['to_address'] || '',
                   20,
                   0
                 )
@@ -363,14 +374,7 @@ function confirm() {
           </td>
           <td class="py-4 text-info font-semibold">
             {{
-                !isKiichain ? format.formatToken(
-                  Array.isArray(item.tx.body.messages[0]['amount'])
-                    ? item.tx.body.messages[0]['amount'][0]
-                    : item.tx.body.messages[0]['amount']
-                ):format.formatToken({ 
-                  denom: item.events.find(ev => ev.type === 'transfer')?.attributes.find(att => att.key === 'amount')?.value.replace(/[^A-Za-z]/g, "") || 'tkii' ,
-                  amount: item.events.find(ev => ev.type === 'transfer')?.attributes.find(att => att.key === 'amount')?.value.replace(/\D/g,'') || '0' 
-                })
+                format.formatToken(getAmountEVM(item))
             }}
           </td>
         </tr>

@@ -1,9 +1,12 @@
 {
   "chain_name": "kiichain",
-  "api": ["https://a.sentry.testnet.kiivalidator.com", "https://b.sentry.testnet.kiivalidator.com"],
+  "api": [
+    "https://a.sentry.testnet.kiivalidator.com",
+    "https://b.sentry.testnet.kiivalidator.com"
+  ],
   "rpc": [
-    "https://a.sentry.testnet.kiivalidator.com:26658",
-    "https://b.sentry.testnet.kiivalidator.com:26658"
+    "https://a.sentry.testnet.kiivalidator.com:8645",
+    "https://b.sentry.testnet.kiivalidator.com:8645"
   ],
   "snapshot_provider": "",
   "sdk_version": "0.45.11",
