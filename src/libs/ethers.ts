@@ -74,8 +74,8 @@ const convertTransaction = (
     data: transaction.data,
     codespace: '',
     events: [],
-    gas_used: '202682',
-    gas_wanted: '204431',
+    gas_used: transaction.gasLimit.toString(),
+    gas_wanted: '',
     logs: [
       {
         msg_index: 0,
@@ -83,7 +83,7 @@ const convertTransaction = (
         events: [],
       },
     ],
-    timestamp: '2022-08-13T23:24:54Z',
+    timestamp: new Date(block.timestamp * 1000).toISOString(),
     txhash: transaction.hash,
     info: '',
     raw_log: '',
