@@ -1,4 +1,4 @@
-# KII Explorer
+# Kiichain Explorer
 **KII Explorer** is a Vue application based on Pingpub (https://github.com/ping-pub/explorer).
 
 ## Prerequisites
