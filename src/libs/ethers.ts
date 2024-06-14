@@ -1,4 +1,4 @@
-import { type Coin, type TxResponse } from '@/types';
+import { Coin, TxResponse } from '@/types';
 import kiichain from '../../chains/testnet/kiichain.json';
 import { ethers, TransactionResponse } from 'ethers';
 
