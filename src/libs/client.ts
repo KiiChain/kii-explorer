@@ -11,9 +11,13 @@ import {
   registryVersionProfile,
   withCustomRequest,
 } from './registry';
-import { PageRequest, type Coin } from '@/types';
-import { getTransactionsEVM } from './ethers';
-import { useRoute } from 'vue-router';
+import {
+  PageRequest,
+  type Transaction,
+  type Coin,
+  type BlocksEvmResponse,
+} from '@/types';
+import { convertTransaction } from './ethers';
 
 export class BaseRestClient<R extends AbstractRegistry> {
   endpoint: string;
@@ -258,6 +262,17 @@ export class CosmosRestClient extends BaseRestClient<RequestRegistry> {
   async getBaseBlockAt(height: string | number) {
     return this.request(this.registry.base_tendermint_block_height, { height });
   }
+  async getBaseLatestBlocksEvm() {
+    const response = await fetch(DEFAULT.kii_backend_blocks.url);
+    const blocksResponse: BlocksEvmResponse = await response.json();
+    const latestBlocksPromise = blocksResponse.blocks.blocks.map(
+      async (block) => {
+        return await this.getBaseBlockAt(block.blockNumber);
+      }
+    );
+    const latestBlocks = await Promise.all(latestBlocksPromise);
+    return latestBlocks;
+  }
   async getBaseNodeInfo() {
     return this.request(this.registry.base_tendermint_node_info, {});
   }
@@ -320,7 +335,15 @@ export class CosmosRestClient extends BaseRestClient<RequestRegistry> {
     return this.request(this.registry.tx_txs, {}, `${query}`);
   }
   async getLatestTxsEvm(page?: PageRequest) {
-    return await getTransactionsEVM();
+    const response = await fetch(DEFAULT.kii_backend_transactions.url);
+    const transactionsResponse = await response.json();
+    const transactions = transactionsResponse.transactions.map(
+      (transaction: Transaction) => {
+        return convertTransaction(transaction);
+      }
+    );
+
+    return transactions;
   }
   async getTxsAt(height: string | number) {
     return this.request(this.registry.tx_txs_block, { height });

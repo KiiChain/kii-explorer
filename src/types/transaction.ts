@@ -75,3 +75,36 @@ export interface PaginatedTxs extends PaginatedResponse {
   tx_responses: TxResponse[];
   total: number;
 }
+
+export interface EvmTransactionResponse {
+  success: boolean;
+  errorMessage: string;
+  transactions: Transaction[];
+  quantity: number;
+}
+
+export interface Transaction {
+  transaction: Receipt;
+  sender: string;
+  success: boolean;
+  timestamp: string;
+}
+
+export interface Receipt {
+  type: string;
+  chainId: string;
+  nonce: string;
+  to: string;
+  gas: string;
+  gasPrice?: string;
+  maxPriorityFeePerGas?: string;
+  maxFeePerGas?: string;
+  value: string;
+  input: string;
+  accessList?: any[];
+  v: string;
+  r: string;
+  s: string;
+  yParity?: string;
+  hash: string;
+}
