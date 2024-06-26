@@ -1,4 +1,4 @@
-import type { Coin, TxResponse } from '@/types';
+import type { Coin, Transaction, TxResponse } from '@/types';
 import kiichain from '../../chains/testnet/kiichain.json';
 import { ethers, TransactionResponse } from 'ethers';
 
@@ -14,57 +14,13 @@ const getTransactionEVM = async (
   }
 };
 
-export const getTransactionsEVM = async (): Promise<
-  TxResponse[] | undefined
-> => {
-  try {
-    const provider = new ethers.JsonRpcProvider(kiichain.rpc[0]);
-    if (!provider) throw new Error('Missing provider');
-    const blockNumber = await provider.getBlockNumber();
-    const userTransactions: TxResponse[] = [];
-    const blocksPerPage = 40000;
-    const startBlock = blockNumber - blocksPerPage;
-
-    const rawblocks = await Promise.all(
-      Array.from(
-        { length: blocksPerPage },
-        (_, index) => startBlock! - index
-      ).map(async (blockNumber) => provider.getBlock(blockNumber, true))
-    );
-
-    const blocks = rawblocks.filter((block) => block && block.transactions);
-    const transactionPromises = blocks.flatMap((block) => {
-      if (!block || !block.transactions) return [];
-      return block.transactions.map(async (hash) => {
-        const transaction = await getTransactionEVM(hash, provider);
-        if (transaction) {
-          return convertTransaction(transaction, block);
-        }
-      });
-    });
-
-    const transactions = await Promise.all(transactionPromises);
-    const validTransactions = transactions.filter(
-      (tx): tx is TxResponse => tx !== null
-    );
-    userTransactions.push(...validTransactions!);
-    return userTransactions;
-  } catch (error) {
-    console.error('Error fetching the transaction history:', error);
-  }
-};
-
-const convertTransaction = (
-  transaction: TransactionResponse,
-  block: ethers.Block
-): TxResponse => {
-  const { value, blockNumber, type, data, gasLimit, hash, from, to } =
-    transaction;
+export const convertTransaction = (transaction: Transaction): TxResponse => {
+  const { transaction: receipt } = transaction;
   const { assets } = kiichain;
   const assetSymbol = assets[0].symbol;
 
   const amount: Coin = {
-    amount: ethers.formatEther(value),
+    amount: ethers.formatEther(receipt.value),
     denom: assetSymbol,
   };
 
@@ -76,12 +32,12 @@ const convertTransaction = (
   ];
 
   return {
-    height: blockNumber!.toString(),
-    code: type,
-    data: data,
+    height: '',
+    code: parseInt(receipt.type, 16),
+    data: '',
     codespace: '',
     events: [],
-    gas_used: gasLimit.toString(),
+    gas_used: receipt.gas,
     gas_wanted: '',
     logs: [
       {
@@ -90,15 +46,15 @@ const convertTransaction = (
         events: [],
       },
     ],
-    timestamp: new Date(block.timestamp * 1000).toISOString(),
-    txhash: hash,
+    timestamp: transaction.timestamp,
+    txhash: receipt.hash,
     info: '',
     raw_log: '',
     tx: {
       signatures: [],
       auth_info: {
         fee: {
-          gas_limit: gasLimit.toString(),
+          gas_limit: '',
           granter: '',
           payer: '',
           amount: fee,
@@ -123,8 +79,8 @@ const convertTransaction = (
         memo: '',
         messages: [
           {
-            from_address: from,
-            to_address: to!,
+            from_address: transaction.sender,
+            to_address: receipt.to,
             amount: amount,
             '@type': '',
           },
