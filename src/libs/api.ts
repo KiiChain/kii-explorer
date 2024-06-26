@@ -194,11 +194,11 @@ export const DEFAULT: RequestRegistry = {
 
   // kii backend
   kii_backend_transactions: {
-    url: 'http://3.134.233.152:3000/transactions',
+    url: 'https://kii.backend.kiivalidator.com/transactions',
     adapter,
   },
   kii_backend_blocks: {
-    url: 'http://3.134.233.152:3000/blocks',
+    url: 'https://kii.backend.kiivalidator.com/blocks',
     adapter,
   },
 };
