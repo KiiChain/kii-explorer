@@ -16,7 +16,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import { Icon } from '@iconify/vue';
 import { computed, onMounted, ref } from 'vue';
 import router from '@/router';
-import type { Coin, Tx, TxResponse } from '@/types';
+import type { Block, Coin, Tx, TxResponse } from '@/types';
 import { shortenAddress } from '@/libs/utils';
 import { defineChain, createPublicClient, http, decodeFunctionData, parseUnits } from 'viem'
 import bankAbi from '@/assets/abi/bank.json'
@@ -40,6 +40,7 @@ let searchQuery = ref('');
 let latestTransactions = ref<TxResponse[]>([]);
 let transactionsCount = ref(0);
 let gasPriceEvm = ref('');
+let latestBlocks = ref<Block[]>([]);
 
 const isKiichain = selectedChain === 'kiichain'
 
@@ -53,9 +54,10 @@ onMounted(async () => {
     if(isKiichain){
       const gasPrice = await publicClient.getGasPrice() 
       gasPriceEvm.value = gasPrice.toString()
+      latestBlocks.value =(await baseStore.fetchLatestEvmBlocks()).slice(0,20)
       const transactions = await bankStore.fetchLatestTxsEvm(blockStore.current?.assets[0].base ?? '');
       latestTransactions.value = transactions.slice(0, 20);
-      transactionsCount.value = transactions.length
+      transactionsCount.value = transactions.length  
       return
     }
     const txCount = await blockStore.rpc.getTxsCount();
@@ -66,10 +68,6 @@ onMounted(async () => {
     console.log(err)
   }
 
-});
-
-const latestBlocks = computed(() => {
-  return baseStore.recents.reverse().slice(0, 20);
 });
 
 const getAmountEVM = (transaction : TxResponse): Coin=>{
@@ -288,7 +286,7 @@ function confirm() {
           </tr>
         </thead>
         <tr
-          v-for="item in latestBlocks"
+          v-for="item in latestBlocks!"
           class="border-y-solid border-y-1 border-[#EAECF0]"
         >
           <td class="py-4">

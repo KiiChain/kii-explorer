@@ -1,7 +1,4 @@
-import {
-  type RequestRegistry,
-  adapter,
-} from './registry';
+import { type RequestRegistry, adapter } from './registry';
 
 export const DEFAULT: RequestRegistry = {
   auth_params: { url: '/cosmos/auth/v1beta1/params', adapter },
@@ -192,6 +189,16 @@ export const DEFAULT: RequestRegistry = {
   },
   ibc_core_connection_connections_connection_id_client_state: {
     url: '/ibc/core/connection/v1/connections/{connection_id}/client_state',
+    adapter,
+  },
+
+  // kii backend
+  kii_backend_transactions: {
+    url: 'http://3.134.233.152:3000/transactions',
+    adapter,
+  },
+  kii_backend_blocks: {
+    url: 'http://3.134.233.152:3000/blocks',
     adapter,
   },
 };
