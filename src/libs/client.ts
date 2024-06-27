@@ -16,6 +16,7 @@ import {
   type Transaction,
   type Coin,
   type BlocksEvmResponse,
+  type TxResponse,
 } from '@/types';
 import { convertTransaction } from './ethers';
 
@@ -338,13 +339,14 @@ export class CosmosRestClient extends BaseRestClient<RequestRegistry> {
   async getLatestTxsEvm(page?: PageRequest) {
     const response = await fetch(DEFAULT.kii_backend_transactions.url);
     const transactionsResponse = await response.json();
-    const transactions = transactionsResponse.transactions.map(
+    const transactions: TxResponse[] = transactionsResponse.transactions.map(
       (transaction: Transaction) => {
         return convertTransaction(transaction);
       }
     );
-
-    return transactions;
+    return transactions.sort(
+      (a, b) => parseInt(b.timestamp) - parseInt(a.timestamp)
+    );
   }
   async getTxsAt(height: string | number) {
     return this.request(this.registry.tx_txs_block, { height });
