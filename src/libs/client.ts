@@ -265,11 +265,12 @@ export class CosmosRestClient extends BaseRestClient<RequestRegistry> {
   async getBaseLatestBlocksEvm() {
     const response = await fetch(DEFAULT.kii_backend_blocks.url);
     const blocksResponse: BlocksEvmResponse = await response.json();
-    const latestBlocksPromise = blocksResponse.blocks.blocks.map(
-      async (block) => {
-        return await this.getBaseBlockAt(block.blockNumber);
-      }
+    const sortedBlocks = blocksResponse.blocks.blocks.sort(
+      (a, b) => b.time - a.time
     );
+    const latestBlocksPromise = sortedBlocks.map(async (block) => {
+      return await this.getBaseBlockAt(block.blockNumber);
+    });
     const latestBlocks = await Promise.all(latestBlocksPromise);
     return latestBlocks;
   }
