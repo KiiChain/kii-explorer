@@ -267,9 +267,9 @@ export class CosmosRestClient extends BaseRestClient<RequestRegistry> {
     const response = await fetch(DEFAULT.kii_backend_blocks.url);
     const blocksResponse: BlocksEvmResponse = await response.json();
     const sortedBlocks = blocksResponse.blocks.blocks.sort(
-      (a, b) => b.time - a.time
+      (a, b) => b.blockNumber - a.blockNumber
     );
-    const latestBlocksPromise = sortedBlocks.map(async (block) => {
+    const latestBlocksPromise = sortedBlocks.slice(0, 20).map(async (block) => {
       return await this.getBaseBlockAt(block.blockNumber);
     });
     const latestBlocks = await Promise.all(latestBlocksPromise);
@@ -344,9 +344,13 @@ export class CosmosRestClient extends BaseRestClient<RequestRegistry> {
         return convertTransaction(transaction);
       }
     );
-    return transactions.sort(
+    const tx = transactions.sort(
       (a, b) => parseInt(b.timestamp) - parseInt(a.timestamp)
     );
+    return {
+      transactions: tx,
+      quantity: transactionsResponse.quantity,
+    };
   }
   async getTxsAt(height: string | number) {
     return this.request(this.registry.tx_txs_block, { height });
