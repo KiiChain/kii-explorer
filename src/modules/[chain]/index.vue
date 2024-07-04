@@ -54,10 +54,10 @@ onMounted(async () => {
     if(isKiichain){
       const gasPrice = await publicClient.getGasPrice() 
       gasPriceEvm.value = gasPrice.toString()
-      latestBlocks.value =(await baseStore.fetchLatestEvmBlocks()).slice(0,20)
+      latestBlocks.value =await baseStore.fetchLatestEvmBlocks()
       const transactions = await bankStore.fetchLatestTxsEvm(blockStore.current?.assets[0].base ?? '');
-      latestTransactions.value = transactions.slice(0, 20);
-      transactionsCount.value = transactions.length  
+      latestTransactions.value = transactions.transactions.slice(0, 20);
+      transactionsCount.value = transactions.quantity  
       return
     }
     const txCount = await blockStore.rpc.getTxsCount();
