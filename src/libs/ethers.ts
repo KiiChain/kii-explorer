@@ -19,7 +19,7 @@ export const convertTransaction = (transaction: Transaction): TxResponse => {
   const { assets } = kiichain;
   const assetSymbol = assets[0].symbol;
   const amount: Coin = {
-    amount: (parseInt(receipt.value, 16) / 1e6).toString(), // Convert tkii to Kii
+    amount: (parseInt(receipt.value, 16) / 1e18).toString(), // Convert tkii to Kii
     denom: assetSymbol,
   };
 
