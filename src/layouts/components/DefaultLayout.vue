@@ -104,11 +104,11 @@ function selected(route: any, nav: NavLink) {
       </div>
 
       <!-- navigation -->
-      <div class="w-full">
+      <div class="w-full overflow-x-auto overflow-y-hidden">
         <div v-for="(item, index) of blockchain.computedChainMenu.filter(menu => (menu as NavGroup).children.length)"
           :key="index" class="px-2">
           <div v-if="isNavGroup(item)" :tabindex="index"
-            class="flex py-4 items-center w-fit gap-4 flex-col lg:flex-row">
+            class="flex py-4 items-center w-auto gap-4 flex-row xl:flex-row">
             <div v-if="index > 0 && index < blockchain.computedChainMenu.length && false"
               class="h-[1px] w-full linear-gradient-l-to-r-bg" />
             <div v-for="(el, key) of item?.children" class="menu w-full !p-0" :key="key">
