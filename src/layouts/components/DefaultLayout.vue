@@ -8,8 +8,6 @@ import NavbarThemeSwitcher from '@/layouts/components/NavbarThemeSwitcher.vue';
 import NavbarSearch from '@/layouts/components/NavbarSearch.vue';
 import NavBarChainSelector from '@/layouts/components/NavBarChainSelector.vue'
 import ChainProfile from '@/layouts/components/ChainProfile.vue';
-import kiiLogoDark from '@/assets/kii-branding-logo.png';
-import kiiLogoLight from '@/assets/logo-gradient-label-dark.png';
 import wave from '@/assets/images/svg/wave.svg';
 
 import { useDashboard } from '@/stores/useDashboard';
@@ -83,7 +81,12 @@ function selected(route: any, nav: NavLink) {
       </div>
 
       <!-- header -->
-      <div class="flex items-center py-4 bg-base-100 dark:bg-base100 mb-4 rounded px-4 sticky top-0 z-10 rounded-3xl">
+      <div class="flex items-center py-4 rounded px-4 sticky top-0 z-10 rounded-3xl" v-bind:style="{
+        backgroundImage: 'url(' + wave + ')',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }">
         <div class="text-2xl pr-3 cursor-pointer xl:!hidden" @click="sidebarShow = true">
           <Icon icon="mdi-menu" />
         </div>
