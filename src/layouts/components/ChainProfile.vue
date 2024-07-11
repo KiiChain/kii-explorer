@@ -2,6 +2,8 @@
 import { useBlockchain, useBaseStore, type Endpoint } from '@/stores';
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
+import kiiChainLogo from '@/assets/logo-kiichain.svg';
+
 const chainStore = useBlockchain();
 const baseStore = useBaseStore();
 chainStore.initial();
@@ -19,14 +21,15 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
     <label tabindex="0" class="flex items-center">
       <div class="p-1 relative mr-3 cursor-pointer">
         <div v-if="chainStore.logo && chainStore.logo !== ''">
-          <img v-if="isDarkMode"  v-lazy="chainStore.altLogo" alt="" class="w-9 h-9 rounded-full" />
-          <img v-if="!isDarkMode" v-lazy="chainStore.logo" alt="" class="w-9 h-9 rounded-full" />
+          <img v-lazy="kiiChainLogo" alt="" class="h-9" />
+          <!-- <img v-if="isDarkMode"  v-lazy="chainStore.altLogo" alt="" class="w-9 h-9 rounded-full" /> -->
+          <!-- <img v-if="!isDarkMode" v-lazy="chainStore.logo" alt="" class="w-9 h-9 rounded-full" /> -->
         </div>
         <div
           class="w-2 h-2 rounded-full bg-yes absolute right-0 bottom-0 shadow"
         ></div>
       </div>
-      <div class="flex-1 w-0">
+      <div class="flex-1 w-0 hidden">
         <div
           :key="
             baseStore.latest?.block?.header?.height ||
