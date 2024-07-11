@@ -408,8 +408,11 @@ export const getLineChartConfig = (theme: string, categories: string[]) => {
   const format = useFormatter();
   const blockStore = useBlockchain();
 
-  const { themeBorderColor, themeDisabledTextColor, themeBackgroundColor } =
-    colorVariables(theme);
+  const {
+    themeBorderColor,
+    // themeDisabledTextColor,
+    //  themeBackgroundColor
+  } = colorVariables(theme);
 
   return {
     chart: {
@@ -421,7 +424,7 @@ export const getLineChartConfig = (theme: string, categories: string[]) => {
       zoom: {
         enabled: false,
       },
-      background: themeBackgroundColor,
+      background: 'transparent',
     },
     dataLabels: { enabled: false },
     tooltip: {
@@ -436,7 +439,7 @@ export const getLineChartConfig = (theme: string, categories: string[]) => {
       opacity: 0.5,
       type: 'gradient',
       gradient: {
-        gradientToColors: ['#8835be', '#042d82'],
+        gradientToColors: ['#643B80', '##854EF9'],
         shadeIntensity: 1,
         type: 'horizontal',
         opacityFrom: 1,
@@ -453,14 +456,12 @@ export const getLineChartConfig = (theme: string, categories: string[]) => {
     },
     yaxis: {
       labels: {
-        style: { colors: themeDisabledTextColor },
+        style: { colors: '#fff' },
         formatter: (val: string) =>
-          format.formatToken(
-            {
-              amount: val,
-              denom: blockStore.current?.assets[0].base ?? '',
-            },
-          ),
+          format.formatToken({
+            amount: val,
+            denom: blockStore.current?.assets[0].base ?? '',
+          }),
       },
     },
     xaxis: {
@@ -470,7 +471,7 @@ export const getLineChartConfig = (theme: string, categories: string[]) => {
         stroke: { color: themeBorderColor },
       },
       labels: {
-        style: { colors: themeDisabledTextColor },
+        style: { colors: '#fff' },
       },
       categories,
     },
