@@ -154,82 +154,92 @@ const transactionHistoryChartValue = computed(() => {
 
 <template>
   <div class="space-y-5">
-    <div class="font-bold text-2xl">Welcome {{ walletStore.shortAddress }}</div>
+    <!-- <div class="font-bold text-2xl">Welcome {{ walletStore.shortAddress }}</div> -->
 
-    <!-- Search -->
-    <div class="flex items-center rounded-lg bg-base-100 dark:bg-base100 p-2 rounded-xl w-full shadow">
+    <div class="brand-gradient-border">
+      <div class="w-full h-full bg-radial-gradient-base-duo bg-base-100 dark:bg-base-100 p-6 space-y-4">
+      <!-- Search -->
+        <div class="brand-gradient-border">
+          <div class="flex items-center bg-radial-gradient-base-duo bg-base-100 dark:bg-base-100 p-2 w-full shadow">
 
-      <!-- Search Filter Dropdown -->
-      <!-- <div class="relative flex gap-2 items-center linear-gradient-tb-bg text-white rounded px-3 py-2 cursor-pointer"
-        @click="toggleIsFilterDropdown">
-        <Icon icon="icon-park-outline:setting-config" class="text-lg fill-white" />
-        <div>All Filters</div>
-        <Icon icon="mdi:chevron-up" class="text-lg fill-white transition-all ease-in-out"
-          :class="!isFilterDropdownActive && 'rotate-180'" />
-        <div v-if="isFilterDropdownActive"
-          class="absolute -bottom-32 right-0 bg-white border rounded border-info text-black divide-y w-full">
-          <div class="px-4 py-2 hover:bg-gray-100">Filter 1</div>
-          <div class="px-4 py-2 hover:bg-gray-100">Filter 2</div>
-          <div class="px-4 py-2 hover:bg-gray-100">Filter 3</div>
+            <!-- Search Filter Dropdown -->
+            <!-- <div class="relative flex gap-2 items-center linear-gradient-tb-bg text-white rounded px-3 py-2 cursor-pointer"
+              @click="toggleIsFilterDropdown">
+              <Icon icon="icon-park-outline:setting-config" class="text-lg fill-white" />
+              <div>All Filters</div>
+              <Icon icon="mdi:chevron-up" class="text-lg fill-white transition-all ease-in-out"
+                :class="!isFilterDropdownActive && 'rotate-180'" />
+              <div v-if="isFilterDropdownActive"
+                class="absolute -bottom-32 right-0 bg-white border rounded border-info text-black divide-y w-full">
+                <div class="px-4 py-2 hover:bg-gray-100">Filter 1</div>
+                <div class="px-4 py-2 hover:bg-gray-100">Filter 2</div>
+                <div class="px-4 py-2 hover:bg-gray-100">Filter 3</div>
+              </div>
+            </div> -->
+            
+            <!-- Search Filter Magnify -->
+            <div class="p-2 w-fit h-fit rounded-lg cursor-pointer">
+              <Icon icon="mdi:magnify" class="text-2xl text-accent" @click="confirm"/>
+            </div>
+            <!-- Search Filter Input -->
+            <input :placeholder="$t('pages.explore_search_placeholder')" 
+              v-model="searchQuery"
+              class="px-4 h-10 bg-transparent flex-1 outline-none text-neutral dark:text-white" />
+            <!-- <div class="px-4 text-neutral hidden md:!block">{{ chains.length }}/{{ dashboard.length }}</div> -->
+
+          </div>
         </div>
-      </div> -->
+        <div
+          class="mt-2 text-center text-sm text-error"
+          v-show="errorMessage"
+        >
+          {{ errorMessage }}
+        </div>
 
-      <!-- Search Filter Input -->
-      <input :placeholder="$t('pages.explore_search_placeholder')" 
-        v-model="searchQuery"
-        class="px-4 h-10 bg-transparent flex-1 outline-none text-neutral dark:text-white" />
-      <!-- <div class="px-4 text-neutral hidden md:!block">{{ chains.length }}/{{ dashboard.length }}</div> -->
+        <!-- Stats -->
+        <div class="grid md:grid-cols-2 gap-2">
+          <DualCardValue icon="ri:token-swap-line" title="KII PRICE" :value="`$${0.20.toLocaleString()}`" sub-value-suffix="(+0.10%)"  title2="GAS PRICE" value2="--"/>
 
-      <!-- Search Filter Magnify -->
-      <div class="linear-gradient-tb-bg p-2 w-fit h-fit rounded-lg cursor-pointer">
-        <Icon icon="mdi:magnify" class="text-2xl text-white" @click="confirm"/>
-      </div>
+          <DualCardValue icon="uil:transaction" title="TRANSACTIONS" :value="transactionsCount.toString()"
+            sub-value="(10,000 TPS)" title2="BLOCK HEIGHT" :value2="latestBlocks[0]?.block.header.height" />
+        </div>
     </div>
-    <div
-      class="mt-2 text-center text-sm text-error"
-      v-show="errorMessage"
-    >
-      {{ errorMessage }}
-    </div>
-
-    <!-- Stats -->
-    <div class="grid md:grid-cols-2 gap-2">
-      <DualCardValue icon="ri:token-swap-line" title="KII PRICE" :value="`$${0.20.toLocaleString()}`" sub-value-suffix="(+0.10%)"  title2="GAS PRICE" value2="--"/>
-
-      <DualCardValue icon="uil:transaction" title="TRANSACTIONS" :value="transactionsCount.toString()"
-        sub-value="(10,000 TPS)" title2="BLOCK HEIGHT" :value2="latestBlocks[0]?.block.header.height" />
     </div>
 
     <!-- Line Chart -->
     <div>
       <!-- Loading State Display -->
-      <div v-if="isLoading" class="px-12 py-6 bg-white shadow-lg rounded-lg text-center">
-        Loading transactions...
+       <div v-if="isLoading" class="brand-gradient-border">
+        <div class="px-12 py-6 bg-radial-gradient-base-duo bg-base-100 dark:bg-base-100 shadow-lg rounded-lg text-center text-white">
+          Loading transactions...
+        </div>
       </div>
 
        <!-- Data Display (hidden when loading) -->
-      <div v-else class="px-12 py-6 bg-white shadow-lg rounded-lg space-y-2 dark:bg-base100">
-        <div class="flex justify-between items-center">
-          <span>Transaction History</span>
-          <select @change="handleSelectTransactionHistoryFilter($event)" class="select select-bordered">
-            <option v-for="transactionHistoryFilter in transactionHistoryFilters" :key="transactionHistoryFilter" :value="transactionHistoryFilter">
-              {{ transactionHistoryFilter }} days
-            </option>
-          </select>
+      <div v-else class="brand-gradient-border">
+        <div class="px-12 py-6 shadow-lg rounded-lg space-y-2 bg-radial-gradient-base-duo bg-base-100 dark:bg-base-100">
+          <div class="flex justify-between items-center">
+            <!-- <span>Transaction History</span> -->
+            <select @change="handleSelectTransactionHistoryFilter($event)" class="select select-bordered">
+              <option v-for="transactionHistoryFilter in transactionHistoryFilters" :key="transactionHistoryFilter" :value="transactionHistoryFilter">
+                {{ transactionHistoryFilter }} days
+              </option>
+            </select>
+          </div>
+          <LineChart :series="transactionHistoryChartValue.series.reverse()" :labels="transactionHistoryChartValue.labels.reverse()" />
         </div>
-        <LineChart :series="transactionHistoryChartValue.series.reverse()" :labels="transactionHistoryChartValue.labels.reverse()" />
       </div>
     </div>
 
     <!-- Tables -->
-    <div class="grid grid-cols-2 gap-2 items-start">
-      <table class="table rounded bg-[#F9F9F9] dark:bg-base100 shadow">
+    <div class="grid grid-cols-1 gap-2 items-start">
+      <table class="table rounded shadow divide-y divide-base-300">
         <thead>
-          <tr class="">
-            <th colspan="3" class="text-info">LATEST BLOCKS</th>
+          <tr class="!border-b-0">
+            <th colspan="3" class="text-accent">LATEST BLOCKS</th>
           </tr>
         </thead>
-        <tr v-for="item in latestBlocks" class="border-y-solid border-y-1 border-[#EAECF0]">
+        <tr v-for="item in latestBlocks">
           <td class="py-4">
             <div class="flex gap-3 items-center">
               <div class="p-2 rounded-full bg-base-300">
@@ -256,13 +266,13 @@ const transactionHistoryChartValue = computed(() => {
         </tr>
       </table>
 
-      <table class="table rounded bg-[#F9F9F9] dark:bg-base100 shadow">
+      <table class="table rounded shadow divide-y divide-base-300">
         <thead>
-          <tr class="">
-            <th colspan="3" class="text-info">LATEST TRANSACTIONS</th>
+          <tr class="!border-b-0">
+            <th colspan="3" class="text-accent">LATEST TRANSACTIONS</th>
           </tr>
         </thead>
-        <tr v-for="item in latestTransactionList" class="border-y-solid border-y-1 border-[#EAECF0]">
+        <tr v-for="item in latestTransactionList">
           <td class="py-4">
             <div class="flex gap-3 items-center">
               <div class="p-2 rounded-full bg-base-300">
