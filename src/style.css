@@ -99,3 +99,10 @@ html[data-theme='dark'] {
     @apply bg-gradient-to-r from-[#762EBE] via-[#762EBE] to-[#042D82]
   }
 }
+
+.brand-gradient-border {
+  background: linear-gradient(to right, #643B80, #854EF9, #643B80) border-box;
+  color: #313149;
+  border: 2px solid transparent;
+  border-radius: 5px;
+}

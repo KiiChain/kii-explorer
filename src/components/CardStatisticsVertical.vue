@@ -25,17 +25,17 @@ const isPositive = controlledComputed(
 </script>
 
 <template>
-  <div class="bg-base-100 dark:bg-base-100 shadow rounded p-4 h-full" :style="props.style" :class="props.class">
+  <div class="bg-base-100 dark:bg-base-100 shadow rounded p-4 h-full flex gap-2 text-white" :style="props.style" :class="props.class">
     <div class="flex items-center justify-start">
       <div
         v-if="props.icon"
         class="relative w-9 h-9 rounded overflow-hidden flex items-center justify-center"
       >
-        <Icon :class="[`text-[#432EBE] dark:text-white`]" :icon="props.icon" size="32" />
-        <div
+        <Icon :class="[`text-accent dark:text-accent`]" :icon="props.icon" size="32" />
+        <!-- <div
           class="absolute top-0 left-0 bottom-0 right-0 opacity-20 linear-gradient-tb-bg-3"
           :class="[`bg-${props?.color}`]"
-        ></div>
+        ></div> -->
       </div>
 
       <div
@@ -49,12 +49,12 @@ const isPositive = controlledComputed(
     </div>
 
     <div class="">
-      <h6 class="text-lg font-semibold mt-2 mb-1 truncate">
-        {{ props.stats || '-'}}
-      </h6>
-      <p class="text-sm truncate">
+      <p class="text-lg truncate">
         {{ props.title }}
       </p>
+      <h6 class="text-2xl font-semibold mt-2 mb-1 truncate">
+        {{ props.stats || '-'}}
+      </h6>
 
       <div v-if="props.subtitle" size="x-small" class="font-semibold">
         <span class="truncate">{{ props.subtitle }}</span>
