@@ -70,7 +70,6 @@ const fetchTransactions = async () => {
     if (isKiichain) {
       await baseStore.fetchLatestEvmBlocks();
       await baseStore.fetchLatestEvmTxs();
-      await baseStore.fetchSmartContracts(0, 20)
     } else {
       const txCount = await blockStore.rpc.getTxsCount();
       baseStore.updateTxCount(txCount);
@@ -316,7 +315,7 @@ function confirm() {
               <span class="text-black dark:text-white">Fee Recipient </span>
               <span class="text-info font-semibold">{{
                 format.validator(item.block?.header?.proposer_address)
-              }}</span>
+                }}</span>
             </div>
             <div class="text-gray-500">
               {{ item.block?.data?.txs.length }} txs

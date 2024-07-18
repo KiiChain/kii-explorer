@@ -1,11 +1,12 @@
 import type { Coin, Transaction, TxResponse } from '@/types';
 import kiichain from '../../chains/testnet/kiichain.json';
-import { ethers, TransactionResponse } from 'ethers';
+import { ethers } from 'ethers';
+import certificationAbi from '../assets/abi/certifications.json';
 
 const getTransactionEVM = async (
   transactionHash: string,
-  provider: ethers.JsonRpcProvider
-): Promise<TransactionResponse | null> => {
+  provider: ethers.providers.JsonRpcProvider
+) => {
   try {
     return await provider.getTransaction(transactionHash);
   } catch (error) {
@@ -19,13 +20,13 @@ export const convertTransaction = (transaction: Transaction): TxResponse => {
   const { assets } = kiichain;
   const assetSymbol = assets[0].symbol;
   const amount: Coin = {
-    amount: ethers.formatEther(BigInt(receipt.value)), // Convert tkii to Kii
+    amount: ethers.utils.formatEther(BigInt(receipt.value)), // Convert tkii to Kii
     denom: assetSymbol,
   };
 
   const fee: Coin[] = [
     {
-      amount: ethers.formatEther(BigInt(receipt.gas)), // Convert tkii to Kii,
+      amount: ethers.utils.formatEther(BigInt(receipt.gas)), // Convert tkii to Kii,
       denom: assetSymbol,
     },
   ];
@@ -91,3 +92,25 @@ export const convertTransaction = (transaction: Transaction): TxResponse => {
     },
   };
 };
+
+export function decodeCertificationEvent(data: string) {
+  // Decode the log
+  const certificationInterface = new ethers.utils.Interface(certificationAbi);
+  const decodedLog = certificationInterface.decodeEventLog(
+    'CertificationCreatedEvent',
+    data
+  );
+  const dateNumber = parseInt(decodedLog[5]._hex, 16);
+  const date = new Date(dateNumber * 1000);
+
+  const element = {
+    name: decodedLog[0],
+    id: decodedLog[1],
+    courseName: decodedLog[2],
+    hoursAmount: decodedLog[3],
+    courseDicatedBy: decodedLog[4],
+    createdAt: date,
+    isValid: decodedLog[6],
+  };
+  return element;
+}

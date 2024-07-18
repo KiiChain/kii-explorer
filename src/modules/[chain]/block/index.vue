@@ -19,6 +19,11 @@ onMounted(async () => {
     if (props.chain === "kiichain") {
         blockList.value = base.evmRecentBlocks
         transactionList.value = base.evmRecentTxs
+        if (blockList.value.length == 0) {
+            await base.fetchLatestEvmBlocks()
+            blockList.value = base.evmRecentBlocks
+            transactionList.value = base.evmRecentTxs
+        }
     } else {
         blockList.value = base.recents
     }

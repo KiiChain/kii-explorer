@@ -9,6 +9,7 @@ import axios from 'axios';
 const requestTokenMessage = ref('');
 const requestTokenErrorMessage = ref('');
 const walletAddress = ref('');
+const enableButton = ref(true)
 
 const conf = ref(
   JSON.parse(localStorage.getItem('imported-addresses') || '{}') as Record<
@@ -30,8 +31,10 @@ async function requestTestnetTokens() {
     );
     requestTokenMessage.value = response.data;
     // Clear the message after 5 seconds
+    enableButton.value = false
     setTimeout(() => {
       requestTokenMessage.value = '';
+      enableButton.value = true
     }, 5000); // 5000 milliseconds = 5 seconds
   } catch (error) {
     console.error('Error while requesting testnet tokens:', error);
@@ -81,10 +84,11 @@ async function requestTestnetTokens() {
           </div>
 
           <!-- Claim token button -->
-          <div class="brand-gradient-border-2" @click="requestTestnetTokens">
-            <div class="btn btn-sm btn-primary hover:text-black dark:hover:text-white w-full">
+          <div class="brand-gradient-border-2">
+            <button @click="requestTestnetTokens" :disabled="!enableButton"
+              class="btn btn-sm btn-primary hover:text-black dark:hover:text-white w-full">
               Claim your tokens
-            </div>
+            </button>
           </div>
 
           <!-- Faucet Answer Text -->

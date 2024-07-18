@@ -17,12 +17,24 @@ const itemsPerPage = 20;
 const current = blockStore?.current?.chainName || '';
 const isKiichain = current === "kiichain"
 
+const latestSmartContracts = computed(() => {
+    return baseStore.smartContracts;
+});
+
+const smartContractsCount = computed(() => {
+    return baseStore.smartContractQuantity;
+});
+
 const fetchSmartContracts = async (page = 0) => {
     try {
         loading.value = true;
-        const response = await baseStore.fetchSmartContracts(page, itemsPerPage);
-        smartContracts.value = response.smartContracts;
-        totalContracts.value = response.quantity;
+        smartContracts.value = baseStore.getSmartContracts;
+        totalContracts.value = baseStore.smartContractQuantity;
+        if (smartContracts.value.length == 0) {
+            await baseStore.fetchSmartContracts(0)
+            smartContracts.value = baseStore.getSmartContracts;
+            totalContracts.value = baseStore.smartContractQuantity;
+        }
         currentPage.value = page;
     } catch (error) {
         console.error('Error fetching smart contracts:', error);
@@ -33,14 +45,14 @@ const fetchSmartContracts = async (page = 0) => {
 
 onMounted(async () => {
     try {
-        fetchSmartContracts();
+        await fetchSmartContracts();
     } catch (error) {
         console.error('Error fetching smart contracts:', error);
     }
 });
 
 
-const totalPages = computed(() => Math.ceil(totalContracts.value / itemsPerPage));
+const totalPages = computed(() => Math.ceil(smartContractsCount.value / itemsPerPage));
 
 const nextPage = () => {
     if (currentPage.value < totalPages.value - 1) {
@@ -90,7 +102,7 @@ const prevPage = () => {
                                     <td>{{ $t('smart_contracts.created_at') }}</td>
                                 </tr>
                             </thead>
-                            <tr v-for="(contract, i) in smartContracts" :key="i" class="hover">
+                            <tr v-for="(contract, i) in latestSmartContracts" :key="i" class="hover">
                                 <td>
                                     <div class="truncate max-w-sm">
                                         {{ contract.BlockNumber }}

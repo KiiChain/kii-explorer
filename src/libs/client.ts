@@ -17,6 +17,7 @@ import {
   type BlocksEvmResponse,
   type TxResponse,
   type Transaction,
+  type PaginatedSmartContractResponse,
 } from '@/types';
 import { convertTransaction } from './ethers';
 import { watchArray } from '@vueuse/core';
@@ -433,12 +434,11 @@ export class CosmosRestClient extends BaseRestClient<RequestRegistry> {
       port_id,
     });
   }
-  async getSmartContracts(page: number, limit: number) {
-    const url = `${
-      DEFAULT.kii_backend_smart_contracts.url
-    }/${page}?quantity=${limit}`;
+  async getSmartContracts(page: number) {
+    const url = `${DEFAULT.kii_backend_smart_contracts.url}/${page}`;
     const response = await fetch(url);
-    const smartContractsResponse = await response.json();
+    const smartContractsResponse: PaginatedSmartContractResponse =
+      await response.json();
     return smartContractsResponse;
   }
 }

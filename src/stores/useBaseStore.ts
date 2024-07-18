@@ -2,22 +2,41 @@ import { defineStore } from 'pinia';
 import { useBlockchain } from '@/stores';
 import { decodeTxRaw, type DecodedTxRaw } from '@cosmjs/proto-signing';
 import dayjs from 'dayjs';
-import type { Block, PaginatedResponse, SmartContract, TxResponse } from '@/types';
+import type {
+  Block,
+  PaginatedSmartContractResponse,
+  SmartContract,
+  TxResponse,
+} from '@/types';
 import { hashTx } from '@/libs';
 import { fromBase64 } from '@cosmjs/encoding';
 
+interface BaseState {
+  earlest: Block;
+  latest: Block;
+  recents: Block[];
+  theme: 'light' | 'dark';
+  recentEvmBlocks: Block[];
+  recentEvmTxs: TxResponse[];
+  evmTxsQuantity: number;
+  smartContracts: SmartContract[];
+  smartContractQuantity: number;
+}
+
 export const useBaseStore = defineStore('baseStore', {
-  state: () => {
+  state: (): BaseState => {
     return {
       earlest: {} as Block,
       latest: {} as Block,
-      recents: [] as Block[],
+      recents: [],
       theme: (window.localStorage.getItem('theme') || 'dark') as
         | 'light'
         | 'dark',
-      recentEvmBlocks: [] as Block[],
-      recentEvmTxs: [] as TxResponse[],
-      evmTxsQuantity: 0 as number,
+      recentEvmBlocks: [],
+      recentEvmTxs: [],
+      evmTxsQuantity: 0,
+      smartContracts: [],
+      smartContractQuantity: 0,
     };
   },
   getters: {
@@ -78,6 +97,12 @@ export const useBaseStore = defineStore('baseStore', {
     },
     evmTxsCount(): number {
       return this.evmTxsQuantity;
+    },
+    getSmartContracts(): SmartContract[] {
+      return this.smartContracts;
+    },
+    getSmartContractQuantity(): number {
+      return this.smartContractQuantity;
     },
   },
   actions: {
@@ -144,8 +169,13 @@ export const useBaseStore = defineStore('baseStore', {
       this.evmTxsQuantity = quantity;
       return this.recentEvmTxs;
     },
-    async fetchSmartContracts(page: number, limit: number): Promise<PaginatedResponse & { smartContracts?: SmartContract[] }> {
-      return await this.blockchain.rpc.getSmartContracts(page, limit);
-    }
+    async fetchSmartContracts(
+      page: number
+    ): Promise<PaginatedSmartContractResponse> {
+      const result = await this.blockchain.rpc.getSmartContracts(page);
+      this.smartContractQuantity = result.quantity;
+      this.smartContracts = result.smartContracts;
+      return result;
+    },
   },
 });
