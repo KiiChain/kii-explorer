@@ -58,7 +58,6 @@ const rewardBalance = ref();
 const loading = ref(false);
 const loadingMessage = ref('');
 
-const chart = {};
 const isKiichain = chain === 'kiichain';
 const isEvmAddress =
   walletAddress?.length === 42 && walletAddress?.includes('0x');
@@ -201,17 +200,9 @@ const isLoading = computed(() => loading.value);
       <div class="flex items-center">
         <!-- img -->
         <div class="inline-flex relative w-11 h-11 rounded-md">
-          <div
-            class="w-11 h-11 absolute rounded-md opacity-10 bg-primary"
-          ></div>
-          <div
-            class="w-full inline-flex items-center align-middle flex-none justify-center"
-          >
-            <Icon
-              icon="mdi-qrcode"
-              class="text-primary"
-              style="width: 27px; height: 27px"
-            />
+          <div class="w-11 h-11 absolute rounded-md opacity-10 bg-primary"></div>
+          <div class="w-full inline-flex items-center align-middle flex-none justify-center">
+            <Icon icon="mdi-qrcode" class="text-primary" style="width: 27px; height: 27px" />
           </div>
         </div>
         <!-- content -->
@@ -260,18 +251,10 @@ const isLoading = computed(() => loading.value);
           <!-- list-->
           <div class="">
             <!--balances  -->
-            <div
-              class="flex items-center px-4 mb-2"
-              v-for="(balanceItem, index) in balances"
-              :key="index"
-            >
-              <div
-                class="w-9 h-9 rounded overflow-hidden flex items-center justify-center relative mr-4"
-              >
+            <div class="flex items-center px-4 mb-2" v-for="(balanceItem, index) in balances" :key="index">
+              <div class="w-9 h-9 rounded overflow-hidden flex items-center justify-center relative mr-4">
                 <Icon icon="mdi-account-cash" class="text-info" size="20" />
-                <div
-                  class="absolute top-0 bottom-0 left-0 right-0 bg-info opacity-20"
-                ></div>
+                <div class="absolute top-0 bottom-0 left-0 right-0 bg-info opacity-20"></div>
               </div>
               <div class="flex-1">
                 <div class="text-sm font-semibold">
@@ -283,28 +266,16 @@ const isLoading = computed(() => loading.value);
                   }}
                 </div>
               </div>
-              <div
-                class="text-xs truncate relative py-1 px-3 rounded-full w-fit text-primary dark:invert mr-2"
-              >
-                <span
-                  class="inset-x-0 inset-y-0 opacity-10 absolute bg-primary dark:invert text-sm"
-                ></span>
+              <div class="text-xs truncate relative py-1 px-3 rounded-full w-fit text-primary dark:invert mr-2">
+                <span class="inset-x-0 inset-y-0 opacity-10 absolute bg-primary dark:invert text-sm"></span>
                 ${{ format.tokenValue(balanceItem) }}
               </div>
             </div>
             <!--delegations  -->
-            <div
-              class="flex items-center px-4 mb-2"
-              v-for="(delegationItem, index) in delegations"
-              :key="index"
-            >
-              <div
-                class="w-9 h-9 rounded overflow-hidden flex items-center justify-center relative mr-4"
-              >
+            <div class="flex items-center px-4 mb-2" v-for="(delegationItem, index) in delegations" :key="index">
+              <div class="w-9 h-9 rounded overflow-hidden flex items-center justify-center relative mr-4">
                 <Icon icon="mdi-user-clock" class="text-warning" size="20" />
-                <div
-                  class="absolute top-0 bottom-0 left-0 right-0 bg-warning opacity-20"
-                ></div>
+                <div class="absolute top-0 bottom-0 left-0 right-0 bg-warning opacity-20"></div>
               </div>
               <div class="flex-1">
                 <div class="text-sm font-semibold">
@@ -319,32 +290,16 @@ const isLoading = computed(() => loading.value);
                   }}
                 </div>
               </div>
-              <div
-                class="text-xs truncate relative py-1 px-3 rounded-full w-fit text-primary dark:invert mr-2"
-              >
-                <span
-                  class="inset-x-0 inset-y-0 opacity-10 absolute bg-primary dark:invert text-sm"
-                ></span>
+              <div class="text-xs truncate relative py-1 px-3 rounded-full w-fit text-primary dark:invert mr-2">
+                <span class="inset-x-0 inset-y-0 opacity-10 absolute bg-primary dark:invert text-sm"></span>
                 ${{ format.tokenValue(delegationItem?.balance) }}
               </div>
             </div>
             <!-- rewards.total -->
-            <div
-              class="flex items-center px-4 mb-2"
-              v-for="(rewardItem, index) in rewards.total"
-              :key="index"
-            >
-              <div
-                class="w-9 h-9 rounded overflow-hidden flex items-center justify-center relative mr-4"
-              >
-                <Icon
-                  icon="mdi-account-arrow-up"
-                  class="text-success"
-                  size="20"
-                />
-                <div
-                  class="absolute top-0 bottom-0 left-0 right-0 bg-success opacity-20"
-                ></div>
+            <div class="flex items-center px-4 mb-2" v-for="(rewardItem, index) in rewards.total" :key="index">
+              <div class="w-9 h-9 rounded overflow-hidden flex items-center justify-center relative mr-4">
+                <Icon icon="mdi-account-arrow-up" class="text-success" size="20" />
+                <div class="absolute top-0 bottom-0 left-0 right-0 bg-success opacity-20"></div>
               </div>
               <div class="flex-1">
                 <div class="text-sm font-semibold">
@@ -354,28 +309,16 @@ const isLoading = computed(() => loading.value);
                   {{ format.calculatePercent(rewardItem.amount, totalAmount) }}
                 </div>
               </div>
-              <div
-                class="text-xs truncate relative py-1 px-3 rounded-full w-fit text-primary dark:invert mr-2"
-              >
-                <span
-                  class="inset-x-0 inset-y-0 opacity-10 absolute bg-primary dark:invert text-sm"
-                ></span
-                >${{ format.tokenValue(rewardItem) }}
+              <div class="text-xs truncate relative py-1 px-3 rounded-full w-fit text-primary dark:invert mr-2">
+                <span class="inset-x-0 inset-y-0 opacity-10 absolute bg-primary dark:invert text-sm"></span>${{
+                  format.tokenValue(rewardItem) }}
               </div>
             </div>
             <!-- mdi-account-arrow-right -->
             <div class="flex items-center px-4">
-              <div
-                class="w-9 h-9 rounded overflow-hidden flex items-center justify-center relative mr-4"
-              >
-                <Icon
-                  icon="mdi-account-arrow-right"
-                  class="text-error"
-                  size="20"
-                />
-                <div
-                  class="absolute top-0 bottom-0 left-0 right-0 bg-error opacity-20"
-                ></div>
+              <div class="w-9 h-9 rounded overflow-hidden flex items-center justify-center relative mr-4">
+                <Icon icon="mdi-account-arrow-right" class="text-error" size="20" />
+                <div class="absolute top-0 bottom-0 left-0 right-0 bg-error opacity-20"></div>
               </div>
               <div class="flex-1">
                 <div class="text-sm font-semibold">
@@ -390,12 +333,8 @@ const isLoading = computed(() => loading.value);
                   {{ format.calculatePercent(unbondingTotal, totalAmount) }}
                 </div>
               </div>
-              <div
-                class="text-xs truncate relative py-1 px-3 rounded-full w-fit text-primary dark:invert mr-2"
-              >
-                <span
-                  class="inset-x-0 inset-y-0 opacity-10 absolute bg-primary dark:invert"
-                ></span>
+              <div class="text-xs truncate relative py-1 px-3 rounded-full w-fit text-primary dark:invert mr-2">
+                <span class="inset-x-0 inset-y-0 opacity-10 absolute bg-primary dark:invert"></span>
                 ${{
                   format.tokenValue({
                     amount: String(unbondingTotal),
@@ -405,9 +344,7 @@ const isLoading = computed(() => loading.value);
               </div>
             </div>
           </div>
-          <div
-            class="mt-4 text-lg font-semibold mr-5 pl-5 border-t pt-4 text-right"
-          >
+          <div class="mt-4 text-lg font-semibold mr-5 pl-5 border-t pt-4 text-right">
             {{ $t('account.total_value') }}: ${{ totalValue }}
           </div>
         </div>
@@ -419,35 +356,18 @@ const isLoading = computed(() => loading.value);
       <div class="flex justify-between">
         <h2 class="card-title mb-4">{{ $t('account.delegations') }}</h2>
         <div class="flex justify-end mb-4">
-          <label
-            v-if="!hideButtons"
-            for="delegate"
+          <label v-if="!hideButtons" for="delegate"
             class="btn btn-primary btn-sm mr-2 hover:text-black dark:hover:text-white"
-            :class="isKiichain ? 'hidden' : ''"
-            @click="dialog.open('delegate', {}, updateEvent)"
-            >{{ $t('account.btn_delegate') }}</label
-          >
-          <RouterLink
-            v-if="!hideButtons"
-            :to="`/${chain}/staking`"
-            :class="!isKiichain ? 'hidden' : ''"
-            class="btn btn-primary btn-sm mr-2 hover:text-black dark:hover:text-white"
-            >{{ $t('account.btn_delegate') }}</RouterLink
-          >
-          <label
-            v-if="!hideButtons"
-            for="withdraw"
-            class="btn btn-primary btn-sm hover:text-black dark:hover:text-white"
-            :class="!isKiichain ? '' : 'hidden'"
-            @click="dialog.open('withdraw', {}, updateEvent)"
-            >{{ $t('account.btn_withdraw') }}</label
-          >
-          <label
-            v-if="!hideButtons"
-            class="btn btn-primary btn-sm hover:text-black dark:hover:text-white"
-            :class="isKiichain ? '' : 'hidden'"
-            @click="showRewardsModal = true"
-          >
+            :class="isKiichain ? 'hidden' : ''" @click="dialog.open('delegate', {}, updateEvent)">{{
+              $t('account.btn_delegate') }}</label>
+          <RouterLink v-if="!hideButtons" :to="`/${chain}/staking`" :class="!isKiichain ? 'hidden' : ''"
+            class="btn btn-primary btn-sm mr-2 hover:text-black dark:hover:text-white">{{ $t('account.btn_delegate') }}
+          </RouterLink>
+          <label v-if="!hideButtons" for="withdraw"
+            class="btn btn-primary btn-sm hover:text-black dark:hover:text-white" :class="!isKiichain ? '' : 'hidden'"
+            @click="dialog.open('withdraw', {}, updateEvent)">{{ $t('account.btn_withdraw') }}</label>
+          <label v-if="!hideButtons" class="btn btn-primary btn-sm hover:text-black dark:hover:text-white"
+            :class="isKiichain ? '' : 'hidden'" @click="showRewardsModal = true">
             {{ $t('account.btn_withdraw') }}
           </label>
         </div>
@@ -474,15 +394,12 @@ const isLoading = computed(() => loading.value);
             </tr>
             <tr v-for="(v, index) in delegations" :key="index">
               <td class="text-caption text-primary py-3">
-                <RouterLink
-                  :to="`/${chain}/staking/${v.delegation.validator_address}`"
-                  class="text-primary dark:invert"
-                  >{{
+                <RouterLink :to="`/${chain}/staking/${v.delegation.validator_address}`"
+                  class="text-primary dark:invert">{{
                     format.validatorFromBech32(
                       v.delegation.validator_address
                     ) || v.delegation.validator_address
-                  }}</RouterLink
-                >
+                  }}</RouterLink>
               </td>
               <td class="py-3">
                 {{ format.formatToken(v.balance, true, '0,0.[000000]') }}
@@ -514,11 +431,8 @@ const isLoading = computed(() => loading.value);
                     "
                     >{{ $t('account.btn_delegate') }}</label
                   > -->
-                  <label
-                    v-if="!hideButtons"
-                    for="redelegate"
-                    class="btn btn-primary btn-xs mr-2 hover:text-black dark:hover:text-white"
-                    @click="
+                  <label v-if="!hideButtons" for="redelegate"
+                    class="btn btn-primary btn-xs mr-2 hover:text-black dark:hover:text-white" @click="
                       dialog.open(
                         'redelegate',
                         {
@@ -526,14 +440,9 @@ const isLoading = computed(() => loading.value);
                         },
                         updateEvent
                       )
-                    "
-                    >{{ $t('account.btn_redelegate') }}</label
-                  >
-                  <label
-                    v-if="!hideButtons"
-                    for="unbond"
-                    class="btn btn-primary btn-xs hover:text-black dark:hover:text-white"
-                    @click="
+                      ">{{ $t('account.btn_redelegate') }}</label>
+                  <label v-if="!hideButtons" for="unbond"
+                    class="btn btn-primary btn-xs hover:text-black dark:hover:text-white" @click="
                       dialog.open(
                         'unbond',
                         {
@@ -541,9 +450,7 @@ const isLoading = computed(() => loading.value);
                         },
                         updateEvent
                       )
-                    "
-                    >{{ $t('account.btn_unbond') }}</label
-                  >
+                      ">{{ $t('account.btn_unbond') }}</label>
                 </div>
               </td>
             </tr>
@@ -553,10 +460,8 @@ const isLoading = computed(() => loading.value);
     </div>
 
     <!-- Unbonding Delegations -->
-    <div
-      class="bg-base-100 dark:bg-base100 px-4 pt-3 pb-4 rounded mb-4 shadow"
-      v-if="unbonding && unbonding.length > 0"
-    >
+    <div class="bg-base-100 dark:bg-base100 px-4 pt-3 pb-4 rounded mb-4 shadow"
+      v-if="unbonding && unbonding.length > 0">
       <h2 class="card-title mb-4">{{ $t('account.unbonding_delegations') }}</h2>
       <div class="overflow-x-auto">
         <table class="table text-sm w-full">
@@ -570,13 +475,10 @@ const isLoading = computed(() => loading.value);
           </thead>
           <tbody class="text-sm" v-for="(v, index) in unbonding" :key="index">
             <tr>
-              <td
-                class="text-caption text-primary py-3 bg-slate-200"
-                colspan="10"
-              >
+              <td class="text-caption text-primary py-3 bg-slate-200" colspan="10">
                 <RouterLink :to="`/${chain}/staking/${v.validator_address}`">{{
                   v.validator_address
-                }}</RouterLink>
+                  }}</RouterLink>
               </td>
             </tr>
             <tr v-for="(entry, i) in v.entries" :key="i">
@@ -606,12 +508,9 @@ const isLoading = computed(() => loading.value);
                 }}
               </td>
               <td class="py-3">
-                <Countdown
-                  :time="
-                    new Date(entry.completion_time).getTime() -
-                    new Date().getTime()
-                  "
-                />
+                <Countdown :time="new Date(entry.completion_time).getTime() -
+                  new Date().getTime()
+                  " />
               </td>
             </tr>
           </tbody>
@@ -642,17 +541,11 @@ const isLoading = computed(() => loading.value);
             </tr>
             <tr v-for="(v, index) in combinedTxs" :key="index">
               <td class="text-sm py-3">
-                <RouterLink
-                  :to="`/${chain}/block/${v.height}`"
-                  class="text-primary dark:invert"
-                  >{{ v.height }}</RouterLink
-                >
+                <RouterLink :to="`/${chain}/block/${v.height}`" class="text-primary dark:invert">{{ v.height }}
+                </RouterLink>
               </td>
               <td class="truncate py-3" style="max-width: 200px">
-                <RouterLink
-                  :to="`/${chain}/tx/${v.txhash}`"
-                  class="text-primary dark:invert"
-                >
+                <RouterLink :to="`/${chain}/tx/${v.txhash}`" class="text-primary dark:invert">
                   {{ v.txhash }}
                 </RouterLink>
               </td>
@@ -660,18 +553,12 @@ const isLoading = computed(() => loading.value);
                 <div class="mr-2">
                   {{ format.messages(v.tx.body.messages, props.address) }}
                 </div>
-                <Icon
-                  v-if="v.code === 0"
-                  icon="mdi-check"
-                  class="text-success text-lg"
-                />
+                <Icon v-if="v.code === 0" icon="mdi-check" class="text-success text-lg" />
                 <Icon v-else icon="mdi-multiply" class="text-error text-lg" />
               </td>
               <td class="py-3">
                 {{ format.toLocaleDate(v.timestamp) }}
-                <span class="text-xs"
-                  >({{ format.toDay(v.timestamp, 'from') }})</span
-                >
+                <span class="text-xs">({{ format.toDay(v.timestamp, 'from') }})</span>
               </td>
             </tr>
           </tbody>
@@ -688,10 +575,7 @@ const isLoading = computed(() => loading.value);
     <Teleport to="body">
       <div :class="isKiichain ? '' : 'hidden'">
         <!-- Rewards Modal -->
-        <Modal
-          :show="showRewardsModal === true"
-          @close="showRewardsModal = false"
-        >
+        <Modal :show="showRewardsModal === true" @close="showRewardsModal = false">
           <template #header>
             <h1 class="text-2xl">Withdraw KII Rewards</h1>
           </template>
@@ -702,21 +586,17 @@ const isLoading = computed(() => loading.value);
                 <div class="flex-col">
                   <div class="flex justify-center py-2">
                     <span class="text-green-500">{{
-                      `Outstanding Rewards Balance: ${
-                        isKiichain
-                          ? format.formatToken(walletRewardBalance)
-                          : format.formatToken(
-                              walletStore.balanceOfStakingToken,
-                              false
-                            )
+                      `Outstanding Rewards Balance: ${isKiichain
+                        ? format.formatToken(walletRewardBalance)
+                        : format.formatToken(
+                          walletStore.balanceOfStakingToken,
+                          false
+                        )
                       }`
                     }}</span>
                   </div>
                   <div class="flex justify-center w-full py-2">
-                    <button
-                      class="w-full rounded-lg bg-[#432ebe] text-white p-2"
-                      @click="withdrawRewardsTransaction()"
-                    >
+                    <button class="w-full rounded-lg bg-[#432ebe] text-white p-2" @click="withdrawRewardsTransaction()">
                       Withdraw KII Rewards
                     </button>
                   </div>
@@ -727,19 +607,19 @@ const isLoading = computed(() => loading.value);
         </Modal>
         <!-- Loading Modal -->
         <Modal :show="isLoading" @close="loading = false">
-            <template #header>
-              <h1 class="text-2xl">Please wait...</h1>
-            </template>
-            <template #body>
-              <PulseLoader />
-            </template>
-            <template #footer>
-              <div />
-            </template>
-          </Modal>
+          <template #header>
+            <h1 class="text-2xl">Please wait...</h1>
+          </template>
+          <template #body>
+            <PulseLoader />
+          </template>
+          <template #footer>
+            <div />
+          </template>
+        </Modal>
       </div>
     </Teleport>
-    
+
   </div>
   <div v-else class="text-no text-sm">{{ $t('account.error') }}</div>
 </template>
