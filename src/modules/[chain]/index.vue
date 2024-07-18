@@ -74,10 +74,10 @@ onMounted(async () => {
   return () => clearInterval(intervalId); // Clear interval on component unmount
 });
 
-const getAmountEVM = (transaction : TxResponse): Coin=>{
+const getAmountEVM = (transaction: TxResponse): Coin => {
   const data = transaction.tx.body.messages[0].amount;
-  const amount = Array.isArray(data)?data[0].amount:data.amount || '0'
-    const denom = Array.isArray(data)?data[0].denom:data.denom || 'tkii'
+  const amount = Array.isArray(data) ? data[0].amount : data.amount || '0'
+  const denom = Array.isArray(data) ? data[0].denom : data.denom || 'tkii'
 
   return {
     amount,
@@ -127,6 +127,8 @@ function confirm() {
   const height = /^\d+$/;
   const txhash = /^[A-Z\d]{64}$/;
   const addr = /^[a-z\d]+1[a-z\d]{38,58}$/;
+  const evmAddr = /^0x[a-fA-F0-9]{40}$/;
+  const evmTxHash = /^0x[a-fA-F0-9]{64}$/;
 
   const current = blockStore?.current?.chainName || '';
   const routeParams = router?.currentRoute?.value;
@@ -134,10 +136,10 @@ function confirm() {
   if (!Object.values(routeParams?.params ?? '').includes(key)) {
     if (height.test(key)) {
       router.push({ path: `/${current}/block/${key}` });
-    } else if (txhash.test(key)) {
+    } else if (txhash.test(key) || evmTxHash.test(key)) {
       router.push({ path: `/${current}/tx/${key}` });
       //     this.$router.push({ name: 'transaction', params: { chain: c.chain_name, hash: key } })
-    } else if (addr.test(key)) {
+    } else if (addr.test(key) || evmAddr.test(key)) {
       router.push({ path: `/${current}/account/${key}` });
     } else {
       errorMessage.value = 'The input not recognized';
@@ -207,9 +209,7 @@ function confirm() {
     </div>
 
     <!-- Search -->
-    <div
-      class="flex items-center rounded-lg bg-base-100 dark:bg-base100 p-2 rounded-xl w-full shadow"
-    >
+    <div class="flex items-center rounded-lg bg-base-100 dark:bg-base100 p-2 rounded-xl w-full shadow">
       <!-- Search Filter Dropdown -->
       <!-- <div class="relative flex gap-2 items-center linear-gradient-tb-bg text-white rounded px-3 py-2 cursor-pointer"
         @click="toggleIsFilterDropdown">
@@ -226,17 +226,12 @@ function confirm() {
       </div> -->
 
       <!-- Search Filter Input -->
-      <input
-        :placeholder="$t('pages.explore_search_placeholder')"
-        v-model="searchQuery"
-        class="px-4 h-10 bg-transparent flex-1 outline-none text-neutral dark:text-white"
-      />
+      <input :placeholder="$t('pages.explore_search_placeholder')" v-model="searchQuery"
+        class="px-4 h-10 bg-transparent flex-1 outline-none text-neutral dark:text-white" />
       <!-- <div class="px-4 text-neutral hidden md:!block">{{ chains.length }}/{{ dashboard.length }}</div> -->
 
       <!-- Search Filter Magnify -->
-      <div
-        class="linear-gradient-tb-bg p-2 w-fit h-fit rounded-lg cursor-pointer"
-      >
+      <div class="linear-gradient-tb-bg p-2 w-fit h-fit rounded-lg cursor-pointer">
         <Icon icon="mdi:magnify" class="text-2xl text-white" @click="confirm" />
       </div>
     </div>
@@ -246,23 +241,12 @@ function confirm() {
 
     <!-- Stats -->
     <div class="grid md:grid-cols-2 gap-2">
-      <DualCardValue
-        icon="ri:token-swap-line"
-        title="KII PRICE"
-        :value="`$${(0.0).toLocaleString()}`"
-        sub-value-suffix="(+0.10%)"
-        title2="GAS PRICE"
-        :value2="isKiichain?`${gasPriceEvm} tekii`:'--'"
-      />
+      <DualCardValue icon="ri:token-swap-line" title="KII PRICE" :value="`$${(0.0).toLocaleString()}`"
+        sub-value-suffix="(+0.10%)" title2="GAS PRICE" :value2="isKiichain ? `${gasPriceEvm} tekii` : '--'" />
 
-      <DualCardValue
-        icon="uil:transaction"
-        title="TRANSACTIONS"
-        :value="transactionsCount.toString()"
-        :sub-value="isKiichain?'':`(10,000 TPS)`"
-        title2="BLOCK HEIGHT"
-        :value2="latestBlocks[0]?.block.header.height"
-      />
+      <DualCardValue icon="uil:transaction" title="TRANSACTIONS" :value="transactionsCount.toString()"
+        :sub-value="isKiichain ? '' : `(10,000 TPS)`" title2="BLOCK HEIGHT"
+        :value2="latestBlocks[0]?.block.header.height" />
     </div>
 
     <!-- Line Chart -->
@@ -289,21 +273,15 @@ function confirm() {
             <td colspan="3" class="text-info">LATEST BLOCKS</td>
           </tr>
         </thead>
-        <tr
-          v-for="item in latestBlocks!"
-          class="border-y-solid border-y-1 border-[#EAECF0]"
-        >
+        <tr v-for="item in latestBlocks!" class="border-y-solid border-y-1 border-[#EAECF0]">
           <td class="py-4">
             <div class="flex gap-3 items-center">
               <div class="p-2 rounded-full bg-base-300">
                 <Icon icon="mingcute:paper-line" class="text-lg" />
               </div>
               <div>
-                <RouterLink
-                  :to="`/${selectedChain}/block/${item.block.header.height}`"
-                  class="text-info font-bold"
-                  >{{ item.block.header.height }}</RouterLink
-                >
+                <RouterLink :to="`/${selectedChain}/block/${item.block.header.height}`" class="text-info font-bold">{{
+                  item.block.header.height }}</RouterLink>
                 <div class="text-gray-500">
                   {{ format.toDay(item.block?.header?.time, 'from') }}
                 </div>
@@ -315,7 +293,7 @@ function confirm() {
               <span class="text-black dark:text-white">Fee Recipient </span>
               <span class="text-info font-semibold">{{
                 format.validator(item.block?.header?.proposer_address)
-              }}</span>
+                }}</span>
             </div>
             <div class="text-gray-500">
               {{ item.block?.data?.txs.length }} txs
@@ -331,20 +309,14 @@ function confirm() {
             <td colspan="3" class="text-info">LATEST TRANSACTIONS</td>
           </tr>
         </thead>
-        <tr
-          v-for="item in latestTransactions"
-          class="border-y-solid border-y-1 border-[#EAECF0]"
-        >
+        <tr v-for="item in latestTransactions" class="border-y-solid border-y-1 border-[#EAECF0]">
           <td class="py-4">
             <div class="flex gap-3 items-center">
               <div class="p-2 rounded-full bg-base-300">
                 <Icon icon="mingcute:paper-line" class="text-lg" />
               </div>
               <div>
-                <RouterLink
-                  :to="`/${selectedChain}/tx/${item.txhash}`"
-                  class="text-info font-bold"
-                >
+                <RouterLink :to="`/${selectedChain}/tx/${item.txhash}`" class="text-info font-bold">
                   {{ shortenAddress(item.txhash, 15, 0) }}
                 </RouterLink>
                 <div class="text-gray-500">
@@ -377,7 +349,7 @@ function confirm() {
           </td>
           <td class="py-4 text-info font-semibold">
             {{
-                format.formatToken(getAmountEVM(item))
+              format.formatToken(getAmountEVM(item))
             }}
           </td>
         </tr>
