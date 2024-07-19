@@ -70,7 +70,7 @@ const fetchTransactions = async () => {
 
 onMounted(async () => {
   await fetchTransactions();
-  const intervalId = setInterval(fetchTransactions, 10000); // Fetch transactions every second
+  const intervalId = setInterval(fetchTransactions, 60000); // Fetch transactions every minut
   return () => clearInterval(intervalId); // Clear interval on component unmount
 });
 
