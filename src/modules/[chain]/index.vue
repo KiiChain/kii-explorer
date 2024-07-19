@@ -49,25 +49,29 @@ const publicClient = createPublicClient({
   transport: http(),
 })
 
-onMounted(async () => {
-  try{
-    if(isKiichain){
-      const gasPrice = await publicClient.getGasPrice() 
-      gasPriceEvm.value = gasPrice.toString()
-      latestBlocks.value =await baseStore.fetchLatestEvmBlocks()
+const fetchTransactions = async () => {
+  try {
+    if (isKiichain) {
+      const gasPrice = await publicClient.getGasPrice();
+      gasPriceEvm.value = gasPrice.toString();
+      latestBlocks.value = await baseStore.fetchLatestEvmBlocks();
       const transactions = await bankStore.fetchLatestTxsEvm(blockStore.current?.assets[0].base ?? '');
       latestTransactions.value = transactions.transactions.slice(0, 20);
-      transactionsCount.value = transactions.quantity  
-      return
+      transactionsCount.value = transactions.quantity;
+    } else {
+      const txCount = await blockStore.rpc.getTxsCount();
+      transactionsCount.value = txCount;
+      latestTransactions.value = await bankStore.fetchLatestTxs(txCount);
     }
-    const txCount = await blockStore.rpc.getTxsCount();
-    transactionsCount.value = txCount
-    latestTransactions.value = await bankStore.fetchLatestTxs(txCount);
+  } catch (err) {
+    console.log(err);
   }
-  catch(err){
-    console.log(err)
-  }
+};
 
+onMounted(async () => {
+  await fetchTransactions();
+  const intervalId = setInterval(fetchTransactions, 1000); // Fetch transactions every second
+  return () => clearInterval(intervalId); // Clear interval on component unmount
 });
 
 const getAmountEVM = (transaction : TxResponse): Coin=>{
