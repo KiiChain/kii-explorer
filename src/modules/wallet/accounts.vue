@@ -11,18 +11,20 @@ import {
   type AccountEntry,
   scanCompatibleAccounts,
   type LocalKey,
+  kiiConvertedAddress,
+  isEvmAddress,
 } from './utils';
 import axios from 'axios';
 
 const dashboard = useDashboard();
-const chainStore = useBlockchain()
+const chainStore = useBlockchain();
 const format = useFormatter();
 const sourceAddress = ref(''); //
 const requestTokenLoader = ref(false);
 const requestTokenMessage = ref('');
 const requestTokenErrorMessage = ref('');
 const selectedSource = ref({} as LocalKey); //
-const importStep = ref('step1')
+const importStep = ref('step1');
 
 const conf = ref(
   JSON.parse(localStorage.getItem('imported-addresses') || '{}') as Record<
@@ -33,8 +35,8 @@ const conf = ref(
 const balances = ref({} as Record<string, CoinWithPrice[]>);
 const delegations = ref({} as Record<string, Delegation[]>);
 
-// initial loading queue 
-// load balances 
+// initial loading queue
+// load balances
 Object.values(conf.value).forEach((imported) => {
   let promise = Promise.resolve();
   for (let i = 0; i < imported.length; i++) {
@@ -57,48 +59,53 @@ Object.values(conf.value).forEach((imported) => {
 
 const accounts = computed(() => {
   let a = [] as {
-    key: string,
+    key: string;
     subaccounts: {
       account: AccountEntry;
       delegation: CoinWithPrice;
       balances: CoinWithPrice[];
-    }[]
+    }[];
   }[];
   Object.values(conf.value).forEach((x) => {
     const composition = x.map((entry) => {
       const d = delegations.value[entry.address];
-      let delegation = {} as CoinWithPrice
+      let delegation = {} as CoinWithPrice;
       if (d && d.length > 0) {
         d.forEach((b) => {
-          delegation.amount = (Number(b.balance.amount) + Number(delegation.amount || 0)).toFixed()
+          delegation.amount = (
+            Number(b.balance.amount) + Number(delegation.amount || 0)
+          ).toFixed();
           delegation.denom = b.balance.denom;
         });
-        delegation.value = format.tokenValueNumber(delegation)
-        delegation.change24h = format.priceChanges(delegation.denom)
+        delegation.value = format.tokenValueNumber(delegation);
+        delegation.change24h = format.priceChanges(delegation.denom);
       }
       return {
         account: entry,
         delegation,
         balances: balances.value[entry.address]
-          ? balances.value[entry.address].map(x => {
-            const value = format.tokenValueNumber(x)
+          ? balances.value[entry.address].map((x) => {
+            const value = format.tokenValueNumber(x);
             return {
               amount: x.amount,
               denom: x.denom,
               value,
-              change24h: format.priceChanges(x.denom)
-            }
+              change24h: format.priceChanges(x.denom),
+            };
           })
-          : []
-      }
+          : [],
+      };
     });
-    if (x.at(0)) a.push({ key: x.at(0)?.address || " ", subaccounts: composition });
+    if (x.at(0))
+      a.push({ key: x.at(0)?.address || ' ', subaccounts: composition });
   });
   return a;
 });
 
 const addresses = computed(() => {
-  return accounts.value.flatMap(x => x.subaccounts.map(a => a.account.address))
+  return accounts.value.flatMap((x) =>
+    x.subaccounts.map((a) => a.account.address)
+  );
   // const temp = [] as string[]
   // accounts.value.forEach((x) => x.accounts.forEach(a => {
   //   temp.push(a.account.address)
@@ -107,24 +114,28 @@ const addresses = computed(() => {
 });
 
 const totalValue = computed(() => {
-  return accounts.value.flatMap(x => x.subaccounts).reduce((s, e) => {
-    s += e.delegation.value || 0
-    e.balances.forEach(b => {
-      s += b.value || 0
-    })
-    return s
-  }, 0)
-})
+  return accounts.value
+    .flatMap((x) => x.subaccounts)
+    .reduce((s, e) => {
+      s += e.delegation.value || 0;
+      e.balances.forEach((b) => {
+        s += b.value || 0;
+      });
+      return s;
+    }, 0);
+});
 
 const totalChange = computed(() => {
-  return accounts.value.flatMap(x => x.subaccounts).reduce((s, e) => {
-    s += (e.delegation.change24h || 0) * (e.delegation.value || 0) / 100
-    e.balances.forEach(b => {
-      s += (b.change24h || 0) * (b.value || 0) / 100
-    })
-    return s
-  }, 0)
-})
+  return accounts.value
+    .flatMap((x) => x.subaccounts)
+    .reduce((s, e) => {
+      s += ((e.delegation.change24h || 0) * (e.delegation.value || 0)) / 100;
+      e.balances.forEach((b) => {
+        s += ((b.change24h || 0) * (b.value || 0)) / 100;
+      });
+      return s;
+    }, 0);
+});
 
 // Adding Model Boxes
 const sourceOptions = computed(() => {
@@ -134,8 +145,13 @@ const sourceOptions = computed(() => {
   Object.values(conf.value).forEach((x) => {
     const [first] = x;
     if (first) {
-      const { data } = fromBech32(first.address);
-      const hex = toHex(data);
+      let hex = ""
+      if (isEvmAddress(first.address)) {
+        hex = first.address
+      } else {
+        const { data } = fromBech32(first.address);
+        hex = toHex(data);
+      }
       if (
         keys.findIndex(
           (k) => toHex(fromBech32(k.cosmosAddress).data) === hex
@@ -148,9 +164,11 @@ const sourceOptions = computed(() => {
       }
     }
   });
+
   // parse options from an given address
   if (sourceAddress.value) {
-    const { prefix, data } = fromBech32(sourceAddress.value);
+    const convertedAddress = kiiConvertedAddress(sourceAddress.value)
+    const { prefix } = fromBech32(convertedAddress);
     const chain = Object.values(dashboard.chains).find(
       (x) => x.bech32Prefix === prefix
     );
@@ -190,9 +208,12 @@ function removeAddress(addr: string) {
 
 // add address to the local list
 async function addAddress(acc: AccountEntry) {
-  const { data } = fromBech32(acc.address);
-  const key = toBase64(data);
-
+  let key = ""
+  if (!isEvmAddress(acc.address)) {
+    const { data } = fromBech32(acc.address);
+    key = toBase64(data);
+  }
+  key = acc.address
   if (conf.value[key]) {
     // existed
     if (conf.value[key].findIndex((x) => x.address === acc.address) > -1) {
@@ -215,7 +236,6 @@ async function addAddress(acc: AccountEntry) {
   if (acc.endpoint) {
     loadBalances(acc.endpoint, acc.address);
   }
-
   localStorage.setItem('imported-addresses', JSON.stringify(conf.value));
 }
 
@@ -232,6 +252,10 @@ async function loadBalances(endpoint: string, address: string) {
 
 async function requestTestnetTokens(address: string) {
   try {
+    // Get the saved address
+    const importedAddresses = JSON.parse(window.localStorage.getItem('imported-addresses')!)
+    const chainInfo: AccountEntry = importedAddresses[address]
+
     // Toggle loader
     requestTokenLoader.value = true;
     requestTokenErrorMessage.value = '';
@@ -239,21 +263,26 @@ async function requestTestnetTokens(address: string) {
 
     // Make API request
     const apiUrl = import.meta.env.VITE_APP_FAUCET_API_URL;
-    const response = await axios.get(`${apiUrl}/faucet?address=${address}&chainId=kiiventador`);
+    let chain = "kiichain"
+    if (chainInfo.chainName === "kii") {
+      chain = "kiiventador"
+    }
+    const response = await axios.get(
+      `${apiUrl}/faucet?address=${address}&chainId=${chain}`
+    );
     requestTokenMessage.value = response.data;
     // Clear the message after 5 seconds
     setTimeout(() => {
       requestTokenMessage.value = '';
     }, 5000); // 5000 milliseconds = 5 seconds
   } catch (error) {
-    console.error("Error while requesting testnet tokens:", error);
+    console.error('Error while requesting testnet tokens:', error);
     requestTokenErrorMessage.value = 'Error: Unable to request testnet tokens';
   } finally {
     // Reset loader
     requestTokenLoader.value = false;
   }
 }
-
 </script>
 <template>
   <div>
@@ -280,8 +309,9 @@ async function requestTestnetTokens(address: string) {
         <div class="flex flex-col text-right">
           <span>Total Value</span>
           <span class="text-xl text-success font-bold">${{ format.formatNumber(totalValue, '0,0.[00]') }}</span>
-          <span class="text-sm" :class="format.color(totalChange)">{{ format.formatNumber(totalChange, '+0,0.[00]')
-          }}</span>
+          <span class="text-sm" :class="format.color(totalChange)">{{
+            format.formatNumber(totalChange, '+0,0.[00]')
+            }}</span>
         </div>
       </div>
     </div>
@@ -290,9 +320,9 @@ async function requestTestnetTokens(address: string) {
       <div v-for="{ key, subaccounts } in accounts" class="bg-base-100 dark:bg-base100 rounded-md my-5 py-5">
         <div class="flex justify-self-center">
           <div class="mx-2 p-2">
-            <svg :fill="chainStore.current?.themeColor || '#666CFF'" height="28px" width="28px" version="1.1" id="Capa_1"
-              xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 487.5 487.5"
-              xml:space="preserve">
+            <svg :fill="chainStore.current?.themeColor || '#666CFF'" height="28px" width="28px" version="1.1"
+              id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+              viewBox="0 0 487.5 487.5" xml:space="preserve">
               <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
               <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
               <g id="SVGRepo_iconCarrier">
@@ -314,70 +344,36 @@ async function requestTestnetTokens(address: string) {
           </div>
           <div class="flex flex-row space-x-3">
             <div>
-              <div class=" max-w-md overflow-hidden"><div class="font-bold">{{ key }}</div></div>
+              <div class="max-w-md overflow-hidden">
+                <div class="font-bold">{{ key }}</div>
+              </div>
               <div class="dropdown">
-                <label tabindex="0" class=" cursor-pointer">{{ subaccounts.length }} addresses</label>
-                <ul tabindex="0" class=" -left-14 dropdown-content menu p-2 shadow bg-base-200 rounded-box z-50">
+                <label tabindex="0" class="cursor-pointer">{{ subaccounts.length }} addresses</label>
+                <ul tabindex="0" class="-left-14 dropdown-content menu p-2 shadow bg-base-200 rounded-box z-50">
                   <li v-for="x in subaccounts">
                     <a>
                       <img :src="x.account.logo" class="w-8 h-8 mr-2" />
-                      <span class="font-bold capitalize">{{ x.account.chainName }} <br>
+                      <span class="font-bold capitalize">{{ x.account.chainName }} <br />
                         <span class="text-xs font-normal sm:w-16 sm:overflow-hidden">{{ x.account.address }}</span>
                       </span>
-                      <label class=" btn btn-xs !btn-error" @click="removeAddress(x.account.address)">Remove</label>
+                      <label class="btn btn-xs !btn-error" @click="removeAddress(x.account.address)">Remove</label>
                     </a>
                   </li>
                 </ul>
               </div>
             </div>
-            <div class="btn btn-sm btn-primary hover:text-black dark:hover:text-white" @click="requestTestnetTokens(key)">
-                Request Testnet Tokens
+            <div class="btn btn-sm btn-primary hover:text-black dark:hover:text-white"
+              @click="requestTestnetTokens(key)">
+              Request Testnet Tokens
             </div>
             <span class="text-accent" v-if="requestTokenLoader">Requesting testnet tokens</span>
             <span class="text-yes">{{ requestTokenMessage }}</span>
             <span class="text-error">{{ requestTokenErrorMessage }}</span>
           </div>
         </div>
-        <div class="p-4 bg-base-200 mt-2">Delegations</div>
-        <div>
-          <ul class="!menu w-full">
-            <div v-for="x in subaccounts">
-              <li v-if="x.delegation.amount">
-                <RouterLink :to="`/${x.account.chainName}/account/${x.account.address}`">
-                  <img :src="x.account.logo" class="w-6 h-6 mr-2" />
-                  <span class="font-bold">{{ format.formatToken(x.delegation, true, '0,0.[00]', 'all') }} <br><span
-                      class="text-xs" :class="format.color(x.delegation.change24h)">{{
-                        format.formatNumber(x.delegation.change24h, '+0.[00]') }}%</span></span>
-                  <span class="float-right text-right">${{ format.formatNumber(x.delegation.value, '0,0.[00]') }}<br><span
-                      class="text-xs" :class="format.color(x.delegation.change24h)">{{
-                        format.formatNumber((x.delegation.change24h || 0) * (x.delegation.value || 0) / 100, '+0,0.[00]')
-                      }}</span></span>
-                </RouterLink>                
-              </li>
-            </div>
-          </ul>
-        </div>
-        <div class="p-4 bg-base-200">Balances</div>
-        <div>
-          <ul class="!menu w-full">
-            <div v-for="s in subaccounts">
-              <li v-for="x in s.balances">
-                <RouterLink :to="`/${s.account.chainName}/account/${s.account.address}`">
-                  <img :src="s.account.logo" class="w-6 h-6 mr-2" />
-                  <span class="font-bold">{{ format.formatToken(x, true, '0,0.[00]', 'all') }} <br><span
-                      class="text-xs" :class="format.color(x.change24h)">{{ format.formatNumber(x.change24h, '+0.[00]')
-                      }}%</span></span>
-                  <span class="float-right text-right">${{ format.formatNumber(x.value, '0,0.[00]') }}<br><span
-                      class="text-xs" :class="format.color(x.change24h)">{{ format.formatNumber((x.change24h || 0) *
-                        (x.value || 0) / 100, '+0,0.[00]') }}</span></span>
-                </RouterLink>
-              </li>
-            </div>
-          </ul>
-        </div>
       </div>
 
-      <div class=" text-center bg-base-100 dark:bg-base100 rounded-md my-4 p-4">
+      <div class="text-center bg-base-100 dark:bg-base100 rounded-md my-4 p-4">
         <a href="#address-modal"
           class="inline-flex items-center ml-3 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
           <svg class="-ml-0.5 mr-1.5 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -399,23 +395,23 @@ async function requestTestnetTokens(address: string) {
         <a href="#" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</a>
         <h3 class="font-bold text-lg mb-2">Derive Account From Address</h3>
         <div v-show="importStep === 'step1'">
-          <label class="hidden input-group input-group-sm w-full">
-            <span>Connected</span>
-            <select v-model="selectedSource" class="select select-bordered select-sm w-3/4">
-              <option v-for="source in sourceOptions" :value="source">
-                <span class="overflow-hidden">{{ source.cosmosAddress }}</span>
-              </option>
-            </select>
-          </label>
           <ul class="menu">
-            <li v-for="source in sourceOptions" @click="selectedSource = source; importStep = 'step2'">
-              <a><label class="overflow-hidden flex flex-col"><div class=" font-bold">{{ source.cosmosAddress }} </div><div class="text-xs">{{ source.hdPath }}</div></label></a>
+            <li v-for="source in sourceOptions" @click="
+              selectedSource = source;
+            importStep = 'step2';
+            ">
+              <a><label class="overflow-hidden flex flex-col">
+                  <div class="font-bold">{{ source.cosmosAddress }}</div>
+                  <div class="text-xs">{{ source.hdPath }}</div>
+                </label></a>
             </li>
           </ul>
           <label class="my-2 p-2">
-            <input v-model="sourceAddress" class="input input-bordered w-full input-sm" placeholder="Input an address" @change="importStep = 'step2'" />
+            <input v-model="sourceAddress" class="input input-bordered w-full input-sm" placeholder="Input an address"
+              @change="importStep = 'step2'" />
           </label>
         </div>
+
         <div v-show="importStep === 'step2'" class="py-4 max-h-72 overflow-y-auto">
           <table class="table table-compact">
             <tr v-for="acc in availableAccount">
@@ -448,9 +444,12 @@ async function requestTestnetTokens(address: string) {
             </tr>
           </table>
         </div>
+
         <div class="modal-action mt-2 mb-0">
-          <a href="#" class="btn btn-primary btn-sm hover:text-black dark:hover:text-white" @click="importStep = 'step1'">Close</a>
+          <a href="#" class="btn btn-primary btn-sm hover:text-black dark:hover:text-white"
+            @click="importStep = 'step1'">Close</a>
         </div>
+
       </div>
     </div>
   </div>
