@@ -201,4 +201,8 @@ export const DEFAULT: RequestRegistry = {
     url: 'https://kii.backend.kiivalidator.com/blocks',
     adapter,
   },
+  kii_backend_smart_contracts: {
+    url: 'https://kii.backend.kiivalidator.com/smartContracts',
+    adapter
+  }
 };

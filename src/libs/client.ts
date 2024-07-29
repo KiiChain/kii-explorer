@@ -417,4 +417,17 @@ export class CosmosRestClient extends BaseRestClient<RequestRegistry> {
       port_id,
     });
   }
+  async getSmartContracts(page: number, limit: number) {
+    const queryParams = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+
+    const url = `${
+      DEFAULT.kii_backend_smart_contracts.url
+    }?${queryParams.toString()}`;
+    const response = await fetch(url);
+    const smartContractsResponse = await response.json();
+    return smartContractsResponse;
+  }
 }

@@ -285,5 +285,16 @@
       "app_versions": "Versi Aplikasi",
       "top_account_holders": "Top Account Holders",
       "node_info": "Informasi Node"
+    },
+    "smart_contracts": {
+      "code_id": "ID Kode",
+      "code_hash": "Hash Kode",
+      "creator": "Pencipta",
+      "permissions": "Izin"
+    },
+    "pagination": {
+      "previous": "Sebelumnya",
+      "next": "Berikutnya",
+      "page": "Halaman {current} dari {total}"
     }
 }

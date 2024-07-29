@@ -294,5 +294,16 @@
     "app_versions": "Application Versions",
     "top_account_holders": "Top Account Holders",
     "node_info": "Node Information"
+  },
+  "smart_contracts": {
+    "code_id": "Code ID",
+    "code_hash":"Code Hash",
+    "creator": "Creator",
+    "permissions": "Permissions"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {current} of {total}"
   }
 }
