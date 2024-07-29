@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, computed } from 'vue';
 import { useBaseStore, useFormatter } from '@/stores';
+// @ts-ignore
 import PulseLoader from 'vue-spinner/src/PulseLoader.vue';
 // import { SmartContract } from '@/types';
 
