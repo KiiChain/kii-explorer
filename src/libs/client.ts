@@ -19,6 +19,7 @@ import {
   type TxResponse,
 } from '@/types';
 import { convertTransaction } from './ethers';
+import { watchArray } from '@vueuse/core';
 
 export class BaseRestClient<R extends AbstractRegistry> {
   endpoint: string;
@@ -351,6 +352,21 @@ export class CosmosRestClient extends BaseRestClient<RequestRegistry> {
       transactions: tx,
       quantity: transactionsResponse.quantity,
     };
+  }
+  async getTxsByWalletEvm(walletAddress: string): Promise<TxResponse[]> {
+    const response = await fetch(
+      DEFAULT.kii_backend_transactions_by_wallet.url + walletAddress
+    );
+    const transactionsResponse = await response.json();
+    const transactions: TxResponse[] = transactionsResponse.transactions.map(
+      (transaction: Transaction) => {
+        return convertTransaction(transaction);
+      }
+    );
+    const tx = transactions.sort(
+      (a, b) => parseInt(b.timestamp) - parseInt(a.timestamp)
+    );
+    return tx;
   }
   async getTxsAt(height: string | number) {
     return this.request(this.registry.tx_txs_block, { height });

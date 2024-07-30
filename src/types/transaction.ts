@@ -88,6 +88,7 @@ export interface Transaction {
   sender: string;
   success: boolean;
   timestamp: string;
+  BlockNumber: number;
 }
 
 export interface Receipt {
