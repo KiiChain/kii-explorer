@@ -31,7 +31,7 @@ export const convertTransaction = (transaction: Transaction): TxResponse => {
   ];
 
   return {
-    height: '',
+    height: transaction.BlockNumber.toString(),
     code: parseInt(receipt.type, 16),
     data: '',
     codespace: '',
