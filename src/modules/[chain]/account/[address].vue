@@ -82,6 +82,9 @@ onMounted(async () => {
     rewardBalance.value = await getRewardsBalance(
       blockchain.current?.assets[0].base ?? ''
     );
+    blockchain.rpc.getTxsByWalletEvm(props.address).then((tx) => {
+      txs.value = tx
+    })
   }
   loadAccount(kiiConvertedAddress);
 });
@@ -268,7 +271,7 @@ const isLoading = computed(() => loading.value);
               </div>
               <div class="text-xs truncate relative py-1 px-3 rounded-full w-fit text-primary dark:invert mr-2">
                 <span class="inset-x-0 inset-y-0 opacity-10 absolute bg-primary dark:invert text-sm"></span>
-                ${{ format.tokenValue(balanceItem) }}
+                ${{ format.formatToken(balanceItem) }}
               </div>
             </div>
             <!--delegations  -->
@@ -478,7 +481,7 @@ const isLoading = computed(() => loading.value);
               <td class="text-caption text-primary py-3 bg-slate-200" colspan="10">
                 <RouterLink :to="`/${chain}/staking/${v.validator_address}`">{{
                   v.validator_address
-                  }}</RouterLink>
+                }}</RouterLink>
               </td>
             </tr>
             <tr v-for="(entry, i) in v.entries" :key="i">
