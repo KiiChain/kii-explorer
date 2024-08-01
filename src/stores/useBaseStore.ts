@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { useBlockchain } from '@/stores';
 import { decodeTxRaw, type DecodedTxRaw } from '@cosmjs/proto-signing';
 import dayjs from 'dayjs';
-import type { Block } from '@/types';
+import type { Block, TxResponse } from '@/types';
 import { hashTx } from '@/libs';
 import { fromBase64 } from '@cosmjs/encoding';
 
@@ -15,6 +15,9 @@ export const useBaseStore = defineStore('baseStore', {
       theme: (window.localStorage.getItem('theme') || 'dark') as
         | 'light'
         | 'dark',
+      recentEvmBlocks: [] as Block[],
+      recentEvmTxs: [] as TxResponse[],
+      evmTxsQuantity: 0 as number,
     };
   },
   getters: {
@@ -67,6 +70,15 @@ export const useBaseStore = defineStore('baseStore', {
         return Number(b.height) - Number(a.height);
       });
     },
+    evmRecentBlocks(): Block[] {
+      return this.recentEvmBlocks;
+    },
+    evmRecentTxs(): TxResponse[] {
+      return this.recentEvmTxs;
+    },
+    evmTxsCount(): number {
+      return this.evmTxsQuantity;
+    },
   },
   actions: {
     async initial() {
@@ -99,6 +111,12 @@ export const useBaseStore = defineStore('baseStore', {
       }
       return this.latest;
     },
+    updateTxCount(count: number) {
+      this.evmTxsQuantity = count;
+    },
+    updateTx(txs: TxResponse[]) {
+      this.recentEvmTxs = txs;
+    },
 
     async fetchValidatorByHeight(height?: number, offset = 0) {
       return this.blockchain.rpc.getBaseValidatorsetAt(String(height), offset);
@@ -116,7 +134,15 @@ export const useBaseStore = defineStore('baseStore', {
     //     return this.blockchain.rpc.no()
     // }
     async fetchLatestEvmBlocks(): Promise<Block[]> {
-      return await this.blockchain.rpc.getBaseLatestBlocksEvm();
+      this.recentEvmBlocks = await this.blockchain.rpc.getBaseLatestBlocksEvm();
+      return this.recentEvmBlocks;
+    },
+    async fetchLatestEvmTxs(): Promise<TxResponse[]> {
+      const { transactions, quantity } =
+        await this.blockchain.rpc.getLatestTxsEvm();
+      this.recentEvmTxs = transactions;
+      this.evmTxsQuantity = quantity;
+      return this.recentEvmTxs;
     },
   },
 });

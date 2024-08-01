@@ -270,7 +270,7 @@ export class CosmosRestClient extends BaseRestClient<RequestRegistry> {
     const sortedBlocks = blocksResponse.blocks.blocks.sort(
       (a, b) => b.blockNumber - a.blockNumber
     );
-    const latestBlocksPromise = sortedBlocks.slice(0, 20).map(async (block) => {
+    const latestBlocksPromise = sortedBlocks.slice(0, 30).map(async (block) => {
       return await this.getBaseBlockAt(block.blockNumber);
     });
     const latestBlocks = await Promise.all(latestBlocksPromise);
