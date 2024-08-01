@@ -37,10 +37,10 @@ let isFilterDropdownActive = ref(false);
 
 let errorMessage = ref('');
 let searchQuery = ref('');
-let latestTransactions = ref<TxResponse[]>([]);
-let transactionsCount = ref(0);
+// let latestTransactions = ref<TxResponse[]>([]);
+// let transactionsCount = ref(0);
 let gasPriceEvm = ref('');
-let latestBlocks = ref<Block[]>([]);
+// let latestBlocks = ref<Block[]>([]);
 
 const isKiichain = selectedChain === 'kiichain'
 
@@ -49,19 +49,30 @@ const publicClient = createPublicClient({
   transport: http(),
 })
 
+const latestBlocks = computed(() => {
+  return baseStore.evmRecentBlocks;
+});
+
+const latestTransactions = computed(() => {
+  return baseStore.evmRecentTxs.slice(0, 30);
+});
+
+const transactionsCount = computed(() => {
+  return baseStore.evmTxsCount;
+});
+
 const fetchTransactions = async () => {
   try {
+    const gasPrice = await publicClient.getGasPrice();
+    gasPriceEvm.value = gasPrice.toString();
+
     if (isKiichain) {
-      const gasPrice = await publicClient.getGasPrice();
-      gasPriceEvm.value = gasPrice.toString();
-      latestBlocks.value = await baseStore.fetchLatestEvmBlocks();
-      const transactions = await bankStore.fetchLatestTxsEvm(blockStore.current?.assets[0].base ?? '');
-      latestTransactions.value = transactions.transactions.slice(0, 20);
-      transactionsCount.value = transactions.quantity;
+      await baseStore.fetchLatestEvmBlocks();
+      await baseStore.fetchLatestEvmTxs();
     } else {
       const txCount = await blockStore.rpc.getTxsCount();
-      transactionsCount.value = txCount;
-      latestTransactions.value = await bankStore.fetchLatestTxs(txCount);
+      baseStore.updateTxCount(txCount);
+      baseStore.updateTx(await bankStore.fetchLatestTxs(txCount));
     }
   } catch (err) {
     console.log(err);

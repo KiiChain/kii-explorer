@@ -1,6 +1,9 @@
 <script lang="ts" setup>
 import { computed, ref } from '@vue/reactivity';
 import { useBaseStore, useFormatter } from '@/stores';
+import { onMounted } from 'vue';
+
+import type { Block, TxResponse } from '@/types';
 const props = defineProps(['chain']);
 
 const tab = ref('blocks');
@@ -9,28 +12,35 @@ const base = useBaseStore()
 
 const format = useFormatter();
 
-const list = computed(() => {
-    // const recents = base.recents
-    // return recents.sort((a, b) => (Number(b.block.header.height) - Number(a.block.header.height)))
-    return base.recents
-})
+const transactionList = ref<TxResponse[]>([])
+const blockList = ref<Block[]>([])
+
+onMounted(async () => {
+    if (props.chain === "kiichain") {
+        blockList.value = base.evmRecentBlocks
+        transactionList.value = base.evmRecentTxs
+    } else {
+        blockList.value = base.recents
+    }
+});
+
 </script>
 <template>
     <div>
         <div class="tabs tabs-boxed bg-transparent mb-4">
             <a class="tab text-gray-400 uppercase" :class="{ 'tab-active': tab === 'blocks' }"
                 @click="tab = 'blocks'">{{ $t('block.recent') }}</a>
-            <RouterLink class="tab text-gray-400 uppercase" 
-                :to="`/${chain}/block/${Number(base.latest?.block?.header.height||0) + 10000}`"
-                >{{ $t('block.future') }}</RouterLink>
+            <!-- <RouterLink class="tab text-gray-400 uppercase"
+                :to="`/${chain}/block/${Number(base.latest?.block?.header.height || 0) + 10000}`">{{ $t('block.future')
+                }}
+            </RouterLink> -->
             <a class="tab text-gray-400 uppercase" :class="{ 'tab-active': tab === 'transactions' }"
                 @click="tab = 'transactions'">{{ $t('account.transactions') }}</a>
         </div>
 
         <div v-show="tab === 'blocks'" class="grid xl:!grid-cols-6 md:!grid-cols-4 grid-cols-1 gap-3">
 
-            <RouterLink v-for="item in list"
-                class="flex flex-col justify-between rounded p-4 shadow bg-base-100"
+            <RouterLink v-for="item in blockList" class="flex flex-col justify-between rounded p-4 shadow bg-base-100"
                 :to="`/${chain}/block/${item.block.header.height}`">
                 <div class="flex justify-between">
                     <h3 class="text-md font-bold sm:!text-lg">
@@ -55,22 +65,26 @@ const list = computed(() => {
                     <tr>
                         <th style="position: relative; z-index: 2;">{{ $t('account.height') }}</th>
                         <th style="position: relative; z-index: 2;">{{ $t('account.hash') }}</th>
-                        <th>{{ $t('account.messages') }}</th>
+                        <!-- <th>{{ $t('account.messages') }}</th> -->
                         <th>{{ $t('block.fees') }}</th>
+                        <th> Sender </th>
+                        <th> Created At </th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(item, index) in base.txsInRecents" :index="index" class="hover">
-                        <td class="text-sm text-primary">
+                    <tr v-for="(item, index) in transactionList" :index="index" class="hover">
+                        <td>
                             <RouterLink :to="`/${props.chain}/block/${item.height}`">{{ item.height }}</RouterLink>
                         </td>
-                        <td class="truncate text-primary" width="50%">
-                            <RouterLink :to="`/${props.chain}/tx/${item.hash}`">{{
-                                item.hash
+                        <td>
+                            <RouterLink :to="`/${props.chain}/tx/${item.txhash}`">{{
+                                item.txhash
                             }}</RouterLink>
                         </td>
-                        <td>{{ format.messages(item.tx.body.messages) }}</td>
-                        <td>{{ format.formatTokens(item.tx.authInfo.fee?.amount) }}</td>
+                        <!-- <td>{{ format.messages(item.tx.body.messages) }}</td> -->
+                        <td>{{ item.tx.auth_info.fee.amount[0].amount }}</td>
+                        <td>{{ item.tx.body.messages[0].from_address! }}</td>
+                        <td>{{ format.toDay(item.timestamp) }}</td>
                     </tr>
                 </tbody>
             </table>
