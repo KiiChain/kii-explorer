@@ -35,7 +35,7 @@ const route = useRoute();
 const selectedChain = route.params.chain || 'kiichain';
 
 let isFilterDropdownActive = ref(false);
-const loading = ref(false);
+const loading = ref(true);
 let errorMessage = ref('');
 let searchQuery = ref('');
 // let latestTransactions = ref<TxResponse[]>([]);
@@ -64,7 +64,6 @@ const transactionsCount = computed(() => {
 
 const fetchTransactions = async () => {
   try {
-    loading.value = true;
     const gasPrice = await publicClient.getGasPrice();
     gasPriceEvm.value = gasPrice.toString();
 
