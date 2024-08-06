@@ -5,6 +5,7 @@
     "explore": "探索",
     "competition": "竞争",
     "staking": "质押生息",
+    "smart_contracts": "智能合约",
     "governance": "社区治理",
     "parameters": "参数",
     "uptime": "状态",
@@ -287,7 +288,8 @@
     "code_id": "代码 ID",
     "code_hash": "代码哈希",
     "creator": "创建者",
-    "permissions": "权限"
+    "permissions": "权限",
+    "created_at": "创建时间"
   },
   "pagination": {
     "previous": "上一页",

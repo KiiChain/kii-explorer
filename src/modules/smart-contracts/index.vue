@@ -1,54 +1,5 @@
-<script lang="ts" setup>
-import { ref, onMounted, computed } from 'vue';
-import { useBaseStore, useFormatter } from '@/stores';
-// @ts-ignore
-import PulseLoader from 'vue-spinner/src/PulseLoader.vue';
-// import { SmartContract } from '@/types';
-
-const baseStore = useBaseStore();
-
-const format = useFormatter();
-const smartContracts = ref<any[] | undefined>([]);
-const totalContracts = ref(0);
-const currentPage = ref(0);
-const loading = ref(false);
-const itemsPerPage = 10;
-
-const fetchSmartContracts = async (page = 0) => {
-    try {
-        loading.value = true;
-        const response = await baseStore.fetchSmartContracts(page, itemsPerPage);
-        smartContracts.value = response.smartContracts;
-        totalContracts.value = response.quantity;
-        currentPage.value = page;
-    } catch (error) {
-        console.error('Error fetching smart contracts:', error);
-    } finally {
-        loading.value = false;
-    }
-};
-
-onMounted(() => {
-    fetchSmartContracts();
-});
-
-const totalPages = computed(() => Math.ceil(totalContracts.value / itemsPerPage));
-
-const nextPage = () => {
-    if (currentPage.value < totalPages.value - 1) {
-        fetchSmartContracts(currentPage.value + 1);
-    }
-};
-
-const prevPage = () => {
-    if (currentPage.value > 0) {
-        fetchSmartContracts(currentPage.value - 1);
-    }
-};
-</script>
-
 <template>
-    <div class="brand-gradient-border w-fit my-4">
+    <div class="brand-gradient-border w-fit my-4 hidden">
         <div class="btn bg-base-100 dark:bg-base-100 text-white w-fit border-none" style="border-radius: 0 !important;">
             {{ $t('cosmwasm.btn_contract') }}
         </div>
@@ -74,6 +25,7 @@ const prevPage = () => {
                             <td>{{ $t('smart_contracts.code_hash') }}</td>
                             <td>{{ $t('smart_contracts.creator') }}</td>
                             <td>{{ $t('smart_contracts.permissions') }}</td>
+                            <td>{{ $t('smart_contracts.created_at') }}</td>
                         </tr>
                     </thead>
                     <tr v-for="(contract, i) in smartContracts" :key="i" class="hover">
@@ -82,10 +34,17 @@ const prevPage = () => {
                                 {{ contract.BlockNumber }}
                             </div>
                         </td>
-                        <td class="text-green-500">{{ contract.transaction.chainId }}</td>
+                        <td class="text-green-500">
+                            <a :href="`/${current}/tx/${contract.contractAddress}`">
+                                {{ contract.contractAddress }}
+                            </a>
+                        </td>
                         <td>{{ contract.sender }}</td>
                         <td>
                             <div class="max-w-sm">{{ contract.transaction.accessList?.join(',') }}</div>
+                        </td>
+                        <td>
+                            {{ format.toDay(contract.timestamp) }}
                         </td>
                     </tr>
                 </table>
@@ -99,7 +58,7 @@ const prevPage = () => {
                     {{ $t('pagination.next') }}
                 </button>
             </div>
-            <div class="brand-gradient-border w-fit ml-auto">
+            <div class="brand-gradient-border w-fit ml-auto hidden">
                 <div class="btn bg-radial-gradient-base-duo bg-base-100 dark:bg-base-100 text-white w-fit">
                     {{ $t('cosmwasm.btn_up_sc') }}
                 </div>
@@ -107,3 +66,59 @@ const prevPage = () => {
         </div>
     </div>
 </template>
+
+<script lang="ts" setup>
+import { ref, onMounted, computed } from 'vue';
+import { useBaseStore, useBlockchain, useFormatter } from '@/stores';
+// @ts-ignore
+import PulseLoader from 'vue-spinner/src/PulseLoader.vue';
+
+const baseStore = useBaseStore();
+const blockStore = useBlockchain();
+
+const format = useFormatter();
+const smartContracts = ref<any[] | undefined>([]);
+const totalContracts = ref(0);
+const currentPage = ref(0);
+const loading = ref(false);
+const itemsPerPage = 10;
+
+const current = blockStore?.current?.chainName || '';
+
+const fetchSmartContracts = async (page = 0) => {
+    try {
+        loading.value = true;
+        const response = await baseStore.fetchSmartContracts(page, itemsPerPage);
+        smartContracts.value = response.smartContracts;
+        totalContracts.value = response.quantity;
+        currentPage.value = page;
+    } catch (error) {
+        console.error('Error fetching smart contracts:', error);
+    } finally {
+        loading.value = false;
+    }
+};
+
+onMounted(async () => {
+   try {
+        fetchSmartContracts();
+   } catch (error) {
+        console.error('Error fetching smart contracts:', error);
+   }
+});
+
+
+const totalPages = computed(() => Math.ceil(totalContracts.value / itemsPerPage));
+
+const nextPage = () => {
+    if (currentPage.value < totalPages.value - 1) {
+        fetchSmartContracts(currentPage.value + 1);
+    }
+};
+
+const prevPage = () => {
+    if (currentPage.value > 0) {
+        fetchSmartContracts(currentPage.value - 1);
+    }
+};
+</script>

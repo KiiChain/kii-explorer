@@ -5,6 +5,7 @@
     "explore": "Explore",
     "competition": "Competition",
     "staking": "Staking",
+    "smart_contracts": "Smart Contracts",
     "governance": "Governance",
     "parameters": "Parameters",
     "uptime": "Uptime",
@@ -299,7 +300,8 @@
     "code_id": "Code ID",
     "code_hash":"Code Hash",
     "creator": "Creator",
-    "permissions": "Permissions"
+    "permissions": "Permissions",
+    "created_at": "Created At"
   },
   "pagination": {
     "previous": "Previous",
