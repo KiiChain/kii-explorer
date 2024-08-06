@@ -76,10 +76,11 @@ const fetchTransactions = async () => {
       baseStore.updateTxCount(txCount);
       baseStore.updateTx(await bankStore.fetchLatestTxs(txCount));
     }
+    // loading.value = false;
   } catch (err) {
-    console.log(err);
+    console.error(err);
   } finally {
-    loading = false;
+    loading.value = false;
   }
 };
 
