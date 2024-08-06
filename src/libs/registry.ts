@@ -156,6 +156,7 @@ export interface RequestRegistry extends AbstractRegistry {
 
   kii_backend_transactions: Request<EvmTransactionResponse>;
   kii_backend_blocks: Request<BlocksEvmResponse>;
+  kii_backend_transactions_by_wallet: Request<EvmTransactionResponse>;
 }
 
 export function adapter<T>(source: any): T {

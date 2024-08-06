@@ -1,6 +1,6 @@
 import type { Coin, Transaction, TxResponse } from '@/types';
 import kiichain from '../../chains/testnet/kiichain.json';
-import type { ethers, TransactionResponse } from 'ethers';
+import { ethers, TransactionResponse } from 'ethers';
 
 const getTransactionEVM = async (
   transactionHash: string,
@@ -19,19 +19,19 @@ export const convertTransaction = (transaction: Transaction): TxResponse => {
   const { assets } = kiichain;
   const assetSymbol = assets[0].symbol;
   const amount: Coin = {
-    amount: (parseInt(receipt.value, 16) / 1e18).toString(), // Convert tkii to Kii
+    amount: ethers.formatEther(BigInt(receipt.value)), // Convert tkii to Kii
     denom: assetSymbol,
   };
 
   const fee: Coin[] = [
     {
-      amount: '',
+      amount: ethers.formatEther(BigInt(receipt.gas)), // Convert tkii to Kii,
       denom: assetSymbol,
     },
   ];
 
   return {
-    height: '',
+    height: transaction.BlockNumber.toString(),
     code: parseInt(receipt.type, 16),
     data: '',
     codespace: '',
