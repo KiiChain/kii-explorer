@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed, ref } from '@vue/reactivity';
 import { useBaseStore, useBlockchain, useFormatter } from '@/stores';
-import { PageRequest, type AuthAccount, type Pagination } from '@/types';
+import { PageRequest, type AuthAccount, type KeyPagination } from '@/types';
 import { onMounted } from 'vue';
 import PaginationBar from '@/components/PaginationBar.vue';
 import { toETHAddress } from '@/libs';
@@ -11,7 +11,7 @@ const chainStore = useBlockchain()
 
 const accounts = ref([] as AuthAccount[])
 const pageRequest = ref(new PageRequest())
-const pageResponse = ref({} as Pagination)
+const pageResponse = ref({} as KeyPagination)
 const isKiichain = props.chain === 'kiichain';
 
 onMounted(() => {

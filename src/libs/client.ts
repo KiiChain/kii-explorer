@@ -13,10 +13,10 @@ import {
 } from './registry';
 import {
   PageRequest,
-  type Transaction,
   type Coin,
   type BlocksEvmResponse,
   type TxResponse,
+  type Transaction,
 } from '@/types';
 import { convertTransaction } from './ethers';
 import { watchArray } from '@vueuse/core';
@@ -441,7 +441,7 @@ export class CosmosRestClient extends BaseRestClient<RequestRegistry> {
 
     const url = `${
       DEFAULT.kii_backend_smart_contracts.url
-    }?${queryParams.toString()}`;
+    }/?${queryParams.toString()}`;
     const response = await fetch(url);
     const smartContractsResponse = await response.json();
     return smartContractsResponse;

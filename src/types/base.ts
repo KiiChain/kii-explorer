@@ -135,7 +135,7 @@ export interface PaginatedResponse {
 }
 
 export interface SmartContract {
-  transaction:     Transaction;
+  transaction:     SmartContractTransaction;
   sender:          string;
   success:         boolean;
   timestamp:       number;
@@ -143,7 +143,7 @@ export interface SmartContract {
   contractAddress: string;
 }
 
-export interface Transaction {
+export interface SmartContractTransaction {
   type:                 string;
   chainId:              string;
   nonce:                string;

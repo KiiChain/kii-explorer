@@ -318,7 +318,7 @@ async function requestTestnetTokens(address: string) {
 
         <div class="text-white space-y-2 pl-4 w-2/3">
           <div class="font-bold">Wallet Address</div>
-          <div v-for="{ key, subaccounts } in accounts" class="space-y-4">
+          <!-- <div v-for="{ key, subaccounts } in accounts" class="space-y-4">
             <div class="flex justify-self-center">
               <div class="mx-2 p-2">
                 <svg :fill="chainStore.current?.themeColor || '#666CFF'" height="28px" width="28px" version="1.1"
@@ -367,34 +367,43 @@ async function requestTestnetTokens(address: string) {
                 <span class="text-yes">{{ requestTokenMessage }}</span>
                 <span class="text-error">{{ requestTokenErrorMessage }}</span>
               </div>
-
             </div>
-            <div class="">
-              <a href="#address-modal"
-                class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-                <svg class="-ml-0.5 mr-1.5 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor"
-                  aria-hidden="true">
-                  <path
-                    d="M12.232 4.232a2.5 2.5 0 013.536 3.536l-1.225 1.224a.75.75 0 001.061 1.06l1.224-1.224a4 4 0 00-5.656-5.656l-3 3a4 4 0 00.225 5.865.75.75 0 00.977-1.138 2.5 2.5 0 01-.142-3.667l3-3z" />
-                  <path
-                    d="M11.603 7.963a.75.75 0 00-.977 1.138 2.5 2.5 0 01.142 3.667l-3 3a2.5 2.5 0 01-3.536-3.536l1.225-1.224a.75.75 0 00-1.061-1.06l-1.224 1.224a4 4 0 105.656 5.656l3-3a4 4 0 00-.225-5.865z" />
-                </svg>
-                Import Address
-              </a>
-              <RouterLink to="/wallet/keplr">
-                <span class="btn btn-link text-white">Add chain to Keplr</span>
-              </RouterLink>
-            </div>
-
             <div class="brand-gradient-border-2">
               <div class="btn btn-sm btn-primary hover:text-black dark:hover:text-white w-full"
                 @click="requestTestnetTokens(key)">
                 Claim your tokens
               </div>
             </div>
+          </div> -->
+          <!-- <div class="">
+            <a href="#address-modal"
+              class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+              <svg class="-ml-0.5 mr-1.5 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor"
+                aria-hidden="true">
+                <path
+                  d="M12.232 4.232a2.5 2.5 0 013.536 3.536l-1.225 1.224a.75.75 0 001.061 1.06l1.224-1.224a4 4 0 00-5.656-5.656l-3 3a4 4 0 00.225 5.865.75.75 0 00.977-1.138 2.5 2.5 0 01-.142-3.667l3-3z" />
+                <path
+                  d="M11.603 7.963a.75.75 0 00-.977 1.138 2.5 2.5 0 01.142 3.667l-3 3a2.5 2.5 0 01-3.536-3.536l1.225-1.224a.75.75 0 00-1.061-1.06l-1.224 1.224a4 4 0 105.656 5.656l3-3a4 4 0 00-.225-5.865z" />
+              </svg>
+              Import Address
+            </a>
+            <RouterLink to="/wallet/keplr">
+              <span class="btn btn-link text-white">Add chain to Keplr</span>
+            </RouterLink>
+          </div> -->
 
-
+          <!-- Wallet address input -->
+          <div class="brand-gradient-border-2">
+            <input class="bg-base-100 dark:bg-base-100 w-full rounded text-white py-1 px-4"
+              placeholder="Enter wallet address" />
           </div>
+          <!-- Claim token button -->
+          <div class="brand-gradient-border-2">
+            <div class="btn btn-sm btn-primary hover:text-black dark:hover:text-white w-full">
+              Claim your tokens
+            </div>
+          </div>
+
         </div>
       </div>
       <div class="grow"
