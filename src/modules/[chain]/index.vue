@@ -84,6 +84,7 @@ const fetchTransactions = async () => {
 };
 
 onMounted(async () => {
+  loading.value = latestTransactions.value.length == 0
   await fetchTransactions();
   const intervalId = setInterval(fetchTransactions, 60000); // Fetch transactions every minut
   return () => clearInterval(intervalId); // Clear interval on component unmount
@@ -286,8 +287,8 @@ function confirm() {
         <PulseLoader color="#fff" />
       </div>
     </div>
-    <div class="grid grid-cols-2 gap-2 items-start">
-      <table v-if="!loading" class="table rounded bg-[#F9F9F9] dark:bg-base100 shadow">
+    <div v-if="!loading" class="grid grid-cols-2 gap-2 items-start">
+      <table class="table rounded bg-[#F9F9F9] dark:bg-base100 shadow">
         <thead>
           <tr class="">
             <td colspan="3" class="text-info">LATEST BLOCKS</td>
@@ -323,7 +324,7 @@ function confirm() {
         </tr>
       </table>
 
-      <table v-if="!loading" class="table rounded bg-[#F9F9F9] dark:bg-base100 shadow">
+      <table class="table rounded bg-[#F9F9F9] dark:bg-base100 shadow">
         <thead>
           <tr class="">
             <td colspan="3" class="text-info">LATEST TRANSACTIONS</td>
