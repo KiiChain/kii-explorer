@@ -22,6 +22,7 @@ import { defineChain, createPublicClient, http, decodeFunctionData, parseUnits }
 import bankAbi from '@/assets/abi/bank.json'
 import { useRoute } from 'vue-router';
 import { testnet } from '@/libs/web3';
+import PulseLoader from 'vue-spinner/src/PulseLoader.vue';
 
 dayjs.extend(relativeTime);
 
@@ -34,7 +35,7 @@ const route = useRoute();
 const selectedChain = route.params.chain || 'kiichain';
 
 let isFilterDropdownActive = ref(false);
-
+const loading = ref(true);
 let errorMessage = ref('');
 let searchQuery = ref('');
 // let latestTransactions = ref<TxResponse[]>([]);
@@ -74,12 +75,16 @@ const fetchTransactions = async () => {
       baseStore.updateTxCount(txCount);
       baseStore.updateTx(await bankStore.fetchLatestTxs(txCount));
     }
+    // loading.value = false;
   } catch (err) {
-    console.log(err);
+    console.error(err);
+  } finally {
+    loading.value = false;
   }
 };
 
 onMounted(async () => {
+  loading.value = latestTransactions.value.length == 0
   await fetchTransactions();
   const intervalId = setInterval(fetchTransactions, 60000); // Fetch transactions every minut
   return () => clearInterval(intervalId); // Clear interval on component unmount
@@ -277,7 +282,12 @@ function confirm() {
     </div> -->
 
     <!-- Tables -->
-    <div class="grid grid-cols-2 gap-2 items-start">
+    <div v-if="loading" class="h-full w-full">
+      <div class="bg-transparent dark:bg-transparent px-5 py-5 text-white h-full w-full  flex justify-center items-center">
+        <PulseLoader color="#fff" />
+      </div>
+    </div>
+    <div v-if="!loading" class="grid grid-cols-2 gap-2 items-start">
       <table class="table rounded bg-[#F9F9F9] dark:bg-base100 shadow">
         <thead>
           <tr class="">
@@ -304,7 +314,7 @@ function confirm() {
               <span class="text-black dark:text-white">Fee Recipient </span>
               <span class="text-info font-semibold">{{
                 format.validator(item.block?.header?.proposer_address)
-                }}</span>
+              }}</span>
             </div>
             <div class="text-gray-500">
               {{ item.block?.data?.txs.length }} txs
