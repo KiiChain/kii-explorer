@@ -43,7 +43,7 @@ async function requestTestnetTokens() {
   <div class="h-full w-full">
     <div class="w-full flex h-full"
       style="background: url('/assets/Coins.png') no-repeat, url('/assets/Coins.png') no-repeat; background-size: 50%; background-position: 75% -5%, 120% -5%;">
-      <div class="w-[40%] pl-4">
+      <div class="w-[40%] pl-4 flex justify-center flex-col">
         <div class="relative w-full">
           <img src="/assets/bg_radial_gradients.png" style="max-width: unset;"
             class="z-[0] absolute top-0 -bottom-12 my-auto -left-24 right-0 mx-auto w-[110%]" />
@@ -57,12 +57,12 @@ async function requestTestnetTokens() {
           background-clip: text;
           color: transparent;
           -webkit-text-fill-color: transparent;
-        " class="my-16 z-[1] relative">
+        " class="mt-16 mb-8 z-[1] relative">
             Welcome to<br />KiiChain's faucet
           </h1>
         </div>
 
-        <div class="text-white my-6 pl-4">
+        <div class="text-white my-4 pl-4">
           <div class="font-bold">How to use KiiChain's faucet</div>
           <ol style="list-style-type: decimal;" class="my-4 px-4">
             <li>Set up your testnet wallet here</li>

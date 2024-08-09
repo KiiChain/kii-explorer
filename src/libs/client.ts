@@ -436,7 +436,7 @@ export class CosmosRestClient extends BaseRestClient<RequestRegistry> {
   async getSmartContracts(page: number, limit: number) {
     const url = `${
       DEFAULT.kii_backend_smart_contracts.url
-    }/${page}`;
+    }/${page}?quantity=${limit}`;
     const response = await fetch(url);
     const smartContractsResponse = await response.json();
     return smartContractsResponse;
