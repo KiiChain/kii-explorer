@@ -5,6 +5,7 @@
     "explore": "Explore",
     "competition": "Competition",
     "staking": "Staking",
+    "smart_contracts": "Smart Contracts",
     "governance": "Governance",
     "parameters": "Parameters",
     "uptime": "Uptime",
@@ -294,5 +295,17 @@
     "app_versions": "Application Versions",
     "top_account_holders": "Top Account Holders",
     "node_info": "Node Information"
+  },
+  "smart_contracts": {
+    "code_id": "Code ID",
+    "code_hash":"Code Hash",
+    "creator": "Creator",
+    "permissions": "Permissions",
+    "created_at": "Created At"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {current} of {total}"
   }
 }

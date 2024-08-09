@@ -3,6 +3,7 @@
       "dashboard": "Dasbor",
       "blocks": "Kumpulan Blok",
       "staking": "Staking",
+      "smart_contracts": "Kontrak Pintar",
       "explore": "Anveshan",
       "competition": "Pratiyogita",
       "governance": "Tata Kelola",
@@ -285,5 +286,17 @@
       "app_versions": "Versi Aplikasi",
       "top_account_holders": "Top Account Holders",
       "node_info": "Informasi Node"
+    },
+    "smart_contracts": {
+      "code_id": "ID Kode",
+      "code_hash": "Hash Kode",
+      "creator": "Pencipta",
+      "permissions": "Izin",
+      "created_at": "Dibuat pada"
+    },
+    "pagination": {
+      "previous": "Sebelumnya",
+      "next": "Berikutnya",
+      "page": "Halaman {current} dari {total}"
     }
 }
