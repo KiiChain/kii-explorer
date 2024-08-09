@@ -40,8 +40,8 @@ async function requestTestnetTokens() {
 }
 </script>
 <template>
-  <div>
-    <div class="w-full flex h-full my-12"
+  <div class="h-full w-full">
+    <div class="w-full flex h-full"
       style="background: url('/assets/Coins.png') no-repeat, url('/assets/Coins.png') no-repeat; background-size: 50%; background-position: 75% -5%, 120% -5%;">
       <div class="w-[40%] pl-4">
         <div class="relative w-full">
