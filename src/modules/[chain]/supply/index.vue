@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed, ref } from '@vue/reactivity';
 import { useBankStore, useBaseStore, useBlockchain, useFormatter } from '@/stores';
-import { PageRequest, type AuthAccount, type Pagination, type Coin, type DenomOwner } from '@/types';
+import { PageRequest, type AuthAccount, type Coin, type DenomOwner } from '@/types';
 import { onMounted } from 'vue';
 import PaginationBar from '@/components/PaginationBar.vue';
 // import { shortenAddress } from '@/libs/utils';
@@ -19,7 +19,7 @@ function showType(v: string) {
 }
 
 const pageRequest = ref(new PageRequest())
-const pageResponse = ref({} as Pagination)
+const pageResponse = ref({} as any)
 const topDenomOwners = ref([] as DenomOwner[]);
 const allDenomOwners = ref([] as DenomOwner[]);
 
