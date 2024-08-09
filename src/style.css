@@ -2,6 +2,8 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap');
 
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -104,5 +106,12 @@ html[data-theme='dark'] {
   background: linear-gradient(to right, #643B80, #854EF9, #643B80) border-box;
   color: #313149;
   border: 2px solid transparent;
+  border-radius: 5px;
+}
+
+.brand-gradient-border-2 {
+  background: linear-gradient(to right, #6136DF, #4C72FD, #7558F7) border-box;
+  color: #313149;
+  border: 1px solid transparent;
   border-radius: 5px;
 }

@@ -201,6 +201,10 @@ export const DEFAULT: RequestRegistry = {
     url: 'https://kii.backend.kiivalidator.com/blocks',
     adapter,
   },
+  kii_backend_smart_contracts: {
+    url: 'https://kii.backend.kiivalidator.com/smartContracts',
+    adapter
+  },
   kii_backend_transactions_by_wallet: {
     url: 'https://kii.backend.kiivalidator.com/transactionsByAddress/',
     adapter,

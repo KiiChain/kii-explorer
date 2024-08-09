@@ -124,6 +124,14 @@ export const useBlockchain = defineStore('blockchain', {
           order: Number(newRoute.meta.order || 100),
         });
 
+        children.push({
+          title: `Smart Contracts`,
+          to: { path: '/smart-contracts' },
+          icon: { icon: 'material-symbols:contract', size: '22' },
+          i18n: true,
+          order: Number(newRoute.meta.order || 100),
+        });
+
         currNavItem = [
           {
             title: this.current?.prettyName || this.chainName || '',

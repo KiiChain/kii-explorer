@@ -9,7 +9,7 @@ export enum LoadingStatus {
     LOADED,
 }
 
-export interface Pagination {
+export interface KeyPagination {
     next_key?: string;
     total?: string;
 }
@@ -40,7 +40,7 @@ export class PageRequest {
 }
 
 export interface PaginatedResponse {
-    pagination: Pagination;
+    pagination: KeyPagination;
 }
 
 export class Response<T> {

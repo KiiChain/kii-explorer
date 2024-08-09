@@ -126,3 +126,38 @@ interface Pagination {
   page: number;
   totalPages: number;
 }
+
+export interface PaginatedResponse {
+  success:        boolean;
+  errorMessage:   string;
+  quantity:       number;
+  page:           number;
+}
+
+export interface SmartContract {
+  transaction:     SmartContractTransaction;
+  sender:          string;
+  success:         boolean;
+  timestamp:       number;
+  BlockNumber:     number;
+  contractAddress: string;
+}
+
+export interface SmartContractTransaction {
+  type:                 string;
+  chainId:              string;
+  nonce:                string;
+  to:                   null;
+  gas:                  string;
+  gasPrice:             null;
+  maxPriorityFeePerGas: string;
+  maxFeePerGas:         string;
+  value:                string;
+  input:                string;
+  accessList:           any[];
+  v:                    string;
+  r:                    string;
+  s:                    string;
+  yParity:              string;
+  hash:                 string;
+}

@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { useBlockchain } from '@/stores';
 import { decodeTxRaw, type DecodedTxRaw } from '@cosmjs/proto-signing';
 import dayjs from 'dayjs';
-import type { Block, TxResponse } from '@/types';
+import type { Block, PaginatedResponse, SmartContract, TxResponse } from '@/types';
 import { hashTx } from '@/libs';
 import { fromBase64 } from '@cosmjs/encoding';
 
@@ -144,5 +144,8 @@ export const useBaseStore = defineStore('baseStore', {
       this.evmTxsQuantity = quantity;
       return this.recentEvmTxs;
     },
+    async fetchSmartContracts(page: number, limit: number): Promise<PaginatedResponse & { smartContracts?: SmartContract[] }> {
+      return await this.blockchain.rpc.getSmartContracts(page, limit);
+    }
   },
 });

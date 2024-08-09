@@ -9,3 +9,6 @@ export * from './staking'
 export * from './transaction'
 export * from './ibc'
 export * from './slashing'
+
+// Explicitly re-export `PaginatedResponse` to avoid ambiguity
+export type { PaginatedResponse } from './base';
