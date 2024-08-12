@@ -70,6 +70,7 @@ const fetchTransactions = async () => {
     if (isKiichain) {
       await baseStore.fetchLatestEvmBlocks();
       await baseStore.fetchLatestEvmTxs();
+      await baseStore.fetchSmartContracts(0, 20)
     } else {
       const txCount = await blockStore.rpc.getTxsCount();
       baseStore.updateTxCount(txCount);
@@ -257,8 +258,8 @@ function confirm() {
 
     <!-- Stats -->
     <div class="grid md:grid-cols-2 gap-2">
-      <DualCardValue icon="ri:token-swap-line" title="KII PRICE" :value="`$${(0.0).toLocaleString()}`"
-        sub-value-suffix="(+0.10%)" title2="GAS PRICE" :value2="isKiichain ? `${gasPriceEvm} tekii` : '--'" />
+      <DualCardValue icon="ri:token-swap-line" title="KII PRICE" :value="`N/A (Testnet)`" sub-value-suffix="(+0.10%)"
+        title2="GAS PRICE" :value2="isKiichain ? `${gasPriceEvm} tekii` : '--'" />
 
       <DualCardValue icon="uil:transaction" title="TRANSACTIONS" :value="transactionsCount.toString()"
         :sub-value="isKiichain ? '' : `(10,000 TPS)`" title2="BLOCK HEIGHT"
@@ -283,7 +284,8 @@ function confirm() {
 
     <!-- Tables -->
     <div v-if="loading" class="h-full w-full">
-      <div class="bg-transparent dark:bg-transparent px-5 py-5 text-white h-full w-full  flex justify-center items-center">
+      <div
+        class="bg-transparent dark:bg-transparent px-5 py-5 text-white h-full w-full  flex justify-center items-center">
         <PulseLoader color="#fff" />
       </div>
     </div>
