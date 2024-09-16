@@ -7,6 +7,7 @@ import JsonPretty from 'vue-json-pretty';
 import 'vue-json-pretty/lib/styles.css';
 import { getEvmTransactionInfo } from '@/libs/web3';
 import { formatEther } from 'viem';
+import { decodeCertificationEvent } from '@/libs/ethers';
 
 const props = defineProps(['hash', 'chain']);
 
@@ -36,48 +37,36 @@ const messages = computed(() => {
 </script>
 <template>
   <div>
-    <div
-      v-if="tx.tx_response || evmTx?.transactionHash"
-      class="bg-base-100 dark:bg-base100 px-4 pt-3 pb-4 rounded shadow mb-4"
-    >
+    <div v-if="tx.tx_response || evmTx?.transactionHash"
+      class="bg-base-100 dark:bg-base100 px-4 pt-3 pb-4 rounded shadow mb-4">
       <h2 class="card-title truncate mb-2">{{ $t('tx.title') }}</h2>
       <div class="overflow-auto-x">
         <table class="table text-sm">
           <tbody>
             <tr>
               <td>{{ $t('tx.tx_hash') }}</td>
-              <td>{{ isEvmTxHash?evmTx.transactionHash:tx.tx_response.txhash }}</td>
+              <td>{{ isEvmTxHash ? evmTx.transactionHash : tx.tx_response.txhash }}</td>
             </tr>
             <tr>
               <td>{{ $t('account.height') }}</td>
               <td>
-                <RouterLink
-                  :to="`/${props.chain}/block/${tx.tx_response?.height || evmTx.blockNumber}`"
-                  class="text-primary dark:invert"
-                  >{{ tx.tx_response?.height || evmTx.blockNumber }}
+                <RouterLink :to="`/${props.chain}/block/${tx.tx_response?.height || evmTx.blockNumber}`"
+                  class="text-primary dark:invert">{{ tx.tx_response?.height || evmTx.blockNumber }}
                 </RouterLink>
               </td>
             </tr>
             <tr>
               <td>{{ $t('staking.status') }}</td>
               <td>
-                <div
-                  class="text-xs truncate relative py-2 px-4 w-fit mr-2 rounded"
-                  :class="`text-${
-                    ((tx.tx_response?.code === 0) || (evmTx?.transactionHash)) ? 'success' : 'error'
-                  }`"
-                >
-                  <span
-                    class="inset-x-0 inset-y-0 opacity-10 absolute"
-                    :class="`bg-${
-                      ((tx.tx_response?.code === 0) || (evmTx?.transactionHash)) ? 'success' : 'error'
-                    }`"
-                  ></span>
+                <div class="text-xs truncate relative py-2 px-4 w-fit mr-2 rounded" :class="`text-${((tx.tx_response?.code === 0) || (evmTx?.transactionHash)) ? 'success' : 'error'
+                  }`">
+                  <span class="inset-x-0 inset-y-0 opacity-10 absolute" :class="`bg-${((tx.tx_response?.code === 0) || (evmTx?.transactionHash)) ? 'success' : 'error'
+                    }`"></span>
                   {{ ((tx.tx_response?.code === 0) || (evmTx?.transactionHash)) ? 'Success' : 'Failed' }}
                 </div>
               </td>
             </tr>
-            <tr :class="tx.tx_response?.timestamp?'':'hidden'">
+            <tr :class="tx.tx_response?.timestamp ? '' : 'hidden'">
               <td>{{ $t('account.time') }}</td>
               <td>
                 {{ format.toLocaleDate(tx.tx_response?.timestamp) }} ({{
@@ -88,10 +77,11 @@ const messages = computed(() => {
             <tr>
               <td>{{ $t('tx.gas') }}</td>
               <td>
-                {{ isEvmTxHash? `${formatEther(evmTx.gasUsed)} KII`:  `${tx.tx_response?.gas_used} / ${tx.tx_response?.gas_wanted}` }}
+                {{ isEvmTxHash ? `${formatEther(evmTx.gasUsed)} KII` : `${tx.tx_response?.gas_used} /
+                ${tx.tx_response?.gas_wanted}` }}
               </td>
             </tr>
-            <tr :class="tx.tx?.auth_info?.fee?.amount?'':'hidden'">
+            <tr :class="tx.tx?.auth_info?.fee?.amount ? '' : 'hidden'">
               <td>{{ $t('tx.fee') }}</td>
               <td>
                 {{
@@ -103,7 +93,7 @@ const messages = computed(() => {
                 }}
               </td>
             </tr>
-            <tr :class="tx.tx?.body.memo?'':'hidden'">
+            <tr :class="tx.tx?.body.memo ? '' : 'hidden'">
               <td>{{ $t('tx.memo') }}</td>
               <td>{{ tx.tx?.body.memo }}</td>
             </tr>
@@ -112,27 +102,24 @@ const messages = computed(() => {
       </div>
     </div>
 
-    <div
-      v-if="tx.tx_response"
-      class="bg-base-100 dark:bg-base100 px-4 pt-3 pb-4 rounded shadow mb-4"
-    >
-      <h2 class="card-title truncate mb-2">
-        {{ $t('account.messages') }}: ({{ messages.length }})
-      </h2>
-      <div v-for="(msg, i) in messages">
-        <div class="border border-slate-400 rounded-md mt-4">
-          <DynamicComponent :value="msg" />
+    <div v-if="tx.tx_response || evmTx?.transactionHash"
+      class="bg-base-100 dark:bg-base100 px-4 pt-3 pb-4 rounded shadow">
+      <!-- Show certificates -->
+      <div
+        v-if="evmTx && evmTx.logs && evmTx.logs.length > 0 && evmTx.logs[0].address === '0x0de23fd7d8e20ac01b68873557d6f9d655db83d3'">
+        <h2 class="card-title truncate mb-2"> Certificate</h2>
+        <div v-for="(item, index) of evmTx.logs" :key="index">
+          <JsonPretty :data="decodeCertificationEvent(item.data)" />
         </div>
+        <br>
       </div>
-      <div v-if="messages.length === 0">{{ $t('tx.no_messages') }}</div>
-    </div>
 
-    <div
-      v-if="tx.tx_response || evmTx?.transactionHash"
-      class="bg-base-100 dark:bg-base100 px-4 pt-3 pb-4 rounded shadow"
-    >
+      <!-- Show the Receipt -->
       <h2 class="card-title truncate mb-2">JSON</h2>
-      <JsonPretty :data="isEvmTxHash?evmTx:tx" :deep="3" />
+      <JsonPretty :data="isEvmTxHash ? evmTx : tx" :deep="3" />
+
+      <!-- Decode information  -->
+      {{ console.log(evmTx.logs) }}
     </div>
   </div>
 </template>
