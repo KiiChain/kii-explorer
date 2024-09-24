@@ -30,8 +30,8 @@ const fetchSmartContracts = async (page = 0) => {
         loading.value = true;
         smartContracts.value = baseStore.getSmartContracts;
         totalContracts.value = baseStore.smartContractQuantity;
-        if (smartContracts.value.length == 0) {
-            await baseStore.fetchSmartContracts(0)
+        if (smartContracts.value.length == 0 || page != 0) {
+            await baseStore.fetchSmartContracts(page)
             smartContracts.value = baseStore.getSmartContracts;
             totalContracts.value = baseStore.smartContractQuantity;
         }
