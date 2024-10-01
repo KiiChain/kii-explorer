@@ -194,19 +194,19 @@ export const DEFAULT: RequestRegistry = {
 
   // kii backend
   kii_backend_transactions: {
-    url: 'https://kii.backend.kiivalidator.com/transactions',
+    url: 'https://kii.backend.kiivalidator.com/explorer/transactions',
     adapter,
   },
   kii_backend_blocks: {
-    url: 'https://kii.backend.kiivalidator.com/blocks',
+    url: 'https://kii.backend.kiivalidator.com/explorer/blocks',
     adapter,
   },
   kii_backend_smart_contracts: {
-    url: 'https://kii.backend.kiivalidator.com/smartContracts',
-    adapter
+    url: 'https://kii.backend.kiivalidator.com/explorer/smartContracts',
+    adapter,
   },
   kii_backend_transactions_by_wallet: {
-    url: 'https://kii.backend.kiivalidator.com/transactionsByAddress/',
+    url: 'https://kii.backend.kiivalidator.com/explorer/transactionsByAddress/',
     adapter,
   },
 };
