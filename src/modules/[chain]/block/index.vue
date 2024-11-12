@@ -4,11 +4,13 @@ import { useBaseStore, useFormatter } from '@/stores';
 import { onMounted } from 'vue';
 
 import type { Block, TxResponse } from '@/types';
+import { useBlockModule } from './block';
+import { convertKeys, toSnakeCase } from '@/libs/utils';
 const props = defineProps(['chain']);
 
 const tab = ref('blocks');
 
-const base = useBaseStore()
+const baseStore = useBaseStore()
 
 const format = useFormatter();
 
@@ -17,15 +19,22 @@ const blockList = ref<Block[]>([])
 
 onMounted(async () => {
     if (props.chain === "kiichain") {
-        blockList.value = base.evmRecentBlocks
-        transactionList.value = base.evmRecentTxs
+        blockList.value = baseStore.getRecentBlocks
+        transactionList.value = baseStore.getRecentTxs
         if (blockList.value.length == 0) {
-            await base.fetchLatestEvmBlocks()
-            blockList.value = base.evmRecentBlocks
-            transactionList.value = base.evmRecentTxs
+            await baseStore.fetchLatestEvmBlocks()
+            blockList.value = baseStore.getRecentBlocks
+            transactionList.value = baseStore.getRecentTxs
         }
     } else {
-        blockList.value = base.recents
+        await baseStore.fetchRecentBlocks();
+        blockList.value = baseStore.recents
+        const recentTxs = baseStore.txsInRecents
+        
+        transactionList.value = convertKeys(recentTxs, toSnakeCase)
+        
+        const intervalId = setInterval(baseStore.fetchRecentBlocks, 60000); // Fetch transactions every minute
+        return () => clearInterval(intervalId); // Clear interval on component unmount
     }
 });
 
@@ -36,7 +45,7 @@ onMounted(async () => {
             <a class="tab text-gray-400 uppercase" :class="{ 'tab-active': tab === 'blocks' }"
                 @click="tab = 'blocks'">{{ $t('block.recent') }}</a>
             <!-- <RouterLink class="tab text-gray-400 uppercase"
-                :to="`/${chain}/block/${Number(base.latest?.block?.header.height || 0) + 10000}`">{{ $t('block.future')
+                :to="`/${chain}/block/${Number(baseStore.latest?.block?.header.height || 0) + 10000}`">{{ $t('block.future')
                 }}
             </RouterLink> -->
             <a class="tab text-gray-400 uppercase" :class="{ 'tab-active': tab === 'transactions' }"
@@ -45,8 +54,8 @@ onMounted(async () => {
 
         <div v-show="tab === 'blocks'" class="grid xl:!grid-cols-6 md:!grid-cols-4 grid-cols-1 gap-3">
 
-            <RouterLink v-for="item in blockList" class="flex flex-col justify-between rounded p-4 shadow bg-base-100"
-                :to="`/${chain}/block/${item.block.header.height}`">
+            <RouterLink v-for="(item, index) in blockList" class="flex flex-col justify-between rounded p-4 shadow bg-baseStore-100"
+                :to="`/${chain}/block/${item.block.header.height}`" :key="'block-' + index">
                 <div class="flex justify-between">
                     <h3 class="text-md font-bold sm:!text-lg">
                         {{ item.block.header.height }}
@@ -64,9 +73,9 @@ onMounted(async () => {
             </RouterLink>
         </div>
 
-        <div v-show="tab === 'transactions'" class="bg-base-100 rounded overflow-x-auto">
+        <div v-show="tab === 'transactions'" class="bg-baseStore-100 rounded overflow-x-auto">
             <table class="table w-full table-compact">
-                <thead class="bg-base-200">
+                <thead class="bg-baseStore-200">
                     <tr>
                         <th style="position: relative; z-index: 2;">{{ $t('account.height') }}</th>
                         <th style="position: relative; z-index: 2;">{{ $t('account.hash') }}</th>
@@ -77,7 +86,7 @@ onMounted(async () => {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(item, index) in transactionList" :index="index" class="hover">
+                    <tr v-for="(item, index) in transactionList" :index="index" class="hover" :key="'tl-' + index">
                         <td>
                             <RouterLink :to="`/${props.chain}/block/${item.height}`">{{ item.height }}</RouterLink>
                         </td>
@@ -88,7 +97,7 @@ onMounted(async () => {
                         </td>
                         <!-- <td>{{ format.messages(item.tx.body.messages) }}</td> -->
                         <td>{{ item.tx.auth_info.fee.amount[0].amount }}</td>
-                        <td>{{ item.tx.body.messages[0].from_address! }}</td>
+                        <td>{{ item.tx.body.messages[0].from_address || item.from_address }}</td>
                         <td>{{ format.toDay(item.timestamp) }}</td>
                     </tr>
                 </tbody>

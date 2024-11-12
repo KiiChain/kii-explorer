@@ -45,6 +45,7 @@ const blockchain = useBlockchain();
 const store = useIndexModule();
 const walletStore = useWalletStore();
 const bankStore = useBankStore();
+const stakingStore = useStakingStore();
 const format = useFormatter();
 const dialog = useTxDialog();
 const paramStore = useParamStore();
@@ -66,9 +67,11 @@ const topDenomOwners = ref([] as DenomOwner[]);
 const evmWalletBalance = ref();
 
 onMounted(async () => {
+  await baseStore.initial();
   store.loadDashboard();
   walletStore.loadMyAsset();
   paramStore.handleAbciInfo();
+  stakingStore.init();
 
   const data = await bankStore.fetchTopDenomOwners(
     blockchain.current?.assets[0].base ?? ''
@@ -381,8 +384,8 @@ const walletRewardBalance = computed(() => rewardBalance.value);
         <MdEditor :model-value="coinInfo.description?.en" previewOnly></MdEditor>
       </div>
       <div class="mx-4 flex flex-wrap items-center">
-        <div v-for="tag in coinInfo.categories"
-          class="mr-2 mb-4 text-xs bg-gray-100 dark:bg-[#384059] px-3 rounded-full py-1">
+        <div v-for="(tag, index) in coinInfo.categories"
+          class="mr-2 mb-4 text-xs bg-gray-100 dark:bg-[#384059] px-3 rounded-full py-1" :key="'tag' + index">
           {{ tag }}
         </div>
       </div>

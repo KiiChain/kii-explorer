@@ -99,8 +99,8 @@ const accountOwners = computed(() => {
     </div>
 
     <div class="relative overflow-auto flex gap-5 flex-nowrap w-full">
-      <div class="h-1 w-full absolute bottom-1/3 linear-gradient-l-to-r-bg " />
-      <div v-for="stat in topAccountHolders" class="w-[135px] space-y-2">
+      <div class="h-1 w-full absolute bottom-1/3 linear-gradient-l-to-r-bg "></div>
+      <div v-for="(stat, index) in topAccountHolders" class="w-[135px] space-y-2" :key="'top-account-holders' + index">
         <div class="h-[170px] rounded-lg overflow-hidden relative bg-[#DDDBE4] dark:bg-black dark:border dark:border-info">
           <div class="absolute bottom-0 left-0 right-0 linear-gradient-tl-to-br-bg" :style="`height: ${stat.amount}%`" />
         </div>
@@ -118,7 +118,7 @@ const accountOwners = computed(() => {
             <td class="text-info">% OF SUPPLY</td>
           </tr>
         </thead>
-        <tr v-for="item in accountOwners" class="border-y-solid border-y-1 border-[#EAECF0]">
+        <tr v-for="(item, index) in accountOwners" class="border-y-solid border-y-1 border-[#EAECF0]" :key="'account-owners' + index">
           <td class="py-4 text-info font-bold">{{ item.address }}</td>
           <td class="py-4">{{ item.amount }}</td>
           <td class="py-4">{{ item.percentage }}%</td>

@@ -24,8 +24,6 @@ import {
 // import { useBlockModule } from '@/modules/[chain]/block/block';
 import { DEFAULT } from '@/libs';
 import { hexToRgb, rgbToHsl } from '@/libs/utils';
-
-const isKiichain = window.location.pathname.search('kiichain') > -1;
 // const wallet = useWalletStore()
 
 export const useBlockchain = defineStore('blockchain', {
@@ -39,6 +37,7 @@ export const useBlockchain = defineStore('blockchain', {
         address: string;
         provider: string;
       },
+      rpcEndpoint: '',
       connErr: '',
     };
   },
@@ -62,6 +61,9 @@ export const useBlockchain = defineStore('blockchain', {
     isConsumerChain() {
       // @ts-ignore
       return this.current && this.current.providerChain;
+    },
+    getRpcEndpoint(): string {
+      return this.rpcEndpoint;
     },
     computedChainMenu() {
       let currNavItem: VerticalNavItems = [];
@@ -87,7 +89,7 @@ export const useBlockchain = defineStore('blockchain', {
             order: 1,
             icon: 'mdi:magnify',
           },
-          path: isKiichain?'/kiichain':'/',
+          path: `/${this.chainName}`,
         };
 
         const newRoute = {
@@ -193,16 +195,27 @@ export const useBlockchain = defineStore('blockchain', {
       //     const { global } = useTheme();
       //     global.current
       // }
+
+      if (this.chainName === 'kiichain3') {
+        this.setupV3RPCEndpoint();
+      } else {
+        useMintStore().initial();
+      }
       useWalletStore().$reset();
       await this.randomSetupEndpoint();
       await useStakingStore().init();
       useBankStore().initial();
-      useBaseStore().initial();
       useGovStore().initial();
-      useMintStore().initial();
       // useBlockModule().initial();
     },
-
+    setupV3RPCEndpoint() {
+      const all = this.current?.endpoints?.rpc;
+        if (all) {
+          const rn = Math.random();
+          const endpoint = all[Math.floor(rn * all.length)];
+          this.rpcEndpoint = endpoint.address;
+        }
+    },
     async randomSetupEndpoint() {
       const end = localStorage.getItem(`endpoint-${this.chainName}`);
       if (end) {

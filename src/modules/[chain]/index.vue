@@ -51,11 +51,11 @@ const publicClient = createPublicClient({
 })
 
 const latestBlocks = computed(() => {
-  return baseStore.evmRecentBlocks;
+  return baseStore.getRecentBlocks;
 });
 
 const latestTransactions = computed(() => {
-  return baseStore.evmRecentTxs.slice(0, 30);
+  return baseStore.getRecentTxs.slice(0, 30);
 });
 
 const transactionsCount = computed(() => {
@@ -67,13 +67,17 @@ const fetchTransactions = async () => {
     const gasPrice = await publicClient.getGasPrice();
     gasPriceEvm.value = gasPrice.toString();
 
-    if (isKiichain) {
-      await baseStore.fetchLatestEvmBlocks();
-      await baseStore.fetchLatestEvmTxs();
-    } else {
-      const txCount = await blockStore.rpc.getTxsCount();
-      baseStore.updateTxCount(txCount);
-      baseStore.updateTx(await bankStore.fetchLatestTxs(txCount));
+    switch(selectedChain) {
+      case 'kii':
+      case 'kiichain3': 
+        const txCount = await blockStore.rpc.getTxsCount();
+        baseStore.updateTxCount(txCount);
+        baseStore.updateTx(await bankStore.fetchLatestTxs(txCount));
+        break;
+      case 'kiichain':
+        await baseStore.fetchLatestEvmBlocks();
+        await baseStore.fetchLatestEvmTxs();
+        break;
     }
     // loading.value = false;
   } catch (err) {
@@ -86,6 +90,7 @@ const fetchTransactions = async () => {
 onMounted(async () => {
   loading.value = latestTransactions.value.length == 0
   await fetchTransactions();
+  await baseStore.fetchRecentBlocks();
   const intervalId = setInterval(fetchTransactions, 60000); // Fetch transactions every minut
   return () => clearInterval(intervalId); // Clear interval on component unmount
 });
@@ -260,7 +265,7 @@ function confirm() {
       <DualCardValue icon="ri:token-swap-line" title="KII PRICE" :value="`N/A (Testnet)`" sub-value-suffix="(+0.10%)"
         title2="GAS PRICE" :value2="isKiichain ? `${gasPriceEvm} tekii` : '--'" />
 
-      <DualCardValue icon="uil:transaction" title="TRANSACTIONS" :value="transactionsCount.toString()"
+      <DualCardValue icon="uil:transaction" title="TRANSACTIONS" :value="transactionsCount?.toString() ?? 0"
         :sub-value="isKiichain ? '' : `(10,000 TPS)`" title2="BLOCK HEIGHT"
         :value2="latestBlocks[0]?.block.header.height" />
     </div>

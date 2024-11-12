@@ -41,7 +41,7 @@ export const useStakingStore = defineStore('stakingStore', {
     async init() {
       this.$reset();
       this.fetchPool();
-      this.fetchAcitveValdiators();
+      await this.fetchAcitveValdiators();
       return await this.fetchParams();
     },
     async keybase(identity: string) {

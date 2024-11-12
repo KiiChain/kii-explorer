@@ -68,6 +68,7 @@ export interface TxResponse {
     type: string;
     attributes: Attributes[];
   }[];
+  from_address?: string;
 }
 
 export interface PaginatedTxs extends PaginatedResponse {

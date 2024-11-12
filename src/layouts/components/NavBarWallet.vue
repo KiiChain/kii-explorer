@@ -18,13 +18,14 @@ const baseStore = useBaseStore();
 // walletStore.$subscribe((m, s) => {
 //   console.log(m, s);
 // });
-const isKiichain = window.location.pathname.search('kiichain') > -1;
+
+const isKiichain = computed(() => {
+  return chainStore.chainName === 'kiichain'
+});
 
 async function walletStateChange(res: any) {
   let walletVal = res.detail.value
-  if(isKiichain){
-
-    
+  if(isKiichain.value){
     const client = createWalletClient({
       chain: testnet,
       // @ts-ignore

@@ -10,14 +10,14 @@ import type {
 } from '@/types';
 import { hashTx } from '@/libs';
 import { fromBase64 } from '@cosmjs/encoding';
+import { MsgSend } from "cosmjs-types/cosmos/bank/v1beta1/tx";
 
 interface BaseState {
   earlest: Block;
   latest: Block;
   recents: Block[];
   theme: 'light' | 'dark';
-  recentEvmBlocks: Block[];
-  recentEvmTxs: TxResponse[];
+  recentTxs: TxResponse[];
   evmTxsQuantity: number;
   smartContracts: SmartContract[];
   smartContractQuantity: number;
@@ -32,8 +32,7 @@ export const useBaseStore = defineStore('baseStore', {
       theme: (window.localStorage.getItem('theme') || 'dark') as
         | 'light'
         | 'dark',
-      recentEvmBlocks: [],
-      recentEvmTxs: [],
+      recentTxs: [],
       evmTxsQuantity: 0,
       smartContracts: [],
       smartContractQuantity: 0,
@@ -65,19 +64,27 @@ export const useBaseStore = defineStore('baseStore', {
     },
     txsInRecents() {
       const txs = [] as {
+        timestamp: string;
         height: string;
-        hash: string;
+        txhash: string;
         tx: DecodedTxRaw;
+        fromAddress: string;
       }[];
       this.recents.forEach((b) =>
         b.block?.data?.txs.forEach((tx: string) => {
           if (tx) {
             const raw = fromBase64(tx);
+            const decodedTx = decodeTxRaw(raw);
+            const fromAddress = MsgSend.decode(decodedTx.body.messages[0].value).fromAddress;
             try {
               txs.push({
+                timestamp: b.block.header.time,
                 height: b.block.header.height,
-                hash: hashTx(raw),
-                tx: decodeTxRaw(raw),
+                txhash: hashTx(raw),
+                tx: decodedTx,
+                ...(MsgSend.decode(decodedTx.body.messages[0].value) && {
+                  fromAddress
+                })
               });
             } catch (e) {
               console.error(e);
@@ -89,11 +96,11 @@ export const useBaseStore = defineStore('baseStore', {
         return Number(b.height) - Number(a.height);
       });
     },
-    evmRecentBlocks(): Block[] {
-      return this.recentEvmBlocks;
+    getRecentBlocks(): Block[] {
+      return this.recents;
     },
-    evmRecentTxs(): TxResponse[] {
-      return this.recentEvmTxs;
+    getRecentTxs(): TxResponse[] {
+      return this.recentTxs;
     },
     evmTxsCount(): number {
       return this.evmTxsQuantity;
@@ -132,17 +139,35 @@ export const useBaseStore = defineStore('baseStore', {
         if (this.recents.length >= 50) {
           this.recents.shift();
         }
-        this.recents.push(this.latest);
+        if (!this.recents.some((block) => block.block_id.hash === this.latest.block_id.hash)) {
+          this.recents.push(this.latest);
+        }        
       }
       return this.latest;
     },
+    async fetchRecentBlocks() {
+      // Fetch the latest block
+      const latestHeight = +(await this.blockchain.rpc?.getBaseBlockLatest()).block.header.height;
+      
+      // Clear any previous results if necessary
+      this.recents = [];
+      
+      // Fetch the latest 25 blocks and push them to recents
+      for (let i = 0; i < 25; i++) {
+        const height = latestHeight - i;
+        const block = await this.blockchain.rpc?.getBaseBlockAt(height);
+        if (block) {
+          this.recents.push(block);
+        }
+      }
+    },
+    
     updateTxCount(count: number) {
       this.evmTxsQuantity = count;
     },
     updateTx(txs: TxResponse[]) {
-      this.recentEvmTxs = txs;
+      this.recentTxs = txs;
     },
-
     async fetchValidatorByHeight(height?: number, offset = 0) {
       return this.blockchain.rpc.getBaseValidatorsetAt(String(height), offset);
     },
@@ -158,16 +183,15 @@ export const useBaseStore = defineStore('baseStore', {
     // async fetchNodeInfo() {
     //     return this.blockchain.rpc.no()
     // }
-    async fetchLatestEvmBlocks(): Promise<Block[]> {
-      this.recentEvmBlocks = await this.blockchain.rpc.getBaseLatestBlocksEvm();
-      return this.recentEvmBlocks;
+    async fetchLatestEvmBlocks(){
+      this.recents = await this.blockchain.rpc.getBaseLatestBlocksEvm();
     },
     async fetchLatestEvmTxs(): Promise<TxResponse[]> {
       const { transactions, quantity } =
         await this.blockchain.rpc.getLatestTxsEvm();
-      this.recentEvmTxs = transactions;
+      this.recentTxs = transactions;
       this.evmTxsQuantity = quantity;
-      return this.recentEvmTxs;
+      return this.recentTxs;
     },
     async fetchSmartContracts(
       page: number

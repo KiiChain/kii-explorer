@@ -193,7 +193,7 @@ function changeTab(v: string) {
               <td>{{ $t('uptime.tombstoned') }}</td>
             </tr>
           </thead>
-          <tr v-for="({ v, signing, uptime }, i) in list" class="hover">
+          <tr v-for="({ v, signing, uptime }, i) in list" class="hover" :key="'moniker-' + i">
             <td>
               <div class="truncate max-w-sm">
                 {{ i + 1 }}. {{ v.description.moniker }}

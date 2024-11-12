@@ -210,3 +210,7 @@ export const DEFAULT: RequestRegistry = {
     adapter,
   },
 };
+
+export const RPC = {
+  genesis: '/genesis',
+}

@@ -214,7 +214,9 @@ export const useIndexModule = defineStore('module-index', {
     async loadDashboard() {
       this.$reset();
       this.initCoingecko();
-      useMintStore().fetchInflation();
+      if (this.blockchain?.chainName !== 'kiichain3'){
+        useMintStore().fetchInflation();
+      }
       useDistributionStore()
         .fetchCommunityPool()
         .then((x) => {
