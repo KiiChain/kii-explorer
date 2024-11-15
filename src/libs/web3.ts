@@ -22,7 +22,28 @@ export const STAKING_CONTRACT_ADDRESS =
 export const SWAP_CONTRACT_ADDRESS = '0xF948f57612E05320A6636a965cA4fbaed3147A0f'
 export const REWARDS_CONTRACT_ADDRESS = '0x55684e2cA2bace0aDc512C1AFF880b15b8eA7214';
 
-export const testnet = defineChain({
+const chain = window.location.pathname.split('/')[1];
+
+export const testnetV2EVM = defineChain({
+  id: 123454321,
+  name: 'Kiichain Tesnet',
+  nativeCurrency: { name: 'kii', symbol: 'kii', decimals: 18 },
+  rpcUrls: {
+    default: {
+      http: ['https://a.sentry.testnet.kiivalidator.com:8645'],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'Kiichain Testnet',
+      url: 'https://app.kiiglobal.io/kiichain',
+      apiUrl: '',
+    },
+  },
+  contracts: {},
+});
+
+export const testnetV3EVM = defineChain({
   id: 0xae3f3,
   name: 'Kiichain Tesnet',
   nativeCurrency: { name: 'kii', symbol: 'kii', decimals: 18 },
@@ -40,6 +61,8 @@ export const testnet = defineChain({
   },
   contracts: {},
 });
+
+export const testnet = chain === 'kiichain3' ? testnetV3EVM : testnetV2EVM;
 
 export const publicClient = createPublicClient({
   chain: testnet,

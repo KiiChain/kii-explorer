@@ -29,7 +29,9 @@ const handleSend = async () => {
 </script>
 
 <template>
-  <button @click="showModal = true">Open Send Modal</button>
+  <button class="btn bg-radial-gradient-base-duo bg-base-100 dark:bg-base-100 text-white w-full" @click="showModal = true">
+    {{ $t('account.btn_send') }}
+  </button>
 
   <Modal :show="showModal" @close="showModal = false">
     <template #header>

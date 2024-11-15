@@ -67,6 +67,11 @@ const evmTransactionsCount = computed(() => {
   return baseStore.evmTxsCount;
 })
 
+const currentWallet = computed(() => {
+  console.log(walletStore)
+  return walletStore.connectedWallet?.wallet
+})
+
 const getSubValue = computed(() => {
   switch(selectedChain) {
     case 'kii': {
@@ -76,7 +81,7 @@ const getSubValue = computed(() => {
       return ''
     }
     case 'kiichain3': {
-      return `(${evmTransactionsCount.value} EVM TXS WITHIN 50 BLOCK LIMIT)`
+      return `TXS within 50 BLOCK LIMIT`
     }
   }
 })
@@ -94,11 +99,18 @@ const fetchTransactions = async () => {
         break;
       }
       case 'kiichain3': {
-        const latestTxs = await baseStore.fetchLatestEvmTxs()
-        const txCount = await blockStore.rpc.getTxsCount();
+        let latestTxs;
+        let txCount;
+        if (currentWallet.value === 'Metamask') {
+          latestTxs = await baseStore.fetchLatestEvmTxs()
+          txCount = latestTxs.length
+        } else {
+          txCount = await blockStore.rpc.getTxsCount();
+          latestTxs = await bankStore.fetchLatestTxs(txCount);
+          baseStore.updateTx(latestTxs);
+        }
+
         baseStore.updateTxCount(txCount);
-        const txs = await bankStore.fetchLatestTxs(txCount);
-        baseStore.updateTx(txs.concat(latestTxs));
         break;
       }
       case 'kiichain':{

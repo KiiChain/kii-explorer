@@ -26,7 +26,7 @@ export async function sendV3(address: string, denom: string, amount: number) {
     const contract = new ethers.Contract(BANK_PRECOMPILE_ADDRESS, BANK_PRECOMPILE_ABI, signer);
 
     // Adjust amount based on token decimals
-    const tokenDecimals = 6; // Use the token's actual decimal places
+    const tokenDecimals = 18; // Use the token's actual decimal places
     const adjustedAmount = ethers.parseUnits(amount.toString(), tokenDecimals);
 
     console.log(adjustedAmount)

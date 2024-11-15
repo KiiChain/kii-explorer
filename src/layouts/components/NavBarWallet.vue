@@ -29,17 +29,18 @@ async function walletStateChange(res?: any) {
   if(isKiichain.value || !res){
     const client = createWalletClient({
       chain: testnet,
-      // @ts-ignore
-      transport: custom(window.ethereum),
+      transport: custom((window as any).ethereum),
     })
 
     try{
+      // @ts-ignore
       await client.switchChain({ id: testnet.id }) 
     }
     catch(err){
       await client.addChain({ chain: testnet })
     }
 
+    // @ts-ignore
     const accounts = await client.requestAddresses() 
     const kiiAddress = addressEnCode('kii', fromHex(accounts[0].replace('0x','')))
     walletVal = {
@@ -100,7 +101,7 @@ const handleWalletSelect = async (event: any) => {
     </label>
     <div tabindex="0"
       class="dropdown-content menu shadow p-2 bg-base-100 dark:bg-base100 rounded w-52 md:!w-64 overflow-auto shadow-2xl">
-      <label v-if="!walletStore?.currentAddress" for="PingConnectWallet" class="btn btn-sm btn-primary hover:text-black dark:hover:text-white">
+      <label v-if="!walletStore?.currentAddress" @click="walletStateChange" for="PingConnectWallet" class="btn btn-sm btn-primary hover:text-black dark:hover:text-white">
         <Icon icon="mdi:wallet" /><span class="ml-1 block">Connect Wallet</span>
       </label>
       <div class="px-2 mb-1 text-gray-500 dark:text-gray-400 font-semibold">

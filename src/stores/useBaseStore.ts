@@ -42,6 +42,12 @@ export const useBaseStore = defineStore('baseStore', {
     };
   },
   getters: {
+    isV2(): boolean {
+      return this.blockchain.chainName === 'kiichain'
+    },
+    isV3(): boolean {
+      return this.blockchain.chainName === 'kiichain3'
+    },
     blocktime(): number {
       if (this.earlest && this.latest) {
         if (
@@ -107,9 +113,6 @@ export const useBaseStore = defineStore('baseStore', {
     },
     txsCount(): number {
       return this.txsQuantity;
-    },
-    evmTxsCount(): number {
-      return this.evmTxsQuantity;
     },
     getSmartContracts(): SmartContract[] {
       return this.smartContracts;
@@ -197,7 +200,7 @@ export const useBaseStore = defineStore('baseStore', {
       const { transactions, quantity } =
         this.blockchain.chainName === 'kiichain3' ? await fetchRecentTransactionsEVM() : await this.blockchain.rpc.getLatestTxsEvm();
       this.recentTxs = transactions;
-      this.evmTxsQuantity = quantity;
+      this.txsQuantity = quantity;
       return this.recentTxs;
     },
     async fetchSmartContracts(

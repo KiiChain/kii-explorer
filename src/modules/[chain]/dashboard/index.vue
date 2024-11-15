@@ -28,13 +28,6 @@ import type { DenomOwner } from '@/types';
 import Modal from '@/components/Modal.vue';
 import { toETHAddress } from '../../../libs/address';
 
-import planet1 from '@/assets/images/misc/planet-1.png';
-import planet2 from '@/assets/images/misc/planet-2.png';
-import planet3 from '@/assets/images/misc/planet-3.png';
-import planet4 from '@/assets/images/misc/planet-4.png';
-import planet5 from '@/assets/images/misc/planet-5.png';
-import planet6 from '@/assets/images/misc/planet-6.png';
-import { useRoute } from 'vue-router';
 // @ts-ignore
 import PulseLoader from 'vue-spinner/src/PulseLoader.vue';
 import SendTokensV3 from '@/components/SendTokensV3.vue';
@@ -60,11 +53,6 @@ const selectedValidator = ref('');
 const rewardBalance = ref();
 const loadingMessage = ref('');
 
-const route = useRoute();
-const selectedChain = route.params.chain || 'kii';
-const isKiichain = selectedChain === 'kiichain';
-
-const topDenomOwners = ref([] as DenomOwner[]);
 const evmWalletBalance = ref();
 
 onMounted(async () => {
@@ -74,20 +62,17 @@ onMounted(async () => {
   paramStore.handleAbciInfo();
   stakingStore.init();
 
-  const data = await bankStore.fetchTopDenomOwners(
-    blockchain.current?.assets[0].base ?? ''
-  );
-
-  topDenomOwners.value = data;
   // if(!(coinInfo.value && coinInfo.value.name)) {
   // }
-  if (isKiichain) {
+  if (isMetamask) {
     evmWalletBalance.value = await getWalletBalance(
       blockchain.current?.assets[0].base ?? '',
     );
-    rewardBalance.value = await getRewardsBalance(
-      blockchain.current?.assets[0].base ?? ''
-    );
+    if (!baseStore.isV3) {
+      rewardBalance.value = await getRewardsBalance(
+        blockchain.current?.assets[0].base ?? ''
+      );
+    }
   }
 });
 const ticker = computed(() => store.coinInfo.tickers[store.tickerIndex]);
@@ -101,12 +86,6 @@ blockchain.$subscribe(async (m, s) => {
     store.loadDashboard();
     await walletStore.loadMyAsset();
     paramStore.handleAbciInfo();
-
-    const data = await bankStore.fetchTopDenomOwners(
-      blockchain.current?.assets[0].base ?? ''
-    );
-
-    topDenomOwners.value = data;
   }
 });
 function shortName(name: string, id: string) {
@@ -157,12 +136,6 @@ const color = computed(() => {
 
 async function updateState() {
   await walletStore.loadMyAsset();
-
-  const data = await bankStore.fetchTopDenomOwners(
-    blockchain.current?.assets[0].base ?? ''
-  );
-
-  topDenomOwners.value = data;
 }
 
 function trustColor(v: string) {
@@ -187,42 +160,6 @@ const amount = computed({
   },
 });
 
-// const topAccountHolders = computed(() => {
-//   const data = topDenomOwners.value;
-
-//   if (Array.isArray(data)) {
-//     const topData = data.slice(0, 10).map((x) => parseFloat(x.balance.amount));
-//     const otherData = data.slice(10, data.length);
-
-//     const otherDataTotal = otherData.reduce(
-//       (accumulator, x) => accumulator + parseFloat(x.balance.amount),
-//       0
-//     );
-
-//     return [...topData, otherDataTotal];
-//   }
-
-//   return [];
-// });
-
-// const topAccountAddresses = computed(() => {
-//   const data = topDenomOwners.value;
-
-//   if (Array.isArray(data)) {
-//     const topData = data.slice(0, 10).map((x) => shortenAddress(x.address));
-
-//     return [...topData, 'Other accounts'];
-//   }
-
-//   return [];
-// });
-
-const cardImages = [planet1, planet2, planet3, planet4, planet5, planet6];
-
-// const sendTransaction = (toSendAmount: number) => {
-//   buySkii(toSendAmount, loading)
-// };
-
 const withdrawRewardsTransaction = () => {
   loadingMessage.value = 'Withdrawing KII Rewards...';
   withdrawRewardsBalance(
@@ -234,6 +171,10 @@ const withdrawRewardsTransaction = () => {
 
 const walletBalance = computed(() => evmWalletBalance.value);
 const walletRewardBalance = computed(() => rewardBalance.value);
+const isMetamask = computed(() => walletStore.connectedWallet?.wallet === 'Metamask')
+const hideClassViaConnectedWalletMetamask = computed(() => {
+  return isMetamask.value && baseStore.isV3 ? 'hidden' : '';
+})
 </script>
 
 <template>
@@ -416,9 +357,7 @@ const walletRewardBalance = computed(() => rewardBalance.value);
       <div class="w-full h-full bg-black">
         <div class="flex justify-between px-4 pt-4 pb-2 text-lg font-semibold text-main text-white">
           <span class="truncate">{{
-            (isKiichain
-              ? toETHAddress(walletStore.currentAddress)
-              : walletStore.currentAddress) || 'Wallet not connected'
+            walletStore.currentAddress || 'Wallet not connected'
           }}</span>
           <RouterLink v-if="walletStore.currentAddress"
             class="float-right text-sm cursor-pointert link link-primary no-underline font-medium text-white"
@@ -431,7 +370,7 @@ const walletRewardBalance = computed(() => rewardBalance.value);
               <div class="text-sm mb-1">{{ $t('account.balance') }}</div>
               <div class="text-lg font-semibold text-main">
                 {{
-                  isKiichain
+                  isMetamask
                     ? format.formatToken(walletBalance)
                     : format.formatToken(walletStore.balanceOfStakingToken)
                 }}
@@ -441,7 +380,7 @@ const walletRewardBalance = computed(() => rewardBalance.value);
               </div>
             </div>
           </div>
-          <div class="brand-gradient-border !text-white">
+          <div class="brand-gradient-border !text-white" :class="hideClassViaConnectedWalletMetamask">
             <div class="bg-radial-gradient-base-duo bg-base-100 dark:bg-base-100 rounded-sm px-4 py-3">
               <div class="text-sm mb-1">{{ $t('module.staking') }}</div>
               <div class="text-lg font-semibold text-main">
@@ -452,7 +391,7 @@ const walletRewardBalance = computed(() => rewardBalance.value);
               </div>
             </div>
           </div>
-          <div class="brand-gradient-border !text-white">
+          <div class="brand-gradient-border !text-white" :class="hideClassViaConnectedWalletMetamask">
             <div class="bg-radial-gradient-base-duo bg-base-100 dark:bg-base-100 rounded-sm px-4 py-3">
               <div class="text-sm mb-1">{{ $t('index.reward') }}</div>
               <div class="text-lg font-semibold text-main">
@@ -463,7 +402,7 @@ const walletRewardBalance = computed(() => rewardBalance.value);
               </div>
             </div>
           </div>
-          <div class="brand-gradient-border !text-white">
+          <div class="brand-gradient-border !text-white" :class="hideClassViaConnectedWalletMetamask">
             <div class="bg-radial-gradient-base-duo bg-base-100 dark:bg-base-100 rounded-sm px-4 py-3">
               <div class="text-sm mb-1">{{ $t('index.unbonding') }}</div>
               <div class="text-lg font-semibold text-main">
@@ -513,9 +452,9 @@ const walletRewardBalance = computed(() => rewardBalance.value);
                 </td>
                 <td>
                   <div>
-                    <label for="delegate"
+                    <!-- <label for="delegate"
                       class="btn !btn-xs !btn-primary hover:!text-black dark:hover:!text-white rounded-sm mr-2"
-                      :class="isKiichain ? 'hidden' : ''" @click="
+                      :class="baseStore.isV2 ? 'hidden' : ''" @click="
                         dialog.open(
                           'delegate',
                           {
@@ -525,11 +464,11 @@ const walletRewardBalance = computed(() => rewardBalance.value);
                         )
                         ">
                       {{ $t('account.btn_delegate') }}
-                    </label>
-                    <RouterLink :to="`/${selectedChain}/staking`"
+                    </label> -->
+                    <RouterLink :to="`/${blockchain.chainName}/staking`"
                       class="btn !btn-xs !btn-primary hover:!text-black dark:hover:!text-white rounded-sm mr-2"
-                      :class="isKiichain ? '' : 'hidden'">{{ $t('account.btn_delegate') }}</RouterLink>
-                    <label for="withdraw" :class="isKiichain ? 'hidden' : ''"
+                      :class="baseStore.isV2 ? '' : 'hidden'">{{ $t('account.btn_delegate') }}</RouterLink>
+                    <label for="withdraw" :class="baseStore.isV2 ? 'hidden' : ''"
                       class="btn !btn-xs !btn-primary hover:!text-black dark:hover:!text-white btn-ghost rounded-sm"
                       @click="
                         dialog.open(
@@ -544,17 +483,17 @@ const walletRewardBalance = computed(() => rewardBalance.value);
                     </label>
                     <label
                       class="btn !btn-xs !btn-primary hover:!text-black dark:hover:!text-white btn-ghost rounded-sm"
-                      :class="isKiichain ? '' : 'hidden'"
+                      :class="baseStore.isV2 ? '' : 'hidden'"
                       @click="(showRewardsModal = true) && (selectedValidator = item.delegation.validator_address)">
                       {{ $t('index.btn_withdraw_reward') }}
                     </label>
 
-                    <ping-token-convert :class="!isKiichain ? '' : 'hidden'"
+                    <ping-token-convert :class="!baseStore.isV2 ? '' : 'hidden'"
                       :chain-name="blockchain?.current?.prettyName" :endpoint="blockchain?.endpoint?.address"
                       :hd-path="walletStore?.connectedWallet?.hdPath"></ping-token-convert>
 
                     <Teleport to="body">
-                      <div :class="isKiichain ? '' : 'hidden'">
+                      <div :class="baseStore.isV2 ? '' : 'hidden'">
                         <!-- Rewards Modal -->
                         <Modal :show="selectedValidator === item.delegation.validator_address && showRewardsModal === true
                           " @close="
@@ -570,7 +509,7 @@ const walletRewardBalance = computed(() => rewardBalance.value);
                                 <div class="flex-col">
                                   <div class="flex justify-center py-2">
                                     <span class="text-green-500">{{
-                                      `Outstanding Rewards Balance: ${isKiichain
+                                      `Outstanding Rewards Balance: ${baseStore.isV2
                                         ? format.formatToken(
                                           walletRewardBalance
                                         )
@@ -602,46 +541,35 @@ const walletRewardBalance = computed(() => rewardBalance.value);
         </div>
 
         <div class="grid grid-cols-3 gap-4 px-4 pb-6 mt-4" :class="walletStore.currentAddress ? '' : 'hidden'">
-          <!-- <label
-            id="show-modal"
-            @click="showModal = true"
-            for="PingTokenConvert"
-            class="btn !bg-violet !border-violet text-white"
-            >{{ $t('index.btn_swap') }}</label
-          > -->
-          <div class="brand-gradient-border" :class="isKiichain ? 'hidden' : ''">
-            <SendTokensV3/>
+          <div class="brand-gradient-border" :class="baseStore.isV2 ? 'hidden' : ''">
+            <SendTokensV3 v-if="baseStore.isV3 && isMetamask"/>
+            <label v-else for="send" class="btn bg-radial-gradient-base-duo bg-base-100 dark:bg-base-100 text-white w-full"
+              @click="dialog.open('send', {}, updateState)">{{ $t('account.btn_send') }}</label>
           </div>
-          <!-- <label
-            class="btn !bg-yes !border-yes text-white"
-            :class="isKiichain ? '' : 'hidden'"
-            @click="showSendModal = true"
-            >{{ $t('account.btn_send') }}</label
-          > -->
-          <div class="brand-gradient-border" :class="isKiichain ? 'hidden' : ''">
+          <div class="brand-gradient-border" :class="isMetamask && baseStore.isV3 ? 'hidden' : ''">
             <label for="delegate" class="btn bg-radial-gradient-base-duo bg-base-100 dark:bg-base-100 text-white w-full"
               @click="dialog.open('delegate', {}, updateState)">{{ $t('account.btn_delegate') }}</label>
           </div>
           <div class="brand-gradient-border">
-            <RouterLink :to="`/${selectedChain}/account/${(isKiichain
+            <RouterLink :to="`/${blockchain.chainName}/account/${(baseStore.isV2
               ? toETHAddress(walletStore.currentAddress)
               : walletStore.currentAddress)}`"
               class="btn bg-radial-gradient-base-duo bg-base-100 dark:bg-base-100 text-white w-full">My Account
             </RouterLink>
           </div>
-          <div class="brand-gradient-border" :class="isKiichain ? '' : 'hidden'">
-          <RouterLink :to="`/${selectedChain}/staking`"
-            class="btn bg-radial-gradient-base-duo bg-base-100 dark:bg-base-100 text-white w-full">
-            {{ $t('account.btn_delegate') }}
+          <!-- <div class="brand-gradient-border" :class="baseStore.isV2 ? '' : 'hidden'">
+            <RouterLink :to="`/${selectedChain}/staking`"
+              class="btn bg-radial-gradient-base-duo bg-base-100 dark:bg-base-100 text-white w-full">
+              {{ $t('account.btn_delegate') }}
             </RouterLink>
-          </div>
+          </div> -->
         </div>
         <Teleport to="body">
-          <ping-token-convert :class="!isKiichain ? '' : 'hidden'" :chain-name="blockchain?.current?.prettyName"
+          <ping-token-convert :class="!baseStore.isV2 ? '' : 'hidden'" :chain-name="blockchain?.current?.prettyName"
             :endpoint="blockchain?.endpoint?.address"
             :hd-path="walletStore?.connectedWallet?.hdPath"></ping-token-convert>
 
-          <div :class="isKiichain ? '' : 'hidden'">
+          <div :class="baseStore.isV2 ? '' : 'hidden'">
             <!-- Swap Modal -->
             <!-- <Modal :show="showModal" @close="showModal = false">
               <template #header>

@@ -40,7 +40,6 @@ export const useWalletStore = defineStore('walletStore', {
     },
     balanceOfStakingToken(): Coin {
       const stakingStore = useStakingStore();
-      console.log(this.balances)
       return (
         this.balances.find(
           (x) => x.denom === stakingStore.params.bond_denom
