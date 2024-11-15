@@ -2,10 +2,57 @@ import type { Coin, Transaction, TxResponse } from '@/types';
 import kiichain from '../../chains/testnet/kiichain.json';
 import { ethers } from 'ethers';
 import certificationAbi from '../assets/abi/certifications.json';
+import {BANK_PRECOMPILE_ABI, BANK_PRECOMPILE_ADDRESS} from '@sei-js/evm'
+
+export async function sendV3(address: string, denom: string, amount: number) {
+  // Check if MetaMask (or another browser wallet) is available
+  if (typeof (window as any).ethereum === "undefined") {
+    console.error("MetaMask is not installed.");
+    return;
+  }
+
+  try {
+    // Initialize the provider using BrowserProvider (ethers v6)
+    const provider = new ethers.BrowserProvider((window as any).ethereum);
+
+    // Get the signer (user's wallet)
+    const signer = await provider.getSigner();
+
+    // Ensure that the signer is available and get the address
+    const fromAddress = await signer.getAddress();
+    console.log('Signer address:', fromAddress);
+
+    // Prepare contract for interaction
+    const contract = new ethers.Contract(BANK_PRECOMPILE_ADDRESS, BANK_PRECOMPILE_ABI, signer);
+
+    // Adjust amount based on token decimals
+    const tokenDecimals = 6; // Use the token's actual decimal places
+    const adjustedAmount = ethers.parseUnits(amount.toString(), tokenDecimals);
+
+    console.log(adjustedAmount)
+
+    const balance = await contract.balance(BANK_PRECOMPILE_ADDRESS, 'ukii')
+    console.log(balance)
+
+
+    // Perform the send transaction
+    const tx = await contract.sendNative(address, {
+      gasLimit: 200000n, // Use bigint for gas limit
+      value: adjustedAmount
+    });
+
+    console.log('Transaction sent, waiting for confirmation...');
+    const receipt = await tx.wait();
+    console.log('Transaction confirmed!', receipt);
+
+  } catch (err) {
+    console.error('Error sending transaction:', err);
+  }
+}
 
 const getTransactionEVM = async (
   transactionHash: string,
-  provider: ethers.providers.JsonRpcProvider
+  provider: ethers.JsonRpcProvider
 ) => {
   try {
     return await provider.getTransaction(transactionHash);
@@ -20,13 +67,13 @@ export const convertTransaction = (transaction: Transaction): TxResponse => {
   const { assets } = kiichain;
   const assetSymbol = assets[0].symbol;
   const amount: Coin = {
-    amount: ethers.utils.formatEther(BigInt(receipt.value)), // Convert tkii to Kii
+    amount: ethers.formatEther(BigInt(receipt.value)), // Convert tkii to Kii
     denom: assetSymbol,
   };
 
   const fee: Coin[] = [
     {
-      amount: ethers.utils.formatEther(BigInt(receipt.gas)), // Convert tkii to Kii,
+      amount: ethers.formatEther(BigInt(receipt.gas)), // Convert tkii to Kii,
       denom: assetSymbol,
     },
   ];
@@ -95,7 +142,7 @@ export const convertTransaction = (transaction: Transaction): TxResponse => {
 
 export function decodeCertificationEvent(data: string) {
   // Decode the log
-  const certificationInterface = new ethers.utils.Interface(certificationAbi);
+  const certificationInterface = new ethers.Interface(certificationAbi);
   const decodedLog = certificationInterface.decodeEventLog(
     'CertificationCreatedEvent',
     data

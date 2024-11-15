@@ -23,9 +23,10 @@ const isKiichain = computed(() => {
   return chainStore.chainName === 'kiichain'
 });
 
-async function walletStateChange(res: any) {
-  let walletVal = res.detail.value
-  if(isKiichain.value){
+async function walletStateChange(res?: any) {
+  let walletVal = res?.detail?.value
+
+  if(isKiichain.value || !res){
     const client = createWalletClient({
       chain: testnet,
       // @ts-ignore
@@ -72,6 +73,22 @@ const tipMsg = computed(() => {
     ? { class: 'error', msg: 'Copy Error!' }
     : { class: 'success', msg: 'Copy Success!' };
 });
+const handleWalletSelect = async (event: any) => {
+  const checkMark = event.target;
+  
+  if (checkMark) {
+    // Find the parent <li> element
+    const walletItem = checkMark.closest('li');
+    
+    // Get the wallet name from the <p> element inside the <li>
+    const walletName = walletItem?.querySelector('p').textContent.trim();
+    
+    // Log the selected wallet's name
+    if (walletName === 'Metamask') {
+      await walletStateChange()
+    }
+  }
+}
 </script>
 
 <template>
@@ -83,7 +100,7 @@ const tipMsg = computed(() => {
     </label>
     <div tabindex="0"
       class="dropdown-content menu shadow p-2 bg-base-100 dark:bg-base100 rounded w-52 md:!w-64 overflow-auto shadow-2xl">
-      <label v-if="!walletStore?.currentAddress" @click="walletStateChange" for="PingConnectWallet" class="btn btn-sm btn-primary hover:text-black dark:hover:text-white">
+      <label v-if="!walletStore?.currentAddress" for="PingConnectWallet" class="btn btn-sm btn-primary hover:text-black dark:hover:text-white">
         <Icon icon="mdi:wallet" /><span class="ml-1 block">Connect Wallet</span>
       </label>
       <div class="px-2 mb-1 text-gray-500 dark:text-gray-400 font-semibold">
@@ -92,7 +109,6 @@ const tipMsg = computed(() => {
       <div>
         <a v-if="walletStore.currentAddress"
           class="block py-2 px-2 hover:bg-gray-100 dark:hover:bg-[#353f5a] rounded cursor-pointer"
-          :class="isKiichain?'hidden':''"
           style="overflow-wrap: anywhere" @click="copyAdress(walletStore.currentAddress)">
           {{ walletStore.currentAddress }}
         </a>
@@ -125,9 +141,10 @@ const tipMsg = computed(() => {
     </div>
   </div>
   <Teleport to="body">
-    <div :class="isKiichain?'hidden':''">
+    <div :class="isKiichain || walletStore.wallet.wallet === 'Metamask'?'hidden':''">
       <ping-connect-wallet :chain-id="baseStore.currentChainId" :hd-path="chainStore.defaultHDPath"
       :addr-prefix="chainStore.current?.bech32Prefix || 'cosmos'" @connect="walletStateChange"
+      @click="handleWalletSelect"
       @keplr-config="walletStore.suggestChain()" />
     </div>
     

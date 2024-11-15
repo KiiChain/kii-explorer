@@ -37,6 +37,7 @@ import planet6 from '@/assets/images/misc/planet-6.png';
 import { useRoute } from 'vue-router';
 // @ts-ignore
 import PulseLoader from 'vue-spinner/src/PulseLoader.vue';
+import SendTokensV3 from '@/components/SendTokensV3.vue';
 
 const props = defineProps(['chain']);
 
@@ -609,8 +610,7 @@ const walletRewardBalance = computed(() => rewardBalance.value);
             >{{ $t('index.btn_swap') }}</label
           > -->
           <div class="brand-gradient-border" :class="isKiichain ? 'hidden' : ''">
-            <label for="send" class="btn bg-radial-gradient-base-duo bg-base-100 dark:bg-base-100 text-white w-full"
-              @click="dialog.open('send', {}, updateState)">{{ $t('account.btn_send') }}</label>
+            <SendTokensV3/>
           </div>
           <!-- <label
             class="btn !bg-yes !border-yes text-white"

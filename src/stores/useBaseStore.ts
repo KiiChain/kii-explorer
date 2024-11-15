@@ -11,6 +11,7 @@ import type {
 import { hashTx } from '@/libs';
 import { fromBase64 } from '@cosmjs/encoding';
 import { MsgSend } from "cosmjs-types/cosmos/bank/v1beta1/tx";
+import { fetchRecentTransactionsEVM } from '@/libs/web3';
 
 interface BaseState {
   earlest: Block;
@@ -18,6 +19,7 @@ interface BaseState {
   recents: Block[];
   theme: 'light' | 'dark';
   recentTxs: TxResponse[];
+  txsQuantity: number;
   evmTxsQuantity: number;
   smartContracts: SmartContract[];
   smartContractQuantity: number;
@@ -33,6 +35,7 @@ export const useBaseStore = defineStore('baseStore', {
         | 'light'
         | 'dark',
       recentTxs: [],
+      txsQuantity: 0,
       evmTxsQuantity: 0,
       smartContracts: [],
       smartContractQuantity: 0,
@@ -102,6 +105,9 @@ export const useBaseStore = defineStore('baseStore', {
     getRecentTxs(): TxResponse[] {
       return this.recentTxs;
     },
+    txsCount(): number {
+      return this.txsQuantity;
+    },
     evmTxsCount(): number {
       return this.evmTxsQuantity;
     },
@@ -163,11 +169,12 @@ export const useBaseStore = defineStore('baseStore', {
     },
     
     updateTxCount(count: number) {
-      this.evmTxsQuantity = count;
+      this.txsQuantity = count;
     },
     updateTx(txs: TxResponse[]) {
-      this.recentTxs = txs;
-    },
+      // Sort by timestamp, assuming it is a Date or a comparable format
+      this.recentTxs = txs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    },    
     async fetchValidatorByHeight(height?: number, offset = 0) {
       return this.blockchain.rpc.getBaseValidatorsetAt(String(height), offset);
     },
@@ -188,7 +195,7 @@ export const useBaseStore = defineStore('baseStore', {
     },
     async fetchLatestEvmTxs(): Promise<TxResponse[]> {
       const { transactions, quantity } =
-        await this.blockchain.rpc.getLatestTxsEvm();
+        this.blockchain.chainName === 'kiichain3' ? await fetchRecentTransactionsEVM() : await this.blockchain.rpc.getLatestTxsEvm();
       this.recentTxs = transactions;
       this.evmTxsQuantity = quantity;
       return this.recentTxs;

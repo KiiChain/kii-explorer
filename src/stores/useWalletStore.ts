@@ -40,6 +40,7 @@ export const useWalletStore = defineStore('walletStore', {
     },
     balanceOfStakingToken(): Coin {
       const stakingStore = useStakingStore();
+      console.log(this.balances)
       return (
         this.balances.find(
           (x) => x.denom === stakingStore.params.bond_denom
@@ -94,6 +95,8 @@ export const useWalletStore = defineStore('walletStore', {
     async loadMyAsset() {
       if (!this.currentAddress) return;
       this.blockchain.rpc.getBankBalances(this.currentAddress).then((x) => {
+        console.log(this.currentAddress)
+        console.log(x)
         this.balances = x.balances;
       });
       this.blockchain.rpc
@@ -133,7 +136,6 @@ export const useWalletStore = defineStore('walletStore', {
       if(value) this.wallet = value 
     },
     suggestChain() {
-      // const router = useRouter()
       router.push({path: '/wallet/keplr'})
     }
   },

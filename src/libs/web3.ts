@@ -13,26 +13,27 @@ import swapAbi from '@/assets/abi/swap.json';
 import rewardsAbi from '@/assets/abi/rewards.json';
 import { operatorAddressToAccount, toETHAddress } from './address';
 import type { Ref } from 'vue';
+import { convertTransaction } from './ethers';
 
 export const BANK_CONTRACT_ADDRESS =
-  '0x4381dC2aB14285160c808659aEe005D51255adD7';
+  '0x0000000000000000000000000000000000001001';
 export const STAKING_CONTRACT_ADDRESS =
   '0xd9A998CaC66092748FfEc7cFBD155Aae1737C2fF';
 export const SWAP_CONTRACT_ADDRESS = '0xF948f57612E05320A6636a965cA4fbaed3147A0f'
 export const REWARDS_CONTRACT_ADDRESS = '0x55684e2cA2bace0aDc512C1AFF880b15b8eA7214';
 
 export const testnet = defineChain({
-  id: 123454321,
+  id: 0xae3f3,
   name: 'Kiichain Tesnet',
   nativeCurrency: { name: 'kii', symbol: 'kii', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://a.sentry.testnet.kiivalidator.com:8645'],
+      http: ['https://uno.sentry.testnet.v3.kiivalidator.com:8547', 'https://dos.sentry.testnet.v3.kiivalidator.com:8547'],
     },
   },
   blockExplorers: {
     default: {
-      name: 'Kiichain Testnet',
+      name: 'Kiichain Tesnet',
       url: 'https://app.kiiglobal.io/kiichain',
       apiUrl: '',
     },
@@ -51,6 +52,86 @@ export const walletClient = (window as any).ethereum && createWalletClient({
 });
 
 export const [account] = await walletClient?.getAddresses() || [];
+
+// Define the number of transactions to fetch
+export const TRANSACTIONS_TO_FETCH = 20;
+export const BLOCK_LIMIT = 50;
+
+// Define a function to fetch the last 20 transactions
+export async function fetchRecentTransactionsEVM() {
+  const TRANSACTIONS_TO_FETCH = 20; // Adjust as needed
+  const BLOCK_LIMIT = 50; // Number of blocks to check
+  const PAGE_NUMBER = 1; // Set this as needed
+  let transactions: any[] = [];
+  let success = true;
+  let errorMessage = '';
+
+  try {
+    let blockNumber = await publicClient.request({
+      method: 'eth_blockNumber',
+    });
+
+    let convertedBlockNumber = parseInt(blockNumber, 16);
+
+    let blocksChecked = 0;
+    while (transactions.length < TRANSACTIONS_TO_FETCH && blocksChecked < BLOCK_LIMIT) {
+      const block = await publicClient.request({
+        method: 'eth_getBlockByNumber',
+        params: [`0x${convertedBlockNumber.toString(16)}`, true],
+      });
+
+      if (block && block.transactions) {
+        const formattedTransactions = block.transactions.map((tx: any) => ({
+          transaction: {
+            type: tx.type,
+            chainId: tx.chainId,
+            nonce: tx.nonce,
+            to: tx.to,
+            gas: tx.gas,
+            gasPrice: tx.gasPrice || null,
+            maxPriorityFeePerGas: tx.maxPriorityFeePerGas,
+            maxFeePerGas: tx.maxFeePerGas,
+            value: tx.value,
+            input: tx.input,
+            accessList: tx.accessList || [],
+            v: tx.v,
+            r: tx.r,
+            s: tx.s,
+            yParity: tx.yParity,
+            hash: tx.hash,
+          },
+          sender: tx.from,
+          success: true, // Assuming success if no error is indicated
+          timestamp: parseInt(block.timestamp, 16) * 1000, // Convert from seconds to milliseconds
+          BlockNumber: parseInt(block.number || '', 16),
+        }));
+
+        transactions.push(...formattedTransactions);
+      }
+
+      convertedBlockNumber--;
+      blocksChecked++;
+    }
+
+    transactions = transactions.slice(0, TRANSACTIONS_TO_FETCH).map(transaction => {
+      console.log(transaction)
+      return convertTransaction(transaction)
+    });
+
+  } catch (error) {
+    success = false;
+    errorMessage = `Error fetching transactions: ${error}`;
+    console.error(errorMessage);
+  }
+
+  return {
+    success,
+    errorMessage,
+    transactions,
+    quantity: transactions.length,
+    page: PAGE_NUMBER,
+  };
+}
 
 export async function buySkii(
   amount: number,
@@ -150,13 +231,10 @@ export async function send(
       abi: bankAbi,
       functionName: 'send',
       args: [
+        account,
         valHexAcc,
-        [
-          {
-            denom: denom,
-            amount: amount * 10 ** 6,
-          },
-        ],
+        denom,
+        amount * 10 ** 6,
       ],
     });
     const hash = await walletClient.writeContract(request);
@@ -177,13 +255,10 @@ export async function send(
       abi: bankAbi,
       functionName: 'send',
       args: [
+        account,
         address,
-        [
-          {
-            denom: denom,
-            amount: amount * 10 ** 6,
-          },
-        ],
+        denom,
+        amount * 10 ** 6,
       ],
     });
     const hash = await walletClient.writeContract(request);

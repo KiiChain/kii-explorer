@@ -21,8 +21,9 @@ import { shortenAddress } from '@/libs/utils';
 import { defineChain, createPublicClient, http, decodeFunctionData, parseUnits } from 'viem'
 import bankAbi from '@/assets/abi/bank.json'
 import { useRoute } from 'vue-router';
-import { testnet } from '@/libs/web3';
+import { BLOCK_LIMIT, fetchRecentTransactionsEVM, testnet } from '@/libs/web3';
 import PulseLoader from 'vue-spinner/src/PulseLoader.vue';
+import { convertTransaction } from '@/libs/ethers';
 
 dayjs.extend(relativeTime);
 
@@ -59,8 +60,26 @@ const latestTransactions = computed(() => {
 });
 
 const transactionsCount = computed(() => {
-  return baseStore.evmTxsCount;
+  return baseStore.txsCount;
 });
+
+const evmTransactionsCount = computed(() => {
+  return baseStore.evmTxsCount;
+})
+
+const getSubValue = computed(() => {
+  switch(selectedChain) {
+    case 'kii': {
+      return `(10,000 TPS)`;
+    }
+    case 'kiichain': {
+      return ''
+    }
+    case 'kiichain3': {
+      return `(${evmTransactionsCount.value} EVM TXS WITHIN 50 BLOCK LIMIT)`
+    }
+  }
+})
 
 const fetchTransactions = async () => {
   try {
@@ -68,16 +87,25 @@ const fetchTransactions = async () => {
     gasPriceEvm.value = gasPrice.toString();
 
     switch(selectedChain) {
-      case 'kii':
-      case 'kiichain3': 
+      case 'kii':{
         const txCount = await blockStore.rpc.getTxsCount();
         baseStore.updateTxCount(txCount);
         baseStore.updateTx(await bankStore.fetchLatestTxs(txCount));
         break;
-      case 'kiichain':
+      }
+      case 'kiichain3': {
+        const latestTxs = await baseStore.fetchLatestEvmTxs()
+        const txCount = await blockStore.rpc.getTxsCount();
+        baseStore.updateTxCount(txCount);
+        const txs = await bankStore.fetchLatestTxs(txCount);
+        baseStore.updateTx(txs.concat(latestTxs));
+        break;
+      }
+      case 'kiichain':{
         await baseStore.fetchLatestEvmBlocks();
         await baseStore.fetchLatestEvmTxs();
         break;
+      }
     }
     // loading.value = false;
   } catch (err) {
@@ -88,11 +116,17 @@ const fetchTransactions = async () => {
 };
 
 onMounted(async () => {
-  loading.value = latestTransactions.value.length == 0
+  loading.value = latestTransactions.value.length === 0;
+
   await fetchTransactions();
   await baseStore.fetchRecentBlocks();
-  const intervalId = setInterval(fetchTransactions, 60000); // Fetch transactions every minut
-  return () => clearInterval(intervalId); // Clear interval on component unmount
+
+  // Set up interval for fetchTransactions
+  const fetchTransactionsInterval = setInterval(fetchTransactions, 60000); // Every minute
+
+  return () => {
+    clearInterval(fetchTransactionsInterval);
+  };
 });
 
 const getAmountEVM = (transaction: TxResponse): Coin => {
@@ -266,7 +300,7 @@ function confirm() {
         title2="GAS PRICE" :value2="isKiichain ? `${gasPriceEvm} tekii` : '--'" />
 
       <DualCardValue icon="uil:transaction" title="TRANSACTIONS" :value="transactionsCount?.toString() ?? 0"
-        :sub-value="isKiichain ? '' : `(10,000 TPS)`" title2="BLOCK HEIGHT"
+        :sub-value="getSubValue" title2="BLOCK HEIGHT"
         :value2="latestBlocks[0]?.block.header.height" />
     </div>
 
@@ -300,7 +334,7 @@ function confirm() {
             <td colspan="3" class="text-info">LATEST BLOCKS</td>
           </tr>
         </thead>
-        <tr v-for="item in latestBlocks!" class="border-y-solid border-y-1 border-[#EAECF0]">
+        <tr v-for="(item, index) in latestBlocks" class="border-y-solid border-y-1 border-[#EAECF0]" :key="'latest-block' + index">
           <td class="py-4">
             <div class="flex gap-3 items-center">
               <div class="p-2 rounded-full bg-base-300">
@@ -336,7 +370,7 @@ function confirm() {
             <td colspan="3" class="text-info">LATEST TRANSACTIONS</td>
           </tr>
         </thead>
-        <tr v-for="item in latestTransactions" class="border-y-solid border-y-1 border-[#EAECF0]">
+        <tr v-for="(item, index) in latestTransactions" class="border-y-solid border-y-1 border-[#EAECF0]" :key="'latest-transaction' + index">
           <td class="py-4">
             <div class="flex gap-3 items-center">
               <div class="p-2 rounded-full bg-base-300">
