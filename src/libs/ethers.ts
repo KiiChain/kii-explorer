@@ -2,7 +2,11 @@ import type { Coin, Transaction, TxResponse } from '@/types';
 import kiichain from '../../chains/testnet/kiichain.json';
 import { ethers } from 'ethers';
 import certificationAbi from '../assets/abi/certifications.json';
-import {BANK_PRECOMPILE_ABI, BANK_PRECOMPILE_ADDRESS} from '@sei-js/evm'
+import addressAbi from '../assets/abi/address.json';
+import {ADDRESS_PRECOMPILE_ABI, ADDRESS_PRECOMPILE_ADDRESS, BANK_PRECOMPILE_ABI, BANK_PRECOMPILE_ADDRESS} from '@sei-js/evm'
+import { fromHex } from '@cosmjs/encoding';
+import { addressEnCode } from './address';
+
 
 export async function sendV3(address: string, denom: string, amount: number) {
   // Check if MetaMask (or another browser wallet) is available
@@ -17,12 +21,19 @@ export async function sendV3(address: string, denom: string, amount: number) {
 
     // Get the signer (user's wallet)
     const signer = await provider.getSigner();
-
+  
     // Ensure that the signer is available and get the address
     const fromAddress = await signer.getAddress();
     console.log('Signer address:', fromAddress);
 
+    const addrContract = new ethers.Contract(ADDRESS_PRECOMPILE_ADDRESS, addressAbi, signer);
+    const cosmosAddress = await addrContract.getKiiAddr(address);
+    console.log(cosmosAddress)
     // Prepare contract for interaction
+    // const addrContract = new ethers.Contract(ADDRESS_PRECOMPILE_ADDRESS, ADDRESS_PRECOMPILE_ABI, signer);
+    // const kiiAddress = await addrContract.getSeiAddr(address);
+  
+    // console.log(kiiAddress)
     const contract = new ethers.Contract(BANK_PRECOMPILE_ADDRESS, BANK_PRECOMPILE_ABI, signer);
 
     // Adjust amount based on token decimals
@@ -31,15 +42,16 @@ export async function sendV3(address: string, denom: string, amount: number) {
 
     console.log(adjustedAmount)
 
-    const balance = await contract.balance(BANK_PRECOMPILE_ADDRESS, 'ukii')
-    console.log(balance)
-
 
     // Perform the send transaction
-    const tx = await contract.sendNative(address, {
-      gasLimit: 200000n, // Use bigint for gas limit
-      value: adjustedAmount
-    });
+    const transactionRequest = {
+      value: adjustedAmount,
+    };
+    const estimatedGas = await signer.estimateGas(transactionRequest);
+    const gasLimit = estimatedGas * BigInt(1000) / BigInt(100);
+
+    const tx = await contract.sendNative(cosmosAddress, {...transactionRequest,
+      gasLimit: gasLimit});
 
     console.log('Transaction sent, waiting for confirmation...');
     const receipt = await tx.wait();
