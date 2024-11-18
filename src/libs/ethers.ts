@@ -8,7 +8,7 @@ import { fromHex } from '@cosmjs/encoding';
 import { addressEnCode } from './address';
 
 
-export async function sendV3(address: string, denom: string, amount: number) {
+export async function sendV3(address: string, amount: number) {
   // Check if MetaMask (or another browser wallet) is available
   if (typeof (window as any).ethereum === "undefined") {
     console.error("MetaMask is not installed.");
@@ -28,20 +28,11 @@ export async function sendV3(address: string, denom: string, amount: number) {
 
     const addrContract = new ethers.Contract(ADDRESS_PRECOMPILE_ADDRESS, addressAbi, signer);
     const cosmosAddress = await addrContract.getKiiAddr(address);
-    console.log(cosmosAddress)
-    // Prepare contract for interaction
-    // const addrContract = new ethers.Contract(ADDRESS_PRECOMPILE_ADDRESS, ADDRESS_PRECOMPILE_ABI, signer);
-    // const kiiAddress = await addrContract.getSeiAddr(address);
-  
-    // console.log(kiiAddress)
     const contract = new ethers.Contract(BANK_PRECOMPILE_ADDRESS, BANK_PRECOMPILE_ABI, signer);
 
     // Adjust amount based on token decimals
     const tokenDecimals = 18; // Use the token's actual decimal places
     const adjustedAmount = ethers.parseUnits(amount.toString(), tokenDecimals);
-
-    console.log(adjustedAmount)
-
 
     // Perform the send transaction
     const transactionRequest = {

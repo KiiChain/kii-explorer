@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { Icon } from '@iconify/vue';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 // Components
 import newFooter from '@/layouts/components/NavFooter.vue';
@@ -11,7 +11,7 @@ import ChainProfile from '@/layouts/components/ChainProfile.vue';
 import wave from '@/assets/images/svg/wave.svg';
 
 import { useDashboard } from '@/stores/useDashboard';
-import { useBaseStore, useBlockchain } from '@/stores';
+import { useBaseStore, useBlockchain, useWalletStore } from '@/stores';
 
 import NavBarI18n from './NavBarI18n.vue';
 import NavBarWallet from './NavBarWallet.vue';
@@ -28,6 +28,7 @@ const dashboard = useDashboard();
 const baseStore = useBaseStore();
 dashboard.initial();
 const blockchain = useBlockchain();
+const walletStore = useWalletStore();
 
 const current = ref('');
 blockchain.$subscribe((m, s) => {
@@ -65,6 +66,25 @@ function selected(route: any, nav: NavLink) {
   // console.log(route.path, nav.to?.path, b)
   return b;
 }
+
+const filteredChainMenu = computed(() => {
+  return {
+    ...blockchain,
+    computedChainMenu: [
+      {
+        ...blockchain.computedChainMenu[0],
+        children: blockchain.computedChainMenu[0].children.filter((child: any) => {
+          return (
+            baseStore.isV3 &&
+            walletStore.connectedWallet?.wallet === 'Metamask' ?
+            child.title !== 'module.staking' : child
+          );
+        }),
+      },
+    ],
+  };
+});
+
 </script>
 
 <template>
@@ -105,7 +125,7 @@ function selected(route: any, nav: NavLink) {
 
       <!-- navigation -->
       <div class="w-full overflow-x-auto overflow-y-hidden">
-        <div v-for="(item, index) of blockchain.computedChainMenu.filter(menu => (menu as NavGroup).children.length)"
+        <div v-for="(item, index) of filteredChainMenu.computedChainMenu"
           :key="index" class="px-2">
           <div v-if="isNavGroup(item)" :tabindex="index"
             class="flex py-4 items-center w-auto gap-4 flex-row xl:flex-row">

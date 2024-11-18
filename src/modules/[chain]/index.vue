@@ -68,7 +68,6 @@ const evmTransactionsCount = computed(() => {
 })
 
 const currentWallet = computed(() => {
-  console.log(walletStore)
   return walletStore.connectedWallet?.wallet
 })
 

@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import {
+  useBaseStore,
   useBlockchain,
   useFormatter,
   useStakingStore,
@@ -39,7 +40,7 @@ const route = useRoute();
 const walletAddress = route.params.address;
 const chain = route.params.chain;
 const walletStore = useWalletStore();
-
+const baseStore = useBaseStore();
 const blockchain = useBlockchain();
 const stakingStore = useStakingStore();
 const dialog = useTxDialog();
@@ -52,7 +53,6 @@ const rewards = ref({} as DelegatorRewards);
 const balances = ref([] as Coin[]);
 const unbonding = ref([] as UnbondingResponses[]);
 const unbondingTotal = ref(0);
-const evmWalletBalance = ref();
 const showRewardsModal = ref(false);
 const rewardBalance = ref();
 const loading = ref(false);
@@ -73,12 +73,9 @@ const kiiConvertedAddress = isEvmAddress
   : props.address;
 
 onMounted(async () => {
-  if (isKiichain) {
-    evmWalletBalance.value = await getWalletBalance(
-      blockchain.current?.assets[0].base ?? '',
-      isEvmAddress ? props.address : toETHAddress(props.address)
-    );
-    balances.value = [evmWalletBalance.value];
+  if (isMetamask) {
+    await walletStore.myEvmBalance(isEvmAddress ? props.address : toETHAddress(props.address))
+    balances.value = [walletStore.evmWalletBalance];
     rewardBalance.value = await getRewardsBalance(
       blockchain.current?.assets[0].base ?? ''
     );
@@ -107,11 +104,20 @@ const totalAmountByCategory = computed(() => {
       sumUn += Number(y.balance);
     });
   });
-  return [sumBal, sumDel, sumRew, sumUn];
+  const amountByCategory = [sumBal]
+  if (!baseStore.isV3Metamask) {
+    amountByCategory.push(sumDel, sumRew, sumUn)
+  }
+  return amountByCategory;
 });
 
 // const labels = ['Balance', 'Delegation', 'Reward', 'Unbonding'];
-const labels = ['Balance', 'Stake', 'Reward', 'Withdrawals'];
+const labels = computed(() => {
+  return [
+    'Balance',
+    ...(baseStore.isV3Metamask ? [] : ['Stake', 'Reward', 'Withdrawals'])
+  ]
+});
 
 const totalAmount = computed(() => {
   return totalAmountByCategory.value.reduce((p, c) => c + p, 0);
@@ -165,7 +171,7 @@ function loadAccount(address: string) {
   blockchain.rpc.getStakingDelegations(address).then((x) => {
     delegations.value = x.delegation_responses;
   });
-  if (!isKiichain) {
+  if (!isMetamask) {
     blockchain.rpc.getBankBalances(address).then((x) => {
       balances.value = x.balances;
     });
@@ -194,6 +200,7 @@ function updateEvent() {
 }
 
 const walletRewardBalance = computed(() => rewardBalance.value);
+const isMetamask = computed(() => walletStore.connectedWallet?.wallet === 'Metamask')
 const isLoading = computed(() => loading.value);
 </script>
 <template>
@@ -355,7 +362,7 @@ const isLoading = computed(() => loading.value);
     </div>
 
     <!-- Delegations -->
-    <div class="bg-base-100 dark:bg-base100 px-4 pt-3 pb-4 rounded mb-4 shadow">
+    <div class="bg-base-100 dark:bg-base100 px-4 pt-3 pb-4 rounded mb-4 shadow" :class="baseStore.isV3Metamask ? 'hidden' : ''">
       <div class="flex justify-between">
         <h2 class="card-title mb-4">{{ $t('account.delegations') }}</h2>
         <div class="flex justify-end mb-4">

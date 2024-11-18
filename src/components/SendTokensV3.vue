@@ -1,27 +1,48 @@
 <script setup>
-import { ref } from 'vue';
-import Modal from './Modal.vue';
 import { sendV3 } from '@/libs/ethers';
+import { getWalletBalance } from '@/libs/web3';
+import { useBlockchain, useWalletStore } from '@/stores';
+import { ref, computed, onMounted } from 'vue';
 
 const showModal = ref(false);
-const address = ref('');
-const amount = ref(0);
-const denom = ref('');
-const loading = ref(false);
-const message = ref('');
-const isSuccess = ref(false);
 
+// Form fields
+const recipient = ref('');
+const amount = ref(0);
+const selectedToken = ref('');
+const evmWalletBalance = ref(null);
+const loading = ref(false);
+const errorMessage = ref('');
+
+// Computed to check if the wallet is Metamask
+const walletStore = useWalletStore();
+const isMetamask = computed(() => walletStore.connectedWallet?.wallet === 'Metamask');
+
+const blockchain = useBlockchain();
+
+onMounted(async () => {
+  if (isMetamask.value) {
+    evmWalletBalance.value = await getWalletBalance(
+      blockchain.current?.assets[0].base ?? '',
+    );
+  }
+});
+
+// Handle Send Transaction
 const handleSend = async () => {
-  loading.value = true;
-  message.value = '';
+  if (!recipient.value || !amount.value) {
+    errorMessage.value = 'Please fill in all fields.';
+    return;
+  }
+
   try {
-    await sendV3(address.value, denom.value, amount.value);
-    isSuccess.value = true;
-    message.value = 'Transaction sent successfully!';
+    loading.value = true;
+    errorMessage.value = '';
+    await sendV3(recipient.value, amount.value);
+    showModal.value = false;
   } catch (error) {
-    isSuccess.value = false;
-    console.log(error)
-    message.value = `Transaction failed: ${error.message}`;
+    console.error(error);
+    errorMessage.value = `Transaction failed: ${error.message}`;
   } finally {
     loading.value = false;
   }
@@ -29,104 +50,92 @@ const handleSend = async () => {
 </script>
 
 <template>
-  <button class="btn bg-radial-gradient-base-duo bg-base-100 dark:bg-base-100 text-white w-full" @click="showModal = true">
-    {{ $t('account.btn_send') }}
+  <!-- Button to Open Modal -->
+  <button
+    class="btn bg-radial-gradient-base-duo bg-base-100 dark:bg-base-100 text-white w-full"
+    @click="showModal = true"
+  >
+    Send
   </button>
 
-  <Modal :show="showModal" @close="showModal = false">
-    <template #header>
-      <h2>Send Transaction</h2>
-    </template>
-    
-    <template #body>
-      <form @submit.prevent="handleSend">
-        <div class="form-group">
-          <label for="address">Recipient Address</label>
+  <!-- Modal -->
+  <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="modal-box relative p-5 bg-white dark:bg-gray-800 w-[90%] max-w-md rounded shadow-lg">
+      <!-- Close Button -->
+      <button
+        class="btn btn-sm btn-circle absolute right-4 top-4"
+        @click="showModal = false"
+      >
+        ✕
+      </button>
+
+      <!-- Modal Header -->
+      <h3 class="text-lg font-bold capitalize dark:text-gray-300 mb-4">Send</h3>
+
+      <!-- Modal Body -->
+      <div>
+        <!-- Token Selection -->
+        <!-- <div class="form-control">
+          <label class="label">
+            <span class="label-text dark:text-gray-400">Balances</span>
+          </label>
+          <select
+            v-model="selectedToken"
+            class="select select-bordered dark:text-white"
+          >
+            <option value="">Select a token</option>
+            <option
+              v-for="(balance, index) in evmWalletBalance ? [evmWalletBalance] : []"
+              :key="index"
+              :value="balance.denom"
+            >
+              {{ balance.amount }} {{ balance.denom }}
+            </option>
+          </select>
+        </div> -->
+
+        <!-- Recipient Field -->
+        <div class="form-control mt-4">
+          <label class="label">
+            <span class="label-text dark:text-gray-400">Recipient (0x)</span>
+          </label>
           <input
-            v-model="address"
             type="text"
-            id="address"
-            required
+            v-model="recipient"
             placeholder="Enter recipient address"
+            class="input border border-gray-300 dark:border-gray-600 dark:text-white"
           />
         </div>
-        <div class="form-group">
-          <label for="amount">Amount</label>
+
+        <!-- Amount Field -->
+        <div class="form-control mt-4">
+          <label class="label">
+            <span class="label-text dark:text-gray-400">Amount (in KII)</span>
+          </label>
           <input
-            v-model.number="amount"
             type="number"
-            id="amount"
-            required
-            min="0"
+            v-model="amount"
             placeholder="Enter amount to send"
+            class="input border border-gray-300 dark:border-gray-600 w-full dark:text-white"
           />
         </div>
-        <div class="form-group">
-          <label for="denom">Denomination</label>
-          <input
-            v-model="denom"
-            type="text"
-            id="denom"
-            required
-            placeholder="Enter token denomination (e.g., 'atom')"
-          />
+
+        <!-- Error Message -->
+        <div v-if="errorMessage" class="text-red-500 mt-4">
+          {{ errorMessage }}
         </div>
-        
-        <button type="submit" :disabled="loading">
-          {{ loading ? "Sending..." : "Send" }}
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-action mt-6">
+        <button
+          class="btn btn-primary w-full"
+          :disabled="loading"
+          @click="handleSend"
+        >
+          {{ loading ? 'Sending...' : 'Send' }}
         </button>
-        
-        <p v-if="message" :class="{ 'success': isSuccess, 'error': !isSuccess }">
-          {{ message }}
-        </p>
-      </form>
-    </template>
-
-    <template #footer>
-      <button class="modal-default-button" @click="showModal = false">Close</button>
-    </template>
-  </Modal>
+      </div>
+    </div>
+  </div>
 </template>
-
-<style scoped>
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-group label {
-  display: block;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-}
-
-.form-group input {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-button[type="submit"] {
-  width: 100%;
-  padding: 0.75rem;
-  font-size: 1rem;
-  color: #fff;
-  background-color: #007bff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-button[type="submit"]:disabled {
-  background-color: #aaa;
-  cursor: not-allowed;
-}
-
-p.success {
-  color: green;
-}
-
-p.error {
-  color: red;
-}
-</style>

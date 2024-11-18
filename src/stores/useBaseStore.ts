@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { useBlockchain } from '@/stores';
+import { useBlockchain, useWalletStore } from '@/stores';
 import { decodeTxRaw, type DecodedTxRaw } from '@cosmjs/proto-signing';
 import dayjs from 'dayjs';
 import type {
@@ -48,6 +48,9 @@ export const useBaseStore = defineStore('baseStore', {
     isV3(): boolean {
       return this.blockchain.chainName === 'kiichain3'
     },
+    isV3Metamask(): boolean {
+      return this.blockchain.chainName === 'kiichain3' && this.walletStore.connectedWallet?.wallet === 'Metamask'
+    },
     blocktime(): number {
       if (this.earlest && this.latest) {
         if (
@@ -67,6 +70,9 @@ export const useBaseStore = defineStore('baseStore', {
     },
     blockchain() {
       return useBlockchain();
+    },
+    walletStore() {
+      return useWalletStore();
     },
     currentChainId(): string {
       return this.latest.block?.header.chain_id || '';

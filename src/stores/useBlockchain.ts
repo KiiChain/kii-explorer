@@ -42,6 +42,12 @@ export const useBlockchain = defineStore('blockchain', {
     };
   },
   getters: {
+    baseStore() {
+      return useBaseStore();
+    },
+    walletStore() {
+      return useWalletStore();
+    },
     current(): ChainConfig | undefined {
       return this.dashboard.chains[this.chainName];
     },

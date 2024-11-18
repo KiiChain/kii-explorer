@@ -19,7 +19,8 @@ export const useWalletStore = defineStore('walletStore', {
       delegations: [] as Delegation[],
       unbonding: [] as UnbondingResponses[],
       rewards: {total: [], rewards: []} as DelegatorRewards,
-      wallet: {} as WalletConnected
+      wallet: {} as WalletConnected,
+      evmWalletBalance: {} as Coin
     };
   },
   getters: {
@@ -90,7 +91,6 @@ export const useWalletStore = defineStore('walletStore', {
     }
   },
   actions: {
-
     async loadMyAsset() {
       if (!this.currentAddress) return;
       this.blockchain.rpc.getBankBalances(this.currentAddress).then((x) => {
@@ -113,6 +113,13 @@ export const useWalletStore = defineStore('walletStore', {
         .then((x) => {
           this.rewards = x;
         });
+     await this.myEvmBalance();
+    },
+    async myEvmBalance(address?: `0x${string}`) {
+      this.evmWalletBalance = await getWalletBalance(
+        this.blockchain.current?.assets[0].base ?? '',
+        address
+      )
     },
     myBalance() {
       return this.blockchain.rpc.getBankBalances(this.currentAddress);

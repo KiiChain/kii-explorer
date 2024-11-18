@@ -52,8 +52,9 @@ const showRewardsModal = ref(false);
 const selectedValidator = ref('');
 const rewardBalance = ref();
 const loadingMessage = ref('');
-
-const evmWalletBalance = ref();
+const isV3Cosmos = computed(() => {
+  return baseStore.isV3 && !isMetamask
+})
 
 onMounted(async () => {
   await baseStore.initial();
@@ -65,10 +66,7 @@ onMounted(async () => {
   // if(!(coinInfo.value && coinInfo.value.name)) {
   // }
   if (isMetamask) {
-    evmWalletBalance.value = await getWalletBalance(
-      blockchain.current?.assets[0].base ?? '',
-    );
-    if (!baseStore.isV3) {
+    if (isV3Cosmos) {
       rewardBalance.value = await getRewardsBalance(
         blockchain.current?.assets[0].base ?? ''
       );
@@ -169,7 +167,7 @@ const withdrawRewardsTransaction = () => {
   );
 };
 
-const walletBalance = computed(() => evmWalletBalance.value);
+const walletBalance = computed(() => walletStore.evmWalletBalance);
 const walletRewardBalance = computed(() => rewardBalance.value);
 const isMetamask = computed(() => walletStore.connectedWallet?.wallet === 'Metamask')
 const hideClassViaConnectedWalletMetamask = computed(() => {
@@ -376,7 +374,9 @@ const hideClassViaConnectedWalletMetamask = computed(() => {
                 }}
               </div>
               <div class="text-sm" :class="color">
-                ${{ format.tokenValue(walletStore.balanceOfStakingToken) }}
+                ${{ isMetamask
+                    ? format.formatToken(walletBalance)
+                    : format.formatToken(walletStore.balanceOfStakingToken) }}
               </div>
             </div>
           </div>
