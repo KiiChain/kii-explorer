@@ -12,26 +12,30 @@ import { useStakingStore } from './useStakingStore';
 import router from '@/router'
 import { getWalletBalance } from '@/libs/web3';
 
+interface BaseState {
+  balances: Coin[];
+  delegations: Delegation[];
+  unbonding: UnbondingResponses[];
+  rewards: DelegatorRewards;
+  wallet: WalletConnected;
+  evmWalletBalance: Coin;
+}
+
 export const useWalletStore = defineStore('walletStore', {
-  state: () => {
+  state: (): BaseState => {
     return {
-      balances: [] as Coin[],
-      delegations: [] as Delegation[],
-      unbonding: [] as UnbondingResponses[],
-      rewards: {total: [], rewards: []} as DelegatorRewards,
+      balances: [],
+      delegations: [],
+      unbonding: [],
+      rewards: {total: [], rewards: []},
       wallet: {} as WalletConnected,
-      evmWalletBalance: {} as Coin
+      evmWalletBalance: {} as Coin,
     };
   },
   getters: {
-    blockchain() {
-      return useBlockchain();
-    },
-    connectedWallet() {
+    connectedWallet(): WalletConnected {
       if(this.wallet.cosmosAddress){
-        // @ts-ignore
         localStorage.setItem(this.wallet.hdPath, JSON.stringify(this.wallet))
-        // @ts-ignore
         return this.wallet
       }
       const chainStore = useBlockchain();
@@ -57,7 +61,7 @@ export const useWalletStore = defineStore('walletStore', {
       });
       return { amount: String(amt), denom };
     },
-    rewardAmount() {
+    rewardAmount(): Coin {
       const stakingStore = useStakingStore();
       // @ts-ignore
       const reward = this.rewards.total?.find(
@@ -92,23 +96,22 @@ export const useWalletStore = defineStore('walletStore', {
   },
   actions: {
     async loadMyAsset() {
+      const chainStore = useBlockchain();
       if (!this.currentAddress) return;
-      this.blockchain.rpc.getBankBalances(this.currentAddress).then((x) => {
-        console.log(this.currentAddress)
-        console.log(x)
+      chainStore.rpc.getBankBalances(this.currentAddress).then((x) => {
         this.balances = x.balances;
       });
-      this.blockchain.rpc
+      chainStore.rpc
         .getStakingDelegations(this.currentAddress)
         .then((x) => {
           this.delegations = x.delegation_responses;
         });
-      this.blockchain.rpc
+      chainStore.rpc
         .getStakingDelegatorUnbonding(this.currentAddress)
         .then((x) => {
           this.unbonding = x.unbonding_responses;
         });
-      this.blockchain.rpc
+      chainStore.rpc
         .getDistributionDelegatorRewards(this.currentAddress)
         .then((x) => {
           this.rewards = x;
@@ -116,21 +119,11 @@ export const useWalletStore = defineStore('walletStore', {
      await this.myEvmBalance();
     },
     async myEvmBalance(address?: `0x${string}`) {
+      const chainStore = useBlockchain();
       this.evmWalletBalance = await getWalletBalance(
-        this.blockchain.current?.assets[0].base ?? '',
+        chainStore.current?.assets[0].base ?? '',
         address
       )
-    },
-    myBalance() {
-      return this.blockchain.rpc.getBankBalances(this.currentAddress);
-    },
-    myDelegations() {
-      return this.blockchain.rpc.getStakingDelegations(this.currentAddress);
-    },
-    myUnbonding() {
-      return this.blockchain.rpc.getStakingDelegatorUnbonding(
-        this.currentAddress
-      );
     },
     disconnect() {
       const chainStore = useBlockchain();

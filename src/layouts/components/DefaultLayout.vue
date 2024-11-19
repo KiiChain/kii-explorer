@@ -4,8 +4,6 @@ import { computed, ref } from 'vue';
 
 // Components
 import newFooter from '@/layouts/components/NavFooter.vue';
-import NavbarThemeSwitcher from '@/layouts/components/NavbarThemeSwitcher.vue';
-import NavbarSearch from '@/layouts/components/NavbarSearch.vue';
 import NavBarChainSelector from '@/layouts/components/NavBarChainSelector.vue'
 import ChainProfile from '@/layouts/components/ChainProfile.vue';
 import wave from '@/assets/images/svg/wave.svg';
@@ -13,16 +11,14 @@ import wave from '@/assets/images/svg/wave.svg';
 import { useDashboard } from '@/stores/useDashboard';
 import { useBaseStore, useBlockchain, useWalletStore } from '@/stores';
 
-import NavBarI18n from './NavBarI18n.vue';
-import NavBarWallet from './NavBarWallet.vue';
 import type {
   NavGroup,
   NavLink,
   NavSectionTitle,
   VerticalNavItems,
 } from '../types';
-
-const testnetHelpTextVisible = ref(true);
+import NavbarSearch from './NavbarSearch.vue';
+import NavBarWallet from './NavBarWallet.vue';
 
 const dashboard = useDashboard();
 const baseStore = useBaseStore();
@@ -31,7 +27,7 @@ const blockchain = useBlockchain();
 const walletStore = useWalletStore();
 
 const current = ref('');
-blockchain.$subscribe((m, s) => {
+blockchain.$subscribe((m: any, s: { chainName: string; }) => {
   if (current.value != s.chainName) {
     current.value = s.chainName;
     blockchain.initial();
@@ -68,18 +64,21 @@ function selected(route: any, nav: NavLink) {
 }
 
 const filteredChainMenu = computed(() => {
+  const firstMenuItem = blockchain.computedChainMenu[0];
+
   return {
     ...blockchain,
     computedChainMenu: [
       {
-        ...blockchain.computedChainMenu[0],
-        children: blockchain.computedChainMenu[0].children.filter((child: any) => {
-          return (
-            baseStore.isV3 &&
-            walletStore.connectedWallet?.wallet === 'Metamask' ?
-            child.title !== 'module.staking' : child
-          );
-        }),
+        ...firstMenuItem,
+        children: isNavGroup(firstMenuItem)
+          ? firstMenuItem.children.filter((child: any) => {
+              return baseStore.isV3 &&
+                walletStore.connectedWallet?.wallet === 'Metamask'
+                ? child.title !== 'module.staking'
+                : child;
+            })
+          : [], // Default to an empty array if `children` does not exist
       },
     ],
   };
@@ -133,10 +132,7 @@ const filteredChainMenu = computed(() => {
               class="h-[1px] w-full linear-gradient-l-to-r-bg" />
             <div v-for="(el, key) of item?.children" class="menu w-full !p-0" :key="key">
               <RouterLink v-if="isNavLink(el)" @click="sidebarShow = false"
-                class="hover:bg-gray-100 dark:hover:bg-primary rounded cursor-pointer px-3 py-2 flex items-center"
-                :class="{
-                  '': selected($route, el),
-                }" :to="el.to">
+                class="hover:bg-gray-100 dark:hover:bg-primary rounded cursor-pointer px-3 py-2 flex items-center" :to="el.to">
                 <!-- <img
                   v-if="el?.icon?.image"
                   :src="el?.icon?.image"

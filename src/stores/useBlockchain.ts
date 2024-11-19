@@ -15,39 +15,42 @@ import { useRouter } from 'vue-router';
 import { CosmosRestClient } from '@/libs/client';
 import {
   useBankStore,
-  useBaseStore,
   useGovStore,
   useMintStore,
   useStakingStore,
   useWalletStore,
 } from '.';
 // import { useBlockModule } from '@/modules/[chain]/block/block';
-import { DEFAULT } from '@/libs';
 import { hexToRgb, rgbToHsl } from '@/libs/utils';
-// const wallet = useWalletStore()
+
+interface IEndpoint {
+  type?: EndpointType;
+  address: string;
+  provider: string;
+}
+
+interface State {
+  status: Record<string, string>;
+  rest: string;
+  chainName: string;
+  endpoint: IEndpoint;
+  rpcEndpoint: string;
+  connErr: string;
+}
 
 export const useBlockchain = defineStore('blockchain', {
-  state: () => {
-    return {
-      status: {} as Record<string, string>,
-      rest: '',
-      chainName: '',
-      endpoint: {} as {
-        type?: EndpointType;
-        address: string;
-        provider: string;
-      },
-      rpcEndpoint: '',
-      connErr: '',
-    };
-  },
+  state: (): State => ({
+    status: {},
+    rest: '',
+    chainName: '',
+    endpoint: {
+      address: '',
+      provider: '',
+    },
+    rpcEndpoint: '',
+    connErr: ''
+  }),
   getters: {
-    baseStore() {
-      return useBaseStore();
-    },
-    walletStore() {
-      return useWalletStore();
-    },
     current(): ChainConfig | undefined {
       return this.dashboard.chains[this.chainName];
     },

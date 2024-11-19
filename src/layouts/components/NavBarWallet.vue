@@ -33,7 +33,6 @@ async function walletStateChange(res?: any) {
     })
 
     try{
-      // @ts-ignore
       await client.switchChain({ id: testnet.id }) 
     }
     catch(err){
@@ -151,6 +150,11 @@ const handleWalletSelect = async (event: any) => {
     
   </Teleport>
 </template>
+<script lang="ts">
+export default {
+  name: 'NavBarWallet'
+}
+</script>
 
 <style>
 .ping-connect-btn,

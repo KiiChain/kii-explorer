@@ -63,10 +63,6 @@ const transactionsCount = computed(() => {
   return baseStore.txsCount;
 });
 
-const evmTransactionsCount = computed(() => {
-  return baseStore.evmTxsCount;
-})
-
 const currentWallet = computed(() => {
   return walletStore.connectedWallet?.wallet
 })
