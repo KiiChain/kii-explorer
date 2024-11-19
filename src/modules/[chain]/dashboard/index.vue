@@ -1,44 +1,45 @@
 <script lang="ts" setup>
-import MdEditor from 'md-editor-v3';
 import PriceMarketChart from '@/components/charts/PriceMarketChart.vue';
+import MdEditor from 'md-editor-v3';
 
-import { Icon } from '@iconify/vue';
 import {
+  useBaseStore,
   useBlockchain,
   useFormatter,
-  useTxDialog,
-  useWalletStore,
-  useStakingStore,
   useParamStore,
-  useBankStore,
-  useBaseStore,
+  useStakingStore,
+  useTxDialog,
+  useWalletStore
 } from '@/stores';
-import { onMounted, ref } from 'vue';
-import { useIndexModule, colorMap } from '../indexStore';
+import { Icon } from '@iconify/vue';
 import { computed } from '@vue/reactivity';
+import { onMounted, ref } from 'vue';
+import { colorMap, useIndexModule } from '../indexStore';
 
 import CardStatisticsVertical from '@/components/CardStatisticsVertical.vue';
+import Modal from '@/components/Modal.vue';
 import ArrayObjectElement from '@/components/dynamic/ArrayObjectElement.vue';
 import {
   getRewardsBalance,
-  getWalletBalance,
-  withdrawRewardsBalance,
+  withdrawRewardsBalance
 } from '@/libs/web3';
-import type { DenomOwner } from '@/types';
-import Modal from '@/components/Modal.vue';
 import { toETHAddress } from '../../../libs/address';
 
 // @ts-ignore
-import PulseLoader from 'vue-spinner/src/PulseLoader.vue';
 import SendTokensV3 from '@/components/SendTokensV3.vue';
+import PulseLoader from 'vue-spinner/src/PulseLoader.vue';
 
 const props = defineProps(['chain']);
 
-const baseStore = useBaseStore();
+const {
+  isV2,
+  isV3,
+  isV3Metamask,
+  initial
+} = useBaseStore();
 const blockchain = useBlockchain();
 const store = useIndexModule();
 const walletStore = useWalletStore();
-const bankStore = useBankStore();
 const stakingStore = useStakingStore();
 const format = useFormatter();
 const dialog = useTxDialog();
@@ -52,12 +53,9 @@ const showRewardsModal = ref(false);
 const selectedValidator = ref('');
 const rewardBalance = ref();
 const loadingMessage = ref('');
-const isV3Cosmos = computed(() => {
-  return baseStore.isV3 && !isMetamask
-})
 
 onMounted(async () => {
-  await baseStore.initial();
+  await initial();
   store.loadDashboard();
   walletStore.loadMyAsset();
   paramStore.handleAbciInfo();
@@ -65,12 +63,10 @@ onMounted(async () => {
 
   // if(!(coinInfo.value && coinInfo.value.name)) {
   // }
-  if (isMetamask) {
-    if (isV3Cosmos) {
-      rewardBalance.value = await getRewardsBalance(
-        blockchain.current?.assets[0].base ?? ''
-      );
-    }
+  if (!isV3Metamask) {
+    rewardBalance.value = await getRewardsBalance(
+      blockchain.current?.assets[0].base ?? ''
+    );
   }
 });
 const ticker = computed(() => store.coinInfo.tickers[store.tickerIndex]);
@@ -171,7 +167,7 @@ const walletBalance = computed(() => walletStore.evmWalletBalance);
 const walletRewardBalance = computed(() => rewardBalance.value);
 const isMetamask = computed(() => walletStore.connectedWallet?.wallet === 'Metamask')
 const hideClassViaConnectedWalletMetamask = computed(() => {
-  return isMetamask.value && baseStore.isV3 ? 'hidden' : '';
+  return isMetamask.value && isV3 ? 'hidden' : '';
 })
 </script>
 
@@ -454,7 +450,7 @@ const hideClassViaConnectedWalletMetamask = computed(() => {
                   <div>
                     <!-- <label for="delegate"
                       class="btn !btn-xs !btn-primary hover:!text-black dark:hover:!text-white rounded-sm mr-2"
-                      :class="baseStore.isV2 ? 'hidden' : ''" @click="
+                      :class="isV2 ? 'hidden' : ''" @click="
                         dialog.open(
                           'delegate',
                           {
@@ -467,8 +463,8 @@ const hideClassViaConnectedWalletMetamask = computed(() => {
                     </label> -->
                     <RouterLink :to="`/${blockchain.chainName}/staking`"
                       class="btn !btn-xs !btn-primary hover:!text-black dark:hover:!text-white rounded-sm mr-2"
-                      :class="baseStore.isV2 ? '' : 'hidden'">{{ $t('account.btn_delegate') }}</RouterLink>
-                    <label for="withdraw" :class="baseStore.isV2 ? 'hidden' : ''"
+                      :class="isV2 ? '' : 'hidden'">{{ $t('account.btn_delegate') }}</RouterLink>
+                    <label for="withdraw" :class="isV2 ? 'hidden' : ''"
                       class="btn !btn-xs !btn-primary hover:!text-black dark:hover:!text-white btn-ghost rounded-sm"
                       @click="
                         dialog.open(
@@ -483,17 +479,17 @@ const hideClassViaConnectedWalletMetamask = computed(() => {
                     </label>
                     <label
                       class="btn !btn-xs !btn-primary hover:!text-black dark:hover:!text-white btn-ghost rounded-sm"
-                      :class="baseStore.isV2 ? '' : 'hidden'"
+                      :class="isV2 ? '' : 'hidden'"
                       @click="(showRewardsModal = true) && (selectedValidator = item.delegation.validator_address)">
                       {{ $t('index.btn_withdraw_reward') }}
                     </label>
 
-                    <ping-token-convert :class="!baseStore.isV2 ? '' : 'hidden'"
+                    <ping-token-convert :class="!isV2 ? '' : 'hidden'"
                       :chain-name="blockchain?.current?.prettyName" :endpoint="blockchain?.endpoint?.address"
                       :hd-path="walletStore?.connectedWallet?.hdPath"></ping-token-convert>
 
                     <Teleport to="body">
-                      <div :class="baseStore.isV2 ? '' : 'hidden'">
+                      <div :class="isV2 ? '' : 'hidden'">
                         <!-- Rewards Modal -->
                         <Modal :show="selectedValidator === item.delegation.validator_address && showRewardsModal === true
                           " @close="
@@ -509,7 +505,7 @@ const hideClassViaConnectedWalletMetamask = computed(() => {
                                 <div class="flex-col">
                                   <div class="flex justify-center py-2">
                                     <span class="text-green-500">{{
-                                      `Outstanding Rewards Balance: ${baseStore.isV2
+                                      `Outstanding Rewards Balance: ${isV2
                                         ? format.formatToken(
                                           walletRewardBalance
                                         )
@@ -541,35 +537,35 @@ const hideClassViaConnectedWalletMetamask = computed(() => {
         </div>
 
         <div class="grid grid-cols-3 gap-4 px-4 pb-6 mt-4" :class="walletStore.currentAddress ? '' : 'hidden'">
-          <div class="brand-gradient-border" :class="baseStore.isV2 ? 'hidden' : ''">
-            <SendTokensV3 v-if="baseStore.isV3 && isMetamask"/>
+          <div class="brand-gradient-border" :class="isV2 ? 'hidden' : ''">
+            <SendTokensV3 v-if="isV3 && isMetamask"/>
             <label v-else for="send" class="btn bg-radial-gradient-base-duo bg-base-100 dark:bg-base-100 text-white w-full"
               @click="dialog.open('send', {}, updateState)">{{ $t('account.btn_send') }}</label>
           </div>
-          <div class="brand-gradient-border" :class="isMetamask && baseStore.isV3 ? 'hidden' : ''">
+          <div class="brand-gradient-border" :class="(isMetamask && isV3) || isV2 ? 'hidden' : ''">
             <label for="delegate" class="btn bg-radial-gradient-base-duo bg-base-100 dark:bg-base-100 text-white w-full"
               @click="dialog.open('delegate', {}, updateState)">{{ $t('account.btn_delegate') }}</label>
           </div>
           <div class="brand-gradient-border">
-            <RouterLink :to="`/${blockchain.chainName}/account/${(baseStore.isV2
+            <RouterLink :to="`/${blockchain.chainName}/account/${(isV2 || isV3Metamask
               ? toETHAddress(walletStore.currentAddress)
               : walletStore.currentAddress)}`"
               class="btn bg-radial-gradient-base-duo bg-base-100 dark:bg-base-100 text-white w-full">My Account
             </RouterLink>
           </div>
-          <!-- <div class="brand-gradient-border" :class="baseStore.isV2 ? '' : 'hidden'">
-            <RouterLink :to="`/${selectedChain}/staking`"
+          <div class="brand-gradient-border" :class="isV2 ? '' : 'hidden'">
+            <RouterLink :to="`/${blockchain.chainName}/staking`"
               class="btn bg-radial-gradient-base-duo bg-base-100 dark:bg-base-100 text-white w-full">
               {{ $t('account.btn_delegate') }}
             </RouterLink>
-          </div> -->
+          </div>
         </div>
         <Teleport to="body">
-          <ping-token-convert :class="!baseStore.isV2 ? '' : 'hidden'" :chain-name="blockchain?.current?.prettyName"
+          <ping-token-convert :class="!isV2 ? '' : 'hidden'" :chain-name="blockchain?.current?.prettyName"
             :endpoint="blockchain?.endpoint?.address"
             :hd-path="walletStore?.connectedWallet?.hdPath"></ping-token-convert>
 
-          <div :class="baseStore.isV2 ? '' : 'hidden'">
+          <div :class="isV2 ? '' : 'hidden'">
             <!-- Swap Modal -->
             <!-- <Modal :show="showModal" @close="showModal = false">
               <template #header>

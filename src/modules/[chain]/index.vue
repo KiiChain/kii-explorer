@@ -1,29 +1,25 @@
 <script setup lang="ts">
 // @ts-ignore
-import {
-  useWalletStore,
-  useBlockchain,
-  useBaseStore,
-  useFormatter,
-  useBankStore,
-} from '@/stores';
-import CardValue from '@/components/CardValue.vue';
 import DualCardValue from '@/components/DualCardValue.vue';
-import LineChart from '@/components/charts/LineChart.vue';
+import {
+  useBankStore,
+  useBaseStore,
+  useBlockchain,
+  useFormatter,
+  useWalletStore,
+} from '@/stores';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
-import { Icon } from '@iconify/vue';
-import { computed, onMounted, ref } from 'vue';
-import router from '@/router';
-import type { Block, Coin, Tx, TxResponse } from '@/types';
 import { shortenAddress } from '@/libs/utils';
-import { defineChain, createPublicClient, http, decodeFunctionData, parseUnits } from 'viem'
-import bankAbi from '@/assets/abi/bank.json'
+import { testnet } from '@/libs/web3';
+import router from '@/router';
+import type { Coin, TxResponse } from '@/types';
+import { Icon } from '@iconify/vue';
+import { createPublicClient, http } from 'viem';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { BLOCK_LIMIT, fetchRecentTransactionsEVM, testnet } from '@/libs/web3';
 import PulseLoader from 'vue-spinner/src/PulseLoader.vue';
-import { convertTransaction } from '@/libs/ethers';
 
 dayjs.extend(relativeTime);
 
@@ -76,7 +72,7 @@ const getSubValue = computed(() => {
       return ''
     }
     case 'kiichain3': {
-      return `TXS within 50 BLOCK LIMIT`
+      return baseStore.isV3Metamask ? `TXS within 50 BLOCK LIMIT` : ''
     }
   }
 })
@@ -123,8 +119,6 @@ const fetchTransactions = async () => {
 };
 
 onMounted(async () => {
-  loading.value = latestTransactions.value.length === 0;
-
   await fetchTransactions();
   await baseStore.fetchRecentBlocks();
 
@@ -145,7 +139,6 @@ const getAmountEVM = (transaction: TxResponse): Coin => {
     amount,
     denom
   }
-
 }
 
 // TODO: does not work.  Verify currentTx outputs an object

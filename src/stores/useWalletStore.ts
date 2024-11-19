@@ -1,16 +1,16 @@
-import { defineStore } from 'pinia';
-import { useBlockchain } from './useBlockchain';
-import { fromBech32, toBech32 } from '@cosmjs/encoding';
+import { getWalletBalance } from '@/libs/web3';
+import router from '@/router';
 import type {
-  Delegation,
   Coin,
-  UnbondingResponses,
+  Delegation,
   DelegatorRewards,
+  UnbondingResponses,
   WalletConnected,
 } from '@/types';
+import { fromBech32, toBech32 } from '@cosmjs/encoding';
+import { defineStore } from 'pinia';
+import { useBlockchain } from './useBlockchain';
 import { useStakingStore } from './useStakingStore';
-import router from '@/router'
-import { getWalletBalance } from '@/libs/web3';
 
 interface BaseState {
   balances: Coin[];

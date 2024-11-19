@@ -3,13 +3,13 @@ import { Icon } from '@iconify/vue';
 import { computed, ref } from 'vue';
 
 // Components
-import newFooter from '@/layouts/components/NavFooter.vue';
-import NavBarChainSelector from '@/layouts/components/NavBarChainSelector.vue'
-import ChainProfile from '@/layouts/components/ChainProfile.vue';
 import wave from '@/assets/images/svg/wave.svg';
+import ChainProfile from '@/layouts/components/ChainProfile.vue';
+import NavBarChainSelector from '@/layouts/components/NavBarChainSelector.vue';
+import newFooter from '@/layouts/components/NavFooter.vue';
 
-import { useDashboard } from '@/stores/useDashboard';
 import { useBaseStore, useBlockchain, useWalletStore } from '@/stores';
+import { useDashboard } from '@/stores/useDashboard';
 
 import type {
   NavGroup,
@@ -27,7 +27,7 @@ const blockchain = useBlockchain();
 const walletStore = useWalletStore();
 
 const current = ref('');
-blockchain.$subscribe((m: any, s: { chainName: string; }) => {
+blockchain.$subscribe((_, s) => {
   if (current.value != s.chainName) {
     current.value = s.chainName;
     blockchain.initial();

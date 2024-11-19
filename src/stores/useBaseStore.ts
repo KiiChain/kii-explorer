@@ -49,7 +49,10 @@ export const useBaseStore = defineStore('baseStore', {
       return this.blockchain.chainName === 'kiichain3'
     },
     isV3Metamask(): boolean {
-      return this.blockchain.chainName === 'kiichain3' && this.walletStore.connectedWallet?.wallet === 'Metamask'
+      return this.isV3 && this.walletStore.connectedWallet?.wallet === 'Metamask'
+    },
+    isV3Cosmos(): boolean {
+      return this.isV3 && this.walletStore.connectedWallet?.wallet === 'Metamask'
     },
     blocktime(): number {
       if (this.earlest && this.latest) {
