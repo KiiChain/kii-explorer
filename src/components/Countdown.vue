@@ -17,16 +17,16 @@ const s = ref(0)
     v-slot="{ days, hours, minutes, seconds }"
     class="countdown-container justify-items-center "
   >
-    <span class="text-primary font-bold " :class="css">{{ days }}</span> days 
-    <span class="text-primary font-bold" :class="css">{{ hours }}</span> hours 
-    <span class="text-primary font-bold" :class="css">{{ minutes }}</span> minutes
-      <span class="text-primary font-bold w-40" :class="css">
+    <span class="text-white font-bold " :class="css">{{ days }}</span> days 
+    <span class="text-white font-bold" :class="css">{{ hours }}</span> hours 
+    <span class="text-white font-bold" :class="css">{{ minutes }}</span> minutes
+      <span class="text-white font-bold w-40" :class="css">
         <Transition name="slide-up">
           <span v-if="seconds % 2 === 0" class="countdown">{{ seconds }}</span> 
           <span v-else="seconds % 2 === 1" class="countdown">{{ seconds }}</span>
         </Transition>
       </span>
-      <span class="ml-10">seconds</span>
+      <span class="ml-5">seconds</span>
   </Countdown>
 </template>
 
