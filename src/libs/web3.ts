@@ -1,18 +1,18 @@
-import {
-  defineChain,
-  createWalletClient,
-  createPublicClient,
-  http,
-  custom,
-  parseEther,
-  formatUnits,
-} from 'viem';
-import stakingAbi from '@/assets/abi/staking.json';
 import bankAbi from '@/assets/abi/bank.json';
-import swapAbi from '@/assets/abi/swap.json';
 import rewardsAbi from '@/assets/abi/rewards.json';
-import { operatorAddressToAccount, toETHAddress } from './address';
+import stakingAbi from '@/assets/abi/staking.json';
+import swapAbi from '@/assets/abi/swap.json';
+import {
+  createPublicClient,
+  createWalletClient,
+  custom,
+  defineChain,
+  formatUnits,
+  http,
+  parseEther,
+} from 'viem';
 import type { Ref } from 'vue';
+import { operatorAddressToAccount, toETHAddress } from './address';
 import { convertTransaction } from './ethers';
 
 export const BANK_CONTRACT_ADDRESS =
@@ -76,31 +76,30 @@ export const walletClient = (window as any).ethereum && createWalletClient({
 
 export const [account] = await walletClient?.getAddresses() || [];
 
-// Define the number of transactions to fetch
-export const TRANSACTIONS_TO_FETCH = 20;
-export const BLOCK_LIMIT = 50;
-
 // Define a function to fetch the last 20 transactions
-export async function fetchRecentTransactionsEVM() {
-  const TRANSACTIONS_TO_FETCH = 20; // Adjust as needed
-  const BLOCK_LIMIT = 50; // Number of blocks to check
+export async function fetchRecentTransactionsEVM(
+  startBlock: number,
+  endBlock: number
+) {
   const PAGE_NUMBER = 1; // Set this as needed
+  const TRANSACTIONS_TO_FETCH = 10; // Example number, adjust as needed
+  const BLOCK_LIMIT = 100; // Maximum blocks to scan if not overridden
   let transactions: any[] = [];
   let success = true;
   let errorMessage = '';
 
   try {
-    let blockNumber = await publicClient.request({
-      method: 'eth_blockNumber',
-    });
-
-    let convertedBlockNumber = parseInt(blockNumber, 16);
-
     let blocksChecked = 0;
-    while (transactions.length < TRANSACTIONS_TO_FETCH && blocksChecked < BLOCK_LIMIT) {
+
+    for (let currentBlock = endBlock; currentBlock >= startBlock; currentBlock--) {
+      if (transactions.length >= TRANSACTIONS_TO_FETCH || blocksChecked >= BLOCK_LIMIT) {
+        break;
+      }
+
+      const blockHex = `0x${currentBlock.toString(16)}` as `0x${string}`;
       const block = await publicClient.request({
         method: 'eth_getBlockByNumber',
-        params: [`0x${convertedBlockNumber.toString(16)}`, true],
+        params: [blockHex, true],
       });
 
       if (block && block.transactions) {
@@ -132,13 +131,11 @@ export async function fetchRecentTransactionsEVM() {
         transactions.push(...formattedTransactions);
       }
 
-      convertedBlockNumber--;
       blocksChecked++;
     }
 
-    transactions = transactions.slice(0, TRANSACTIONS_TO_FETCH).map(transaction => {
-      console.log(transaction)
-      return convertTransaction(transaction)
+    transactions = transactions.slice(0, TRANSACTIONS_TO_FETCH).map((transaction) => {
+      return convertTransaction(transaction);
     });
 
   } catch (error) {
@@ -155,6 +152,7 @@ export async function fetchRecentTransactionsEVM() {
     page: PAGE_NUMBER,
   };
 }
+
 
 export async function buySkii(
   amount: number,

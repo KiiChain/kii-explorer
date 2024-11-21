@@ -1,38 +1,67 @@
 <script lang="ts" setup>
+import { useBaseStore, useBlockchain, useFormatter, useWalletStore } from '@/stores';
 import { computed, ref } from '@vue/reactivity';
-import { useBaseStore, useFormatter } from '@/stores';
 import { onMounted } from 'vue';
 
-import type { Block, TxResponse } from '@/types';
-import { useBlockModule } from './block';
 import { convertKeys, toSnakeCase } from '@/libs/utils';
-const props = defineProps(['chain']);
+import type { Block, TxResponse } from '@/types';
+import PulseLoader from 'vue-spinner/src/PulseLoader.vue';
 
 const tab = ref('blocks');
 
 const baseStore = useBaseStore()
+const blockchain = useBlockchain();
+const walletStore = useWalletStore();
 
 const format = useFormatter();
 
 const transactionList = ref<TxResponse[]>([])
 const blockList = ref<Block[]>([])
+const loadingRecentBlocks = ref(true);
+const loadingRecentTransactions = ref(true);
+
+const currentChain = computed(() => {
+    return blockchain.chainName
+});
 
 onMounted(async () => {
-    if (props.chain === "kiichain") {
-        blockList.value = baseStore.getRecentBlocks
-        transactionList.value = baseStore.getRecentTxs
-        if (blockList.value.length == 0) {
-            await baseStore.fetchLatestEvmBlocks()
-            blockList.value = baseStore.getRecentBlocks
-            transactionList.value = baseStore.getRecentTxs
+    if (currentChain.value === 'kiichain') {
+        blockList.value = baseStore.getRecentBlocks;
+        transactionList.value = baseStore.getRecentTxs;
+
+        if (blockList.value.length === 0) {
+            loadingRecentBlocks.value = true;
+            await baseStore.fetchLatestEvmBlocks();
+            blockList.value = baseStore.getRecentBlocks;
+            loadingRecentBlocks.value = false;
+
+            loadingRecentTransactions.value = true;
+            transactionList.value = baseStore.getRecentTxs;
+            loadingRecentTransactions.value = false;
+        } else {
+            loadingRecentBlocks.value = false;
+            loadingRecentTransactions.value = false;
         }
-    } else {
+    } else if (baseStore.isV3Metamask) {
+        loadingRecentBlocks.value = true;
         await baseStore.fetchRecentBlocks();
-        blockList.value = baseStore.recents
-        const recentTxs = baseStore.txsInRecents
-        
-        transactionList.value = convertKeys(recentTxs, toSnakeCase)
-        
+        blockList.value = baseStore.getRecentBlocks;
+        loadingRecentBlocks.value = false;
+
+        loadingRecentTransactions.value = true;
+        transactionList.value = await baseStore.fetchLatestEvmTxs();
+        loadingRecentTransactions.value = false;
+    } else {
+        loadingRecentBlocks.value = true;
+        await baseStore.fetchRecentBlocks();
+        blockList.value = baseStore.recents;
+        loadingRecentBlocks.value = false;
+
+        const recentTxs = baseStore.txsInRecents;
+        loadingRecentTransactions.value = true;
+        transactionList.value = convertKeys(recentTxs, toSnakeCase);
+        loadingRecentTransactions.value = false;
+
         const intervalId = setInterval(baseStore.fetchRecentBlocks, 60000); // Fetch transactions every minute
         return () => clearInterval(intervalId); // Clear interval on component unmount
     }
@@ -51,11 +80,16 @@ onMounted(async () => {
             <a class="tab text-gray-400 uppercase" :class="{ 'tab-active': tab === 'transactions' }"
                 @click="tab = 'transactions'">{{ $t('account.transactions') }}</a>
         </div>
-
+        <div class="h-full w-full" v-if="loadingRecentBlocks">
+            <div
+                class="bg-transparent dark:bg-transparent px-5 py-5 text-white h-full w-full  flex justify-center items-center">
+                <PulseLoader color="#fff" />
+            </div>
+        </div>
         <div v-show="tab === 'blocks'" class="grid xl:!grid-cols-6 md:!grid-cols-4 grid-cols-1 gap-3">
 
             <RouterLink v-for="(item, index) in blockList" class="flex flex-col justify-between rounded p-4 shadow bg-baseStore-100"
-                :to="`/${chain}/block/${item.block.header.height}`" :key="'block-' + index">
+                :to="`/${currentChain}/block/${item.block.header.height}`" :key="'block-' + index">
                 <div class="flex justify-between">
                     <h3 class="text-md font-bold sm:!text-lg">
                         {{ item.block.header.height }}
@@ -88,10 +122,10 @@ onMounted(async () => {
                 <tbody>
                     <tr v-for="(item, index) in transactionList" :index="index" class="hover" :key="'tl-' + index">
                         <td>
-                            <RouterLink :to="`/${props.chain}/block/${item.height}`">{{ item.height }}</RouterLink>
+                            <RouterLink :to="`/${currentChain}/block/${item.height}`">{{ item.height }}</RouterLink>
                         </td>
                         <td>
-                            <RouterLink :to="`/${props.chain}/tx/${item.txhash}`">{{
+                            <RouterLink :to="`/${currentChain}/tx/${item.txhash}`">{{
                                 item.txhash
                             }}</RouterLink>
                         </td>
@@ -112,6 +146,12 @@ onMounted(async () => {
                                 d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                         <span>{{ $t('block.only_tx') }}</span>
+                    </div>
+                </div>
+                <div class="h-full w-full" v-if="loadingRecentTransactions">
+                    <div
+                        class="bg-transparent dark:bg-transparent px-5 py-5 text-white h-full w-full  flex justify-center items-center">
+                        <PulseLoader color="#fff" />
                     </div>
                 </div>
             </div>

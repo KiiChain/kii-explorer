@@ -119,13 +119,14 @@ const fetchTransactions = async () => {
 };
 
 onMounted(async () => {
-  await fetchTransactions();
   await baseStore.fetchRecentBlocks();
+  await fetchTransactions();
 
-  // Set up interval for fetchTransactions
+  const fetchRecentBlocksInterval = setInterval(baseStore.fetchRecentBlocks, 60000); // Every minute
   const fetchTransactionsInterval = setInterval(fetchTransactions, 60000); // Every minute
 
   return () => {
+    clearInterval(fetchRecentBlocksInterval);
     clearInterval(fetchTransactionsInterval);
   };
 });

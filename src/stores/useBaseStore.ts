@@ -1,17 +1,18 @@
-import { defineStore } from 'pinia';
+import { BLOCK_LIMIT } from '@/contants/transactions';
+import { hashTx } from '@/libs';
+import { fetchRecentTransactionsEVM } from '@/libs/web3';
 import { useBlockchain, useWalletStore } from '@/stores';
-import { decodeTxRaw, type DecodedTxRaw } from '@cosmjs/proto-signing';
-import dayjs from 'dayjs';
 import type {
   Block,
   PaginatedSmartContractResponse,
   SmartContract,
   TxResponse,
 } from '@/types';
-import { hashTx } from '@/libs';
 import { fromBase64 } from '@cosmjs/encoding';
+import { decodeTxRaw, type DecodedTxRaw } from '@cosmjs/proto-signing';
 import { MsgSend } from "cosmjs-types/cosmos/bank/v1beta1/tx";
-import { fetchRecentTransactionsEVM } from '@/libs/web3';
+import dayjs from 'dayjs';
+import { defineStore } from 'pinia';
 
 interface BaseState {
   earlest: Block;
@@ -129,6 +130,22 @@ export const useBaseStore = defineStore('baseStore', {
     getSmartContractQuantity(): number {
       return this.smartContractQuantity;
     },
+    getBlockRangeFromRecents(): { startBlock: number; endBlock: number } {
+      if (this.recents.length === 0) {
+        throw new Error('No recent blocks found.');
+      }
+    
+      // Extract heights and convert them to numbers
+      const heights = this.recents.map(
+        (recent) => parseInt(recent.block.header.height, 10)
+      );
+    
+      // Find the minimum and maximum heights
+      const startBlock = Math.min(...heights);
+      const endBlock = Math.max(...heights);
+    
+      return { startBlock, endBlock };
+    }
   },
   actions: {
     async initial() {
@@ -170,8 +187,8 @@ export const useBaseStore = defineStore('baseStore', {
       // Clear any previous results if necessary
       this.recents = [];
       
-      // Fetch the latest 25 blocks and push them to recents
-      for (let i = 0; i < 25; i++) {
+      // Fetch the latest 50 blocks and push them to recents
+      for (let i = 0; i < BLOCK_LIMIT; i++) {
         const height = latestHeight - i;
         const block = await this.blockchain.rpc?.getBaseBlockAt(height);
         if (block) {
@@ -207,7 +224,9 @@ export const useBaseStore = defineStore('baseStore', {
     },
     async fetchLatestEvmTxs(): Promise<TxResponse[]> {
       const { transactions, quantity } =
-        this.blockchain.chainName === 'kiichain3' ? await fetchRecentTransactionsEVM() : await this.blockchain.rpc.getLatestTxsEvm();
+        this.blockchain.chainName === 'kiichain3'
+          ? await fetchRecentTransactionsEVM(this.getBlockRangeFromRecents.startBlock, this.getBlockRangeFromRecents.endBlock)
+          : await this.blockchain.rpc.getLatestTxsEvm();
       this.recentTxs = transactions;
       this.txsQuantity = quantity;
       return this.recentTxs;
