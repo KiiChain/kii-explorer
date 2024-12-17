@@ -10,7 +10,7 @@ import type {
 } from '@/types';
 import { fromBase64 } from '@cosmjs/encoding';
 import { decodeTxRaw, type DecodedTxRaw } from '@cosmjs/proto-signing';
-import { MsgSend } from "cosmjs-types/cosmos/bank/v1beta1/tx";
+import { MsgSend } from 'cosmjs-types/cosmos/bank/v1beta1/tx';
 import dayjs from 'dayjs';
 import { defineStore } from 'pinia';
 
@@ -44,16 +44,20 @@ export const useBaseStore = defineStore('baseStore', {
   },
   getters: {
     isV2(): boolean {
-      return this.blockchain.chainName === 'kiichain'
+      return this.blockchain.chainName === 'kiichain';
     },
     isV3(): boolean {
-      return this.blockchain.chainName === 'kiichain3'
+      return this.blockchain.chainName === 'Testnet Oro';
     },
     isV3Metamask(): boolean {
-      return this.isV3 && this.walletStore.connectedWallet?.wallet === 'Metamask'
+      return (
+        this.isV3 && this.walletStore.connectedWallet?.wallet === 'Metamask'
+      );
     },
     isV3Cosmos(): boolean {
-      return this.isV3 && this.walletStore.connectedWallet?.wallet === 'Metamask'
+      return (
+        this.isV3 && this.walletStore.connectedWallet?.wallet === 'Metamask'
+      );
     },
     blocktime(): number {
       if (this.earlest && this.latest) {
@@ -94,7 +98,9 @@ export const useBaseStore = defineStore('baseStore', {
           if (tx) {
             const raw = fromBase64(tx);
             const decodedTx = decodeTxRaw(raw);
-            const fromAddress = MsgSend.decode(decodedTx.body.messages[0].value).fromAddress;
+            const fromAddress = MsgSend.decode(
+              decodedTx.body.messages[0].value
+            ).fromAddress;
             try {
               txs.push({
                 timestamp: b.block.header.time,
@@ -102,8 +108,8 @@ export const useBaseStore = defineStore('baseStore', {
                 txhash: hashTx(raw),
                 tx: decodedTx,
                 ...(MsgSend.decode(decodedTx.body.messages[0].value) && {
-                  fromAddress
-                })
+                  fromAddress,
+                }),
               });
             } catch (e) {
               console.error(e);
@@ -134,18 +140,18 @@ export const useBaseStore = defineStore('baseStore', {
       if (this.recents.length === 0) {
         throw new Error('No recent blocks found.');
       }
-    
+
       // Extract heights and convert them to numbers
-      const heights = this.recents.map(
-        (recent) => parseInt(recent.block.header.height, 10)
+      const heights = this.recents.map((recent) =>
+        parseInt(recent.block.header.height, 10)
       );
-    
+
       // Find the minimum and maximum heights
       const startBlock = Math.min(...heights);
       const endBlock = Math.max(...heights);
-    
+
       return { startBlock, endBlock };
-    }
+    },
   },
   actions: {
     async initial() {
@@ -174,19 +180,24 @@ export const useBaseStore = defineStore('baseStore', {
         if (this.recents.length >= 50) {
           this.recents.shift();
         }
-        if (!this.recents.some((block) => block.block_id.hash === this.latest.block_id.hash)) {
+        if (
+          !this.recents.some(
+            (block) => block.block_id.hash === this.latest.block_id.hash
+          )
+        ) {
           this.recents.push(this.latest);
-        }        
+        }
       }
       return this.latest;
     },
     async fetchRecentBlocks() {
       // Fetch the latest block
-      const latestHeight = +(await this.blockchain.rpc?.getBaseBlockLatest()).block.header.height;
-      
+      const latestHeight = +(await this.blockchain.rpc?.getBaseBlockLatest())
+        .block.header.height;
+
       // Clear any previous results if necessary
       this.recents = [];
-      
+
       // Fetch the latest 50 blocks and push them to recents
       for (let i = 0; i < BLOCK_LIMIT; i++) {
         const height = latestHeight - i;
@@ -196,14 +207,17 @@ export const useBaseStore = defineStore('baseStore', {
         }
       }
     },
-    
+
     updateTxCount(count: number) {
       this.txsQuantity = count;
     },
     updateTx(txs: TxResponse[]) {
       // Sort by timestamp, assuming it is a Date or a comparable format
-      this.recentTxs = txs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-    },    
+      this.recentTxs = txs.sort(
+        (a, b) =>
+          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+      );
+    },
     async fetchValidatorByHeight(height?: number, offset = 0) {
       return this.blockchain.rpc.getBaseValidatorsetAt(String(height), offset);
     },
@@ -219,13 +233,16 @@ export const useBaseStore = defineStore('baseStore', {
     // async fetchNodeInfo() {
     //     return this.blockchain.rpc.no()
     // }
-    async fetchLatestEvmBlocks(){
+    async fetchLatestEvmBlocks() {
       this.recents = await this.blockchain.rpc.getBaseLatestBlocksEvm();
     },
     async fetchLatestEvmTxs(): Promise<TxResponse[]> {
       const { transactions, quantity } =
-        this.blockchain.chainName === 'kiichain3'
-          ? await fetchRecentTransactionsEVM(this.getBlockRangeFromRecents.startBlock, this.getBlockRangeFromRecents.endBlock)
+        this.blockchain.chainName === 'Testnet Oro'
+          ? await fetchRecentTransactionsEVM(
+              this.getBlockRangeFromRecents.startBlock,
+              this.getBlockRangeFromRecents.endBlock
+            )
           : await this.blockchain.rpc.getLatestTxsEvm();
       this.recentTxs = transactions;
       this.txsQuantity = quantity;

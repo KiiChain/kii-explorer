@@ -43,7 +43,7 @@ const changeOpen = (index: Number) => {
   }
 };
 const showDiscord = window.location.host.search('ping.pub') > -1;
-const isKiichain = window.location.pathname.search('kiichain') > -1;
+const isKiichain = window.location.pathname.search(encodeURIComponent("Testnet Oro")) > -1;
 
 function isNavGroup(nav: VerticalNavItems | any): nav is NavGroup {
   return (nav as NavGroup).children !== undefined && (nav as NavGroup).children.length > 0;
@@ -73,11 +73,11 @@ const filteredChainMenu = computed(() => {
         ...firstMenuItem,
         children: isNavGroup(firstMenuItem)
           ? firstMenuItem.children.filter((child: any) => {
-              return baseStore.isV3 &&
-                walletStore.connectedWallet?.wallet === 'Metamask'
-                ? child.title !== 'module.staking'
-                : child;
-            })
+            return baseStore.isV3 &&
+              walletStore.connectedWallet?.wallet === 'Metamask'
+              ? child.title !== 'module.staking'
+              : child;
+          })
           : [], // Default to an empty array if `children` does not exist
       },
     ],
@@ -94,7 +94,7 @@ const filteredChainMenu = computed(() => {
       <div
         class="h-8 overflow-hidden items-center text-center w-full bg-300% justify-center linear-gradient-l-to-r-bg animate-gradient text-white relative transition-all ease-in-out"
         :class="isKiichain ? 'hidden' : 'flex'">
-        <span class="font-semibold">We have deployed a new testnet. Check out <a href="/kiichain"
+        <span class="font-semibold">We have deployed a new testnet. Check out <a href="/Testnet Oro"
             class="underline">Kiichain Testnet</a> now.</span>
         <!-- <Icon icon="bi:x" class="right-0 cursor-pointer absolute right-0 mr-2 hover:rotate-90 transition-all ease-in-out rounded-full border border-white/50" @click="testnetHelpTextVisible = false" /> -->
       </div>
@@ -124,15 +124,15 @@ const filteredChainMenu = computed(() => {
 
       <!-- navigation -->
       <div class="w-full overflow-x-auto overflow-y-hidden">
-        <div v-for="(item, index) of filteredChainMenu.computedChainMenu"
-          :key="index" class="px-2">
+        <div v-for="(item, index) of filteredChainMenu.computedChainMenu" :key="index" class="px-2">
           <div v-if="isNavGroup(item)" :tabindex="index"
             class="flex py-4 items-center w-auto gap-4 flex-row xl:flex-row">
             <div v-if="index > 0 && index < blockchain.computedChainMenu.length && false"
               class="h-[1px] w-full linear-gradient-l-to-r-bg" />
             <div v-for="(el, key) of item?.children" class="menu w-full !p-0" :key="key">
               <RouterLink v-if="isNavLink(el)" @click="sidebarShow = false"
-                class="hover:bg-gray-100 dark:hover:bg-primary rounded cursor-pointer px-3 py-2 flex items-center" :to="el.to">
+                class="hover:bg-gray-100 dark:hover:bg-primary rounded cursor-pointer px-3 py-2 flex items-center"
+                :to="el.to">
                 <!-- <img
                   v-if="el?.icon?.image"
                   :src="el?.icon?.image"

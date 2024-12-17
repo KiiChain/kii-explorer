@@ -48,7 +48,7 @@ export const useBlockchain = defineStore('blockchain', {
       provider: '',
     },
     rpcEndpoint: '',
-    connErr: ''
+    connErr: '',
   }),
   getters: {
     current(): ChainConfig | undefined {
@@ -78,7 +78,8 @@ export const useBlockchain = defineStore('blockchain', {
       let currNavItem: VerticalNavItems = [];
       let section2Item: VerticalNavItems = [];
       const router = useRouter();
-      let routes = router?.getRoutes()?.filter(route => !route.meta.disabled) || [];
+      let routes =
+        router?.getRoutes()?.filter((route) => !route.meta.disabled) || [];
 
       if (this.current && routes) {
         if (this.current?.themeColor) {
@@ -107,8 +108,8 @@ export const useBlockchain = defineStore('blockchain', {
             i18n: 'newRoute',
             icon: 'new-icon',
             order: 50,
-            section: false
-          }
+            section: false,
+          },
         };
 
         const children = [...routes, exploreNav]
@@ -154,7 +155,7 @@ export const useBlockchain = defineStore('blockchain', {
             i18n: false,
             badgeContent: this.isConsumerChain ? 'Consumer' : undefined,
             badgeClass: 'bg-error',
-            children
+            children,
           },
         ];
 
@@ -205,7 +206,7 @@ export const useBlockchain = defineStore('blockchain', {
       //     global.current
       // }
 
-      if (this.chainName === 'kiichain3') {
+      if (this.chainName === 'Testnet Oro') {
         this.setupV3RPCEndpoint();
       } else {
         useMintStore().initial();
@@ -219,11 +220,11 @@ export const useBlockchain = defineStore('blockchain', {
     },
     setupV3RPCEndpoint() {
       const all = this.current?.endpoints?.rpc;
-        if (all) {
-          const rn = Math.random();
-          const endpoint = all[Math.floor(rn * all.length)];
-          this.rpcEndpoint = endpoint.address;
-        }
+      if (all) {
+        const rn = Math.random();
+        const endpoint = all[Math.floor(rn * all.length)];
+        this.rpcEndpoint = endpoint.address;
+      }
     },
     async randomSetupEndpoint() {
       const end = localStorage.getItem(`endpoint-${this.chainName}`);

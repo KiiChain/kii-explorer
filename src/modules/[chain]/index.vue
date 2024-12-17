@@ -64,14 +64,14 @@ const currentWallet = computed(() => {
 })
 
 const getSubValue = computed(() => {
-  switch(selectedChain) {
+  switch (selectedChain) {
     case 'kii': {
       return `(10,000 TPS)`;
     }
     case 'kiichain': {
       return ''
     }
-    case 'kiichain3': {
+    case 'Testnet Oro': {
       return baseStore.isV3Metamask ? `TXS within 50 BLOCK LIMIT` : ''
     }
   }
@@ -82,14 +82,14 @@ const fetchTransactions = async () => {
     const gasPrice = await publicClient.getGasPrice();
     gasPriceEvm.value = gasPrice.toString();
 
-    switch(selectedChain) {
-      case 'kii':{
+    switch (selectedChain) {
+      case 'kii': {
         const txCount = await blockStore.rpc.getTxsCount();
         baseStore.updateTxCount(txCount);
         baseStore.updateTx(await bankStore.fetchLatestTxs(txCount));
         break;
       }
-      case 'kiichain3': {
+      case 'Testnet Oro': {
         let latestTxs;
         let txCount;
         if (currentWallet.value === 'Metamask') {
@@ -104,7 +104,7 @@ const fetchTransactions = async () => {
         baseStore.updateTxCount(txCount);
         break;
       }
-      case 'kiichain':{
+      case 'kiichain': {
         await baseStore.fetchLatestEvmBlocks();
         await baseStore.fetchLatestEvmTxs();
         break;
@@ -301,8 +301,7 @@ function confirm() {
         title2="GAS PRICE" :value2="isKiichain ? `${gasPriceEvm} tekii` : '--'" />
 
       <DualCardValue icon="uil:transaction" title="TRANSACTIONS" :value="transactionsCount?.toString() ?? 0"
-        :sub-value="getSubValue" title2="BLOCK HEIGHT"
-        :value2="latestBlocks[0]?.block.header.height" />
+        :sub-value="getSubValue" title2="BLOCK HEIGHT" :value2="latestBlocks[0]?.block.header.height" />
     </div>
 
     <!-- Line Chart -->
@@ -335,7 +334,8 @@ function confirm() {
             <td colspan="3" class="text-info">LATEST BLOCKS</td>
           </tr>
         </thead>
-        <tr v-for="(item, index) in latestBlocks" class="border-y-solid border-y-1 border-[#EAECF0]" :key="'latest-block' + index">
+        <tr v-for="(item, index) in latestBlocks" class="border-y-solid border-y-1 border-[#EAECF0]"
+          :key="'latest-block' + index">
           <td class="py-4">
             <div class="flex gap-3 items-center">
               <div class="p-2 rounded-full bg-base-300">
@@ -355,7 +355,7 @@ function confirm() {
               <span class="text-black dark:text-white">Fee Recipient </span>
               <span class="text-info font-semibold">{{
                 format.validator(item.block?.header?.proposer_address)
-                }}</span>
+              }}</span>
             </div>
             <div class="text-gray-500">
               {{ item.block?.data?.txs.length }} txs
@@ -371,7 +371,8 @@ function confirm() {
             <td colspan="3" class="text-info">LATEST TRANSACTIONS</td>
           </tr>
         </thead>
-        <tr v-for="(item, index) in latestTransactions" class="border-y-solid border-y-1 border-[#EAECF0]" :key="'latest-transaction' + index">
+        <tr v-for="(item, index) in latestTransactions" class="border-y-solid border-y-1 border-[#EAECF0]"
+          :key="'latest-transaction' + index">
           <td class="py-4">
             <div class="flex gap-3 items-center">
               <div class="p-2 rounded-full bg-base-300">
