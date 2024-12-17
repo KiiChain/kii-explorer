@@ -119,7 +119,7 @@ const messages = computed(() => {
       <JsonPretty :data="isEvmTxHash ? evmTx : tx" :deep="3" />
 
       <!-- Decode information  -->
-      {{ console.log(evmTx.logs) }}
+      <!-- {{ console.log(evmTx.logs) }} -->
     </div>
   </div>
 </template>

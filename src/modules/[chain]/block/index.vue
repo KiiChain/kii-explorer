@@ -1,31 +1,69 @@
 <script lang="ts" setup>
+import { useBaseStore, useBlockchain, useFormatter, useWalletStore } from '@/stores';
 import { computed, ref } from '@vue/reactivity';
-import { useBaseStore, useFormatter } from '@/stores';
 import { onMounted } from 'vue';
 
+import { convertKeys, toSnakeCase } from '@/libs/utils';
 import type { Block, TxResponse } from '@/types';
-const props = defineProps(['chain']);
+import PulseLoader from 'vue-spinner/src/PulseLoader.vue';
 
 const tab = ref('blocks');
 
-const base = useBaseStore()
+const baseStore = useBaseStore()
+const blockchain = useBlockchain();
+const walletStore = useWalletStore();
 
 const format = useFormatter();
 
 const transactionList = ref<TxResponse[]>([])
 const blockList = ref<Block[]>([])
+const loadingRecentBlocks = ref(true);
+const loadingRecentTransactions = ref(true);
+
+const currentChain = computed(() => {
+    return blockchain.chainName
+});
 
 onMounted(async () => {
-    if (props.chain === "kiichain") {
-        blockList.value = base.evmRecentBlocks
-        transactionList.value = base.evmRecentTxs
-        if (blockList.value.length == 0) {
-            await base.fetchLatestEvmBlocks()
-            blockList.value = base.evmRecentBlocks
-            transactionList.value = base.evmRecentTxs
+    if (currentChain.value === 'kiichain') {
+        blockList.value = baseStore.getRecentBlocks;
+        transactionList.value = baseStore.getRecentTxs;
+
+        if (blockList.value.length === 0) {
+            loadingRecentBlocks.value = true;
+            await baseStore.fetchLatestEvmBlocks();
+            blockList.value = baseStore.getRecentBlocks;
+            loadingRecentBlocks.value = false;
+
+            loadingRecentTransactions.value = true;
+            transactionList.value = baseStore.getRecentTxs;
+            loadingRecentTransactions.value = false;
+        } else {
+            loadingRecentBlocks.value = false;
+            loadingRecentTransactions.value = false;
         }
+    } else if (baseStore.isV3Metamask) {
+        loadingRecentBlocks.value = true;
+        await baseStore.fetchRecentBlocks();
+        blockList.value = baseStore.getRecentBlocks;
+        loadingRecentBlocks.value = false;
+
+        loadingRecentTransactions.value = true;
+        transactionList.value = await baseStore.fetchLatestEvmTxs();
+        loadingRecentTransactions.value = false;
     } else {
-        blockList.value = base.recents
+        loadingRecentBlocks.value = true;
+        await baseStore.fetchRecentBlocks();
+        blockList.value = baseStore.recents;
+        loadingRecentBlocks.value = false;
+
+        const recentTxs = baseStore.txsInRecents;
+        loadingRecentTransactions.value = true;
+        transactionList.value = convertKeys(recentTxs, toSnakeCase);
+        loadingRecentTransactions.value = false;
+
+        const intervalId = setInterval(baseStore.fetchRecentBlocks, 60000); // Fetch transactions every minute
+        return () => clearInterval(intervalId); // Clear interval on component unmount
     }
 });
 
@@ -36,17 +74,22 @@ onMounted(async () => {
             <a class="tab text-gray-400 uppercase" :class="{ 'tab-active': tab === 'blocks' }"
                 @click="tab = 'blocks'">{{ $t('block.recent') }}</a>
             <!-- <RouterLink class="tab text-gray-400 uppercase"
-                :to="`/${chain}/block/${Number(base.latest?.block?.header.height || 0) + 10000}`">{{ $t('block.future')
+                :to="`/${chain}/block/${Number(baseStore.latest?.block?.header.height || 0) + 10000}`">{{ $t('block.future')
                 }}
             </RouterLink> -->
             <a class="tab text-gray-400 uppercase" :class="{ 'tab-active': tab === 'transactions' }"
                 @click="tab = 'transactions'">{{ $t('account.transactions') }}</a>
         </div>
-
+        <div class="h-full w-full" v-if="loadingRecentBlocks">
+            <div
+                class="bg-transparent dark:bg-transparent px-5 py-5 text-white h-full w-full  flex justify-center items-center">
+                <PulseLoader color="#fff" />
+            </div>
+        </div>
         <div v-show="tab === 'blocks'" class="grid xl:!grid-cols-6 md:!grid-cols-4 grid-cols-1 gap-3">
 
-            <RouterLink v-for="item in blockList" class="flex flex-col justify-between rounded p-4 shadow bg-base-100"
-                :to="`/${chain}/block/${item.block.header.height}`">
+            <RouterLink v-for="(item, index) in blockList" class="flex flex-col justify-between rounded p-4 shadow bg-baseStore-100"
+                :to="`/${currentChain}/block/${item.block.header.height}`" :key="'block-' + index">
                 <div class="flex justify-between">
                     <h3 class="text-md font-bold sm:!text-lg">
                         {{ item.block.header.height }}
@@ -64,9 +107,9 @@ onMounted(async () => {
             </RouterLink>
         </div>
 
-        <div v-show="tab === 'transactions'" class="bg-base-100 rounded overflow-x-auto">
+        <div v-show="tab === 'transactions'" class="bg-baseStore-100 rounded overflow-x-auto">
             <table class="table w-full table-compact">
-                <thead class="bg-base-200">
+                <thead class="bg-baseStore-200">
                     <tr>
                         <th style="position: relative; z-index: 2;">{{ $t('account.height') }}</th>
                         <th style="position: relative; z-index: 2;">{{ $t('account.hash') }}</th>
@@ -77,18 +120,18 @@ onMounted(async () => {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(item, index) in transactionList" :index="index" class="hover">
+                    <tr v-for="(item, index) in transactionList" :index="index" class="hover" :key="'tl-' + index">
                         <td>
-                            <RouterLink :to="`/${props.chain}/block/${item.height}`">{{ item.height }}</RouterLink>
+                            <RouterLink :to="`/${currentChain}/block/${item.height}`">{{ item.height }}</RouterLink>
                         </td>
                         <td>
-                            <RouterLink :to="`/${props.chain}/tx/${item.txhash}`">{{
+                            <RouterLink :to="`/${currentChain}/tx/${item.txhash}`">{{
                                 item.txhash
                             }}</RouterLink>
                         </td>
                         <!-- <td>{{ format.messages(item.tx.body.messages) }}</td> -->
                         <td>{{ item.tx.auth_info.fee.amount[0].amount }}</td>
-                        <td>{{ item.tx.body.messages[0].from_address! }}</td>
+                        <td>{{ item.tx.body.messages[0].from_address || item.from_address }}</td>
                         <td>{{ format.toDay(item.timestamp) }}</td>
                     </tr>
                 </tbody>
@@ -103,6 +146,12 @@ onMounted(async () => {
                                 d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                         <span>{{ $t('block.only_tx') }}</span>
+                    </div>
+                </div>
+                <div class="h-full w-full" v-if="loadingRecentTransactions">
+                    <div
+                        class="bg-transparent dark:bg-transparent px-5 py-5 text-white h-full w-full  flex justify-center items-center">
+                        <PulseLoader color="#fff" />
                     </div>
                 </div>
             </div>

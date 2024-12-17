@@ -66,9 +66,13 @@ function showPubkey(v: any) {
                     <td>{{ $t('account.pub_key') }}</td>
                 </tr>
             </thead>
-            <tr v-for="acc in accounts">
+            <tr v-for="(acc, index) in accounts" :key="'account' + index">
                 <td>{{ showType(acc['@type']) }}</td>
-                <td><RouterLink :to="`/${chain}/account/${isKiichain?toETHAddress(showAddress(acc)):showAddress(acc)}`">{{ isKiichain?toETHAddress(showAddress(acc)):showAddress(acc) }}</RouterLink></td>
+                <td>
+                    <RouterLink :to="`/${chain}/account/${isKiichain ? toETHAddress(showAddress(acc)) : showAddress(acc)}`">
+                        {{ isKiichain?toETHAddress(showAddress(acc)):showAddress(acc) }}
+                    </RouterLink>
+                </td>
                 <td>{{ showAccountNumber(acc) }}</td>
                 <td>{{ showSequence(acc) }}</td>
                 <td>{{ showPubkey(acc) }}</td>
