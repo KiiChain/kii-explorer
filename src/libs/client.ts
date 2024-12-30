@@ -327,9 +327,16 @@ export class CosmosRestClient extends BaseRestClient<RequestRegistry> {
     );
   }
   async getTxsCount() {
-    const query = `?&events=message.action='/cosmos.bank.v1beta1.MsgSend'&pagination.count_total=true`;
-    return (await this.request(this.registry.tx_txs, {}, query)).total;
+    const query = `?&events=message.action='/cosmos.bank.v1beta1.MsgSend'&pagination.limit=1&pagination.count_total=true`;
+    
+    const response = await this.request(this.registry.tx_txs, {}, query);
+  
+    // Check if pagination exists
+    const total = response.pagination ? +(response?.pagination?.total || 0) : +(response.total || 0);
+  
+    return total;
   }
+  
   async getTxsCountEvm() {
     const query = `?&query=transfer.msg_index='0'&pagination.count_total=true`;
     return (await this.request(this.registry.tx_txs, {}, query)).total;

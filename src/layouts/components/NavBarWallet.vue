@@ -18,17 +18,18 @@ const baseStore = useBaseStore();
 // walletStore.$subscribe((m, s) => {
 //   console.log(m, s);
 // });
-const isKiichain = window.location.pathname.search('kiichain') > -1;
 
-async function walletStateChange(res: any) {
-  let walletVal = res.detail.value
-  if(isKiichain){
+const isKiichain = computed(() => {
+  return chainStore.chainName === 'kiichain'
+});
 
-    
+async function walletStateChange(res?: any) {
+  let walletVal = res?.detail?.value
+
+  if(isKiichain.value || !res){
     const client = createWalletClient({
       chain: testnet,
-      // @ts-ignore
-      transport: custom(window.ethereum),
+      transport: custom((window as any).ethereum),
     })
 
     try{
@@ -38,6 +39,7 @@ async function walletStateChange(res: any) {
       await client.addChain({ chain: testnet })
     }
 
+    // @ts-ignore
     const accounts = await client.requestAddresses() 
     const kiiAddress = addressEnCode('kii', fromHex(accounts[0].replace('0x','')))
     walletVal = {
@@ -71,6 +73,22 @@ const tipMsg = computed(() => {
     ? { class: 'error', msg: 'Copy Error!' }
     : { class: 'success', msg: 'Copy Success!' };
 });
+const handleWalletSelect = async (event: any) => {
+  const checkMark = event.target;
+  
+  if (checkMark) {
+    // Find the parent <li> element
+    const walletItem = checkMark.closest('li');
+    
+    // Get the wallet name from the <p> element inside the <li>
+    const walletName = walletItem?.querySelector('p').textContent.trim();
+    
+    // Log the selected wallet's name
+    if (walletName === 'Metamask') {
+      await walletStateChange()
+    }
+  }
+}
 </script>
 
 <template>
@@ -91,7 +109,6 @@ const tipMsg = computed(() => {
       <div>
         <a v-if="walletStore.currentAddress"
           class="block py-2 px-2 hover:bg-gray-100 dark:hover:bg-[#353f5a] rounded cursor-pointer"
-          :class="isKiichain?'hidden':''"
           style="overflow-wrap: anywhere" @click="copyAdress(walletStore.currentAddress)">
           {{ walletStore.currentAddress }}
         </a>
@@ -124,14 +141,20 @@ const tipMsg = computed(() => {
     </div>
   </div>
   <Teleport to="body">
-    <div :class="isKiichain?'hidden':''">
+    <div :class="isKiichain || walletStore.wallet.wallet === 'Metamask'?'hidden':''">
       <ping-connect-wallet :chain-id="baseStore.currentChainId" :hd-path="chainStore.defaultHDPath"
       :addr-prefix="chainStore.current?.bech32Prefix || 'cosmos'" @connect="walletStateChange"
+      @click="handleWalletSelect"
       @keplr-config="walletStore.suggestChain()" />
     </div>
     
   </Teleport>
 </template>
+<script lang="ts">
+export default {
+  name: 'NavBarWallet'
+}
+</script>
 
 <style>
 .ping-connect-btn,

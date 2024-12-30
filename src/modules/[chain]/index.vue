@@ -1,27 +1,24 @@
 <script setup lang="ts">
 // @ts-ignore
-import {
-  useWalletStore,
-  useBlockchain,
-  useBaseStore,
-  useFormatter,
-  useBankStore,
-} from '@/stores';
-import CardValue from '@/components/CardValue.vue';
 import DualCardValue from '@/components/DualCardValue.vue';
-import LineChart from '@/components/charts/LineChart.vue';
+import {
+  useBankStore,
+  useBaseStore,
+  useBlockchain,
+  useFormatter,
+  useWalletStore,
+} from '@/stores';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
-import { Icon } from '@iconify/vue';
-import { computed, onMounted, ref } from 'vue';
-import router from '@/router';
-import type { Block, Coin, Tx, TxResponse } from '@/types';
 import { shortenAddress } from '@/libs/utils';
-import { defineChain, createPublicClient, http, decodeFunctionData, parseUnits } from 'viem'
-import bankAbi from '@/assets/abi/bank.json'
-import { useRoute } from 'vue-router';
 import { testnet } from '@/libs/web3';
+import router from '@/router';
+import type { Coin, TxResponse } from '@/types';
+import { Icon } from '@iconify/vue';
+import { createPublicClient, http } from 'viem';
+import { computed, onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
 import PulseLoader from 'vue-spinner/src/PulseLoader.vue';
 
 dayjs.extend(relativeTime);
@@ -32,7 +29,7 @@ const blockStore = useBlockchain();
 const baseStore = useBaseStore();
 const bankStore = useBankStore();
 const route = useRoute();
-const selectedChain = route.params.chain || 'kiichain';
+const selectedChain = route.params.chain || 'Testnet Oro';
 
 let isFilterDropdownActive = ref(false);
 const loading = ref(true);
@@ -43,23 +40,41 @@ let searchQuery = ref('');
 let gasPriceEvm = ref('');
 // let latestBlocks = ref<Block[]>([]);
 
-const isKiichain = selectedChain === 'kiichain'
+const isKiichain = selectedChain === 'kiichain';
 
 const publicClient = createPublicClient({
   chain: testnet,
   transport: http(),
-})
+});
 
 const latestBlocks = computed(() => {
-  return baseStore.evmRecentBlocks;
+  return baseStore.getRecentBlocks;
 });
 
 const latestTransactions = computed(() => {
-  return baseStore.evmRecentTxs.slice(0, 30);
+  return baseStore.getRecentTxs.slice(0, 30);
 });
 
 const transactionsCount = computed(() => {
-  return baseStore.evmTxsCount;
+  return baseStore.txsCount;
+});
+
+const currentWallet = computed(() => {
+  return walletStore.connectedWallet?.wallet;
+});
+
+const getSubValue = computed(() => {
+  switch (selectedChain) {
+    case 'kii': {
+      return `(10,000 TPS)`;
+    }
+    case 'kiichain': {
+      return '';
+    }
+    case 'Testnet Oro': {
+      return baseStore.isV3Metamask ? `TXS within 50 BLOCK LIMIT` : '';
+    }
+  }
 });
 
 const fetchTransactions = async () => {
@@ -67,13 +82,33 @@ const fetchTransactions = async () => {
     const gasPrice = await publicClient.getGasPrice();
     gasPriceEvm.value = gasPrice.toString();
 
-    if (isKiichain) {
-      await baseStore.fetchLatestEvmBlocks();
-      await baseStore.fetchLatestEvmTxs();
-    } else {
-      const txCount = await blockStore.rpc.getTxsCount();
-      baseStore.updateTxCount(txCount);
-      baseStore.updateTx(await bankStore.fetchLatestTxs(txCount));
+    switch (selectedChain) {
+      case 'kii': {
+        const txCount = await blockStore.rpc.getTxsCount();
+        baseStore.updateTxCount(txCount);
+        baseStore.updateTx(await bankStore.fetchLatestTxs(txCount));
+        break;
+      }
+      case 'Testnet Oro': {
+        let latestTxs;
+        let txCount;
+        if (currentWallet.value === 'Metamask') {
+          latestTxs = await baseStore.fetchLatestEvmTxs();
+          txCount = latestTxs.length;
+        } else {
+          txCount = await blockStore.rpc.getTxsCount();
+          latestTxs = await bankStore.fetchLatestTxs(txCount);
+          baseStore.updateTx(latestTxs);
+        }
+
+        baseStore.updateTxCount(txCount);
+        break;
+      }
+      case 'kiichain': {
+        await baseStore.fetchLatestEvmBlocks();
+        await baseStore.fetchLatestEvmTxs();
+        break;
+      }
     }
     // loading.value = false;
   } catch (err) {
@@ -84,23 +119,31 @@ const fetchTransactions = async () => {
 };
 
 onMounted(async () => {
-  loading.value = latestTransactions.value.length == 0
+  await baseStore.fetchRecentBlocks();
   await fetchTransactions();
-  const intervalId = setInterval(fetchTransactions, 60000); // Fetch transactions every minut
-  return () => clearInterval(intervalId); // Clear interval on component unmount
+
+  const fetchRecentBlocksInterval = setInterval(
+    baseStore.fetchRecentBlocks,
+    60000
+  ); // Every minute
+  const fetchTransactionsInterval = setInterval(fetchTransactions, 60000); // Every minute
+
+  return () => {
+    clearInterval(fetchRecentBlocksInterval);
+    clearInterval(fetchTransactionsInterval);
+  };
 });
 
 const getAmountEVM = (transaction: TxResponse): Coin => {
   const data = transaction.tx.body.messages[0].amount;
-  const amount = Array.isArray(data) ? data[0].amount : data.amount || '0'
-  const denom = Array.isArray(data) ? data[0].denom : data.denom || 'tkii'
+  const amount = Array.isArray(data) ? data[0].amount : data.amount || '0';
+  const denom = Array.isArray(data) ? data[0].denom : data.denom || 'tkii';
 
   return {
     amount,
-    denom
-  }
-
-}
+    denom,
+  };
+};
 
 // TODO: does not work.  Verify currentTx outputs an object
 // function computeTx(items: Tx[]) {
@@ -213,7 +256,6 @@ function confirm() {
 //     ),
 //   };
 // });
-
 </script>
 
 <template>
@@ -225,7 +267,9 @@ function confirm() {
     </div>
 
     <!-- Search -->
-    <div class="flex items-center rounded-lg bg-base-100 dark:bg-base100 p-2 rounded-xl w-full shadow">
+    <div
+      class="flex items-center rounded-lg bg-base-100 dark:bg-base100 p-2 rounded-xl w-full shadow"
+    >
       <!-- Search Filter Dropdown -->
       <!-- <div class="relative flex gap-2 items-center linear-gradient-tb-bg text-white rounded px-3 py-2 cursor-pointer"
         @click="toggleIsFilterDropdown">
@@ -242,12 +286,17 @@ function confirm() {
       </div> -->
 
       <!-- Search Filter Input -->
-      <input :placeholder="$t('pages.explore_search_placeholder')" v-model="searchQuery"
-        class="px-4 h-10 bg-transparent flex-1 outline-none text-neutral dark:text-white" />
+      <input
+        :placeholder="$t('pages.explore_search_placeholder')"
+        v-model="searchQuery"
+        class="px-4 h-10 bg-transparent flex-1 outline-none text-neutral dark:text-white"
+      />
       <!-- <div class="px-4 text-neutral hidden md:!block">{{ chains.length }}/{{ dashboard.length }}</div> -->
 
       <!-- Search Filter Magnify -->
-      <div class="linear-gradient-tb-bg p-2 w-fit h-fit rounded-lg cursor-pointer">
+      <div
+        class="linear-gradient-tb-bg p-2 w-fit h-fit rounded-lg cursor-pointer"
+      >
         <Icon icon="mdi:magnify" class="text-2xl text-white" @click="confirm" />
       </div>
     </div>
@@ -257,12 +306,23 @@ function confirm() {
 
     <!-- Stats -->
     <div class="grid md:grid-cols-2 gap-2">
-      <DualCardValue icon="ri:token-swap-line" title="KII PRICE" :value="`N/A (Testnet)`" sub-value-suffix="(+0.10%)"
-        title2="GAS PRICE" :value2="isKiichain ? `${gasPriceEvm} tekii` : '--'" />
+      <DualCardValue
+        icon="ri:token-swap-line"
+        title="KII PRICE"
+        :value="`N/A (Testnet)`"
+        sub-value-suffix="(+0.10%)"
+        title2="GAS PRICE"
+        :value2="isKiichain ? `${gasPriceEvm} tekii` : '--'"
+      />
 
-      <DualCardValue icon="uil:transaction" title="TRANSACTIONS" :value="transactionsCount.toString()"
-        :sub-value="isKiichain ? '' : `(10,000 TPS)`" title2="BLOCK HEIGHT"
-        :value2="latestBlocks[0]?.block.header.height" />
+      <DualCardValue
+        icon="uil:transaction"
+        title="TRANSACTIONS"
+        :value="transactionsCount?.toString() ?? 0"
+        :sub-value="getSubValue"
+        title2="BLOCK HEIGHT"
+        :value2="latestBlocks[0]?.block.header.height"
+      />
     </div>
 
     <!-- Line Chart -->
@@ -284,7 +344,8 @@ function confirm() {
     <!-- Tables -->
     <div v-if="loading" class="h-full w-full">
       <div
-        class="bg-transparent dark:bg-transparent px-5 py-5 text-white h-full w-full  flex justify-center items-center">
+        class="bg-transparent dark:bg-transparent px-5 py-5 text-white h-full w-full flex justify-center items-center"
+      >
         <PulseLoader color="#fff" />
       </div>
     </div>
@@ -295,15 +356,22 @@ function confirm() {
             <td colspan="3" class="text-info">LATEST BLOCKS</td>
           </tr>
         </thead>
-        <tr v-for="item in latestBlocks!" class="border-y-solid border-y-1 border-[#EAECF0]">
+        <tr
+          v-for="(item, index) in latestBlocks"
+          class="border-y-solid border-y-1 border-[#EAECF0]"
+          :key="'latest-block' + index"
+        >
           <td class="py-4">
             <div class="flex gap-3 items-center">
               <div class="p-2 rounded-full bg-base-300">
                 <Icon icon="mingcute:paper-line" class="text-lg" />
               </div>
               <div>
-                <RouterLink :to="`/${selectedChain}/block/${item.block.header.height}`" class="text-info font-bold">{{
-                  item.block.header.height }}</RouterLink>
+                <RouterLink
+                  :to="`/${selectedChain}/block/${item.block.header.height}`"
+                  class="text-info font-bold"
+                  >{{ item.block.header.height }}</RouterLink
+                >
                 <div class="text-gray-500">
                   {{ format.toDay(item.block?.header?.time, 'from') }}
                 </div>
@@ -315,7 +383,7 @@ function confirm() {
               <span class="text-black dark:text-white">Fee Recipient </span>
               <span class="text-info font-semibold">{{
                 format.validator(item.block?.header?.proposer_address)
-                }}</span>
+              }}</span>
             </div>
             <div class="text-gray-500">
               {{ item.block?.data?.txs.length }} txs
@@ -331,14 +399,21 @@ function confirm() {
             <td colspan="3" class="text-info">LATEST TRANSACTIONS</td>
           </tr>
         </thead>
-        <tr v-for="item in latestTransactions" class="border-y-solid border-y-1 border-[#EAECF0]">
+        <tr
+          v-for="(item, index) in latestTransactions"
+          class="border-y-solid border-y-1 border-[#EAECF0]"
+          :key="'latest-transaction' + index"
+        >
           <td class="py-4">
             <div class="flex gap-3 items-center">
               <div class="p-2 rounded-full bg-base-300">
                 <Icon icon="mingcute:paper-line" class="text-lg" />
               </div>
               <div>
-                <RouterLink :to="`/${selectedChain}/tx/${item.txhash}`" class="text-info font-bold">
+                <RouterLink
+                  :to="`/${selectedChain}/tx/${item.txhash}`"
+                  class="text-info font-bold"
+                >
                   {{ shortenAddress(item.txhash, 15, 0) }}
                 </RouterLink>
                 <div class="text-gray-500">
@@ -370,9 +445,7 @@ function confirm() {
             </div>
           </td>
           <td class="py-4 text-info font-semibold">
-            {{
-              format.formatToken(getAmountEVM(item))
-            }}
+            {{ format.formatToken(getAmountEVM(item)) }}
           </td>
         </tr>
       </table>

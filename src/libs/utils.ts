@@ -238,3 +238,21 @@ export const isDateWithinDays = (dateToCheck: string | Date, interval: number): 
 
   return checkDate.isAfter(daysAgo) && (checkDate.isBefore(today) || checkDate.isSame(today));
 }
+
+// Utility to convert a camelCase string to snake_case
+export const toSnakeCase = (str: string): string => 
+  str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+
+// Convert object keys recursively
+export const convertKeys = (obj: any, converter: (key: string) => string): any => {
+  if (Array.isArray(obj)) {
+    return obj.map(item => convertKeys(item, converter));
+  } else if (typeof obj === 'object' && obj !== null) {
+    return Object.keys(obj).reduce((acc, key) => {
+      const convertedKey = converter(key);
+      acc[convertedKey] = convertKeys(obj[key], converter);
+      return acc;
+    }, {} as any);
+  }
+  return obj;
+};

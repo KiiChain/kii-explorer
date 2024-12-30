@@ -88,7 +88,7 @@ const isDarkMode = computed(() => baseStore.theme === 'dark');
       <div class="px-4 py-2 text-sm text-gray-400">Information</div>
       <div class="w-full">
         <div class="py-2 px-4">
-          Chain Id: {{ baseStore.latest.block?.header.chain_id }}
+          Chain Id: {{ baseStore.currentChainId }}
         </div>
         <div class="py-2 px-4">
           Height: {{ baseStore.latest.block?.header.height }}

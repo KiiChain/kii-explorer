@@ -11,6 +11,8 @@ import {
   type Tx,
   type TxResponse,
 } from '@/types';
+import axios from 'axios';
+import { RPC } from '@/libs';
 
 export const useBankStore = defineStore('bankstore', {
   state: () => {
@@ -42,6 +44,32 @@ export const useBankStore = defineStore('bankstore', {
         });
       }
     },
+    async fetchTopDenomOwnersV3() {
+      try {
+        const rpcEndpoint = this.blockchain.getRpcEndpoint;
+
+        const response = await axios.get(`${rpcEndpoint}${RPC.genesis}`);
+
+        const genesisData = response.data;
+
+        // Extracting denom owners from the genesis data
+        const denomOwners = genesisData.genesis.app_state.bank.balances.map(
+          (balance: any) => ({
+            address: balance.address,
+            balance: {
+              denom: balance.coins[0]?.denom || 'unknown',
+              amount: balance.coins[0]?.amount || '0',
+            },
+          })
+        );
+
+        // Returning the modified response structure
+        return { denom_owners: denomOwners };
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    async fetchDenomOwnerV3() {},
     async fetchSupply(denom: string) {
       return this.blockchain.rpc.getBankSupplyByDenom(denom);
     },
@@ -54,14 +82,20 @@ export const useBankStore = defineStore('bankstore', {
         const pageRequest = new PageRequest();
         pageRequest.key = encodeURIComponent(key ?? '');
 
-        const data = await this.blockchain.rpc.getBankDenomOwners(
-          denom,
-          pageRequest
-        );
+        let data: any;
+
+        if (this.blockchain.chainName === 'Testnet Oro') {
+          data = await this.fetchTopDenomOwnersV3();
+        } else {
+          data = await this.blockchain.rpc.getBankDenomOwners(
+            denom,
+            pageRequest
+          );
+        }
 
         allData = [...allData, ...data.denom_owners];
 
-        key = data.pagination.next_key;
+        key = data.pagination?.next_key;
 
         if (!key) {
           fetch = false;
@@ -79,14 +113,20 @@ export const useBankStore = defineStore('bankstore', {
         const pageRequest = new PageRequest();
         pageRequest.key = encodeURIComponent(key ?? '');
 
-        const data = await this.blockchain.rpc.getBankDenomOwners(
-          denom,
-          pageRequest
-        );
+        let data: any;
+
+        if (this.blockchain.chainName === 'Testnet Oro') {
+          data = await this.fetchTopDenomOwnersV3();
+        } else {
+          data = await this.blockchain.rpc.getBankDenomOwners(
+            denom,
+            pageRequest
+          );
+        }
 
         allData = [...allData, ...data.denom_owners];
 
-        key = data.pagination.next_key;
+        key = data.pagination?.next_key;
 
         if (!key) {
           fetch = false;

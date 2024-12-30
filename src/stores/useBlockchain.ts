@@ -15,33 +15,41 @@ import { useRouter } from 'vue-router';
 import { CosmosRestClient } from '@/libs/client';
 import {
   useBankStore,
-  useBaseStore,
   useGovStore,
   useMintStore,
   useStakingStore,
   useWalletStore,
 } from '.';
 // import { useBlockModule } from '@/modules/[chain]/block/block';
-import { DEFAULT } from '@/libs';
 import { hexToRgb, rgbToHsl } from '@/libs/utils';
 
-const isKiichain = window.location.pathname.search('kiichain') > -1;
-// const wallet = useWalletStore()
+interface IEndpoint {
+  type?: EndpointType;
+  address: string;
+  provider: string;
+}
+
+interface State {
+  status: Record<string, string>;
+  rest: string;
+  chainName: string;
+  endpoint: IEndpoint;
+  rpcEndpoint: string;
+  connErr: string;
+}
 
 export const useBlockchain = defineStore('blockchain', {
-  state: () => {
-    return {
-      status: {} as Record<string, string>,
-      rest: '',
-      chainName: '',
-      endpoint: {} as {
-        type?: EndpointType;
-        address: string;
-        provider: string;
-      },
-      connErr: '',
-    };
-  },
+  state: (): State => ({
+    status: {},
+    rest: '',
+    chainName: '',
+    endpoint: {
+      address: '',
+      provider: '',
+    },
+    rpcEndpoint: '',
+    connErr: '',
+  }),
   getters: {
     current(): ChainConfig | undefined {
       return this.dashboard.chains[this.chainName];
@@ -63,11 +71,15 @@ export const useBlockchain = defineStore('blockchain', {
       // @ts-ignore
       return this.current && this.current.providerChain;
     },
+    getRpcEndpoint(): string {
+      return this.rpcEndpoint;
+    },
     computedChainMenu() {
       let currNavItem: VerticalNavItems = [];
       let section2Item: VerticalNavItems = [];
       const router = useRouter();
-      let routes = router?.getRoutes()?.filter(route => !route.meta.disabled) || [];
+      let routes =
+        router?.getRoutes()?.filter((route) => !route.meta.disabled) || [];
 
       if (this.current && routes) {
         if (this.current?.themeColor) {
@@ -87,7 +99,7 @@ export const useBlockchain = defineStore('blockchain', {
             order: 1,
             icon: 'mdi:magnify',
           },
-          path: isKiichain?'/kiichain':'/',
+          path: `/${this.chainName}`,
         };
 
         const newRoute = {
@@ -96,8 +108,8 @@ export const useBlockchain = defineStore('blockchain', {
             i18n: 'newRoute',
             icon: 'new-icon',
             order: 50,
-            section: false
-          }
+            section: false,
+          },
         };
 
         const children = [...routes, exploreNav]
@@ -143,7 +155,7 @@ export const useBlockchain = defineStore('blockchain', {
             i18n: false,
             badgeContent: this.isConsumerChain ? 'Consumer' : undefined,
             badgeClass: 'bg-error',
-            children
+            children,
           },
         ];
 
@@ -193,16 +205,27 @@ export const useBlockchain = defineStore('blockchain', {
       //     const { global } = useTheme();
       //     global.current
       // }
+
+      if (this.chainName === 'Testnet Oro') {
+        this.setupV3RPCEndpoint();
+      } else {
+        useMintStore().initial();
+      }
       useWalletStore().$reset();
       await this.randomSetupEndpoint();
       await useStakingStore().init();
       useBankStore().initial();
-      useBaseStore().initial();
       useGovStore().initial();
-      useMintStore().initial();
       // useBlockModule().initial();
     },
-
+    setupV3RPCEndpoint() {
+      const all = this.current?.endpoints?.rpc;
+      if (all) {
+        const rn = Math.random();
+        const endpoint = all[Math.floor(rn * all.length)];
+        this.rpcEndpoint = endpoint.address;
+      }
+    },
     async randomSetupEndpoint() {
       const end = localStorage.getItem(`endpoint-${this.chainName}`);
       if (end) {

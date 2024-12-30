@@ -111,3 +111,8 @@ function confirm() {
     </div>
   </div>
 </template>
+<script lang="ts">
+export default {
+  name: 'NavBarSearch'
+};
+</script>
