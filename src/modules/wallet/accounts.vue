@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
-import { type AccountEntry, isEvmAddress } from './utils';
+import type { AccountEntry } from './utils';
 import axios from 'axios';
 
 const requestTokenMessage = ref('');
