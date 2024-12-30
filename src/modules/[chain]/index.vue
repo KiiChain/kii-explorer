@@ -29,7 +29,7 @@ const blockStore = useBlockchain();
 const baseStore = useBaseStore();
 const bankStore = useBankStore();
 const route = useRoute();
-const selectedChain = route.params.chain || 'kiichain';
+const selectedChain = route.params.chain || 'Testnet Oro';
 
 let isFilterDropdownActive = ref(false);
 const loading = ref(true);
@@ -40,12 +40,12 @@ let searchQuery = ref('');
 let gasPriceEvm = ref('');
 // let latestBlocks = ref<Block[]>([]);
 
-const isKiichain = selectedChain === 'kiichain'
+const isKiichain = selectedChain === 'kiichain';
 
 const publicClient = createPublicClient({
   chain: testnet,
   transport: http(),
-})
+});
 
 const latestBlocks = computed(() => {
   return baseStore.getRecentBlocks;
@@ -60,8 +60,8 @@ const transactionsCount = computed(() => {
 });
 
 const currentWallet = computed(() => {
-  return walletStore.connectedWallet?.wallet
-})
+  return walletStore.connectedWallet?.wallet;
+});
 
 const getSubValue = computed(() => {
   switch (selectedChain) {
@@ -69,13 +69,13 @@ const getSubValue = computed(() => {
       return `(10,000 TPS)`;
     }
     case 'kiichain': {
-      return ''
+      return '';
     }
     case 'Testnet Oro': {
-      return baseStore.isV3Metamask ? `TXS within 50 BLOCK LIMIT` : ''
+      return baseStore.isV3Metamask ? `TXS within 50 BLOCK LIMIT` : '';
     }
   }
-})
+});
 
 const fetchTransactions = async () => {
   try {
@@ -93,8 +93,8 @@ const fetchTransactions = async () => {
         let latestTxs;
         let txCount;
         if (currentWallet.value === 'Metamask') {
-          latestTxs = await baseStore.fetchLatestEvmTxs()
-          txCount = latestTxs.length
+          latestTxs = await baseStore.fetchLatestEvmTxs();
+          txCount = latestTxs.length;
         } else {
           txCount = await blockStore.rpc.getTxsCount();
           latestTxs = await bankStore.fetchLatestTxs(txCount);
@@ -122,7 +122,10 @@ onMounted(async () => {
   await baseStore.fetchRecentBlocks();
   await fetchTransactions();
 
-  const fetchRecentBlocksInterval = setInterval(baseStore.fetchRecentBlocks, 60000); // Every minute
+  const fetchRecentBlocksInterval = setInterval(
+    baseStore.fetchRecentBlocks,
+    60000
+  ); // Every minute
   const fetchTransactionsInterval = setInterval(fetchTransactions, 60000); // Every minute
 
   return () => {
@@ -133,14 +136,14 @@ onMounted(async () => {
 
 const getAmountEVM = (transaction: TxResponse): Coin => {
   const data = transaction.tx.body.messages[0].amount;
-  const amount = Array.isArray(data) ? data[0].amount : data.amount || '0'
-  const denom = Array.isArray(data) ? data[0].denom : data.denom || 'tkii'
+  const amount = Array.isArray(data) ? data[0].amount : data.amount || '0';
+  const denom = Array.isArray(data) ? data[0].denom : data.denom || 'tkii';
 
   return {
     amount,
-    denom
-  }
-}
+    denom,
+  };
+};
 
 // TODO: does not work.  Verify currentTx outputs an object
 // function computeTx(items: Tx[]) {
@@ -253,7 +256,6 @@ function confirm() {
 //     ),
 //   };
 // });
-
 </script>
 
 <template>
@@ -265,7 +267,9 @@ function confirm() {
     </div>
 
     <!-- Search -->
-    <div class="flex items-center rounded-lg bg-base-100 dark:bg-base100 p-2 rounded-xl w-full shadow">
+    <div
+      class="flex items-center rounded-lg bg-base-100 dark:bg-base100 p-2 rounded-xl w-full shadow"
+    >
       <!-- Search Filter Dropdown -->
       <!-- <div class="relative flex gap-2 items-center linear-gradient-tb-bg text-white rounded px-3 py-2 cursor-pointer"
         @click="toggleIsFilterDropdown">
@@ -282,12 +286,17 @@ function confirm() {
       </div> -->
 
       <!-- Search Filter Input -->
-      <input :placeholder="$t('pages.explore_search_placeholder')" v-model="searchQuery"
-        class="px-4 h-10 bg-transparent flex-1 outline-none text-neutral dark:text-white" />
+      <input
+        :placeholder="$t('pages.explore_search_placeholder')"
+        v-model="searchQuery"
+        class="px-4 h-10 bg-transparent flex-1 outline-none text-neutral dark:text-white"
+      />
       <!-- <div class="px-4 text-neutral hidden md:!block">{{ chains.length }}/{{ dashboard.length }}</div> -->
 
       <!-- Search Filter Magnify -->
-      <div class="linear-gradient-tb-bg p-2 w-fit h-fit rounded-lg cursor-pointer">
+      <div
+        class="linear-gradient-tb-bg p-2 w-fit h-fit rounded-lg cursor-pointer"
+      >
         <Icon icon="mdi:magnify" class="text-2xl text-white" @click="confirm" />
       </div>
     </div>
@@ -297,11 +306,23 @@ function confirm() {
 
     <!-- Stats -->
     <div class="grid md:grid-cols-2 gap-2">
-      <DualCardValue icon="ri:token-swap-line" title="KII PRICE" :value="`N/A (Testnet)`" sub-value-suffix="(+0.10%)"
-        title2="GAS PRICE" :value2="isKiichain ? `${gasPriceEvm} tekii` : '--'" />
+      <DualCardValue
+        icon="ri:token-swap-line"
+        title="KII PRICE"
+        :value="`N/A (Testnet)`"
+        sub-value-suffix="(+0.10%)"
+        title2="GAS PRICE"
+        :value2="isKiichain ? `${gasPriceEvm} tekii` : '--'"
+      />
 
-      <DualCardValue icon="uil:transaction" title="TRANSACTIONS" :value="transactionsCount?.toString() ?? 0"
-        :sub-value="getSubValue" title2="BLOCK HEIGHT" :value2="latestBlocks[0]?.block.header.height" />
+      <DualCardValue
+        icon="uil:transaction"
+        title="TRANSACTIONS"
+        :value="transactionsCount?.toString() ?? 0"
+        :sub-value="getSubValue"
+        title2="BLOCK HEIGHT"
+        :value2="latestBlocks[0]?.block.header.height"
+      />
     </div>
 
     <!-- Line Chart -->
@@ -323,7 +344,8 @@ function confirm() {
     <!-- Tables -->
     <div v-if="loading" class="h-full w-full">
       <div
-        class="bg-transparent dark:bg-transparent px-5 py-5 text-white h-full w-full  flex justify-center items-center">
+        class="bg-transparent dark:bg-transparent px-5 py-5 text-white h-full w-full flex justify-center items-center"
+      >
         <PulseLoader color="#fff" />
       </div>
     </div>
@@ -334,16 +356,22 @@ function confirm() {
             <td colspan="3" class="text-info">LATEST BLOCKS</td>
           </tr>
         </thead>
-        <tr v-for="(item, index) in latestBlocks" class="border-y-solid border-y-1 border-[#EAECF0]"
-          :key="'latest-block' + index">
+        <tr
+          v-for="(item, index) in latestBlocks"
+          class="border-y-solid border-y-1 border-[#EAECF0]"
+          :key="'latest-block' + index"
+        >
           <td class="py-4">
             <div class="flex gap-3 items-center">
               <div class="p-2 rounded-full bg-base-300">
                 <Icon icon="mingcute:paper-line" class="text-lg" />
               </div>
               <div>
-                <RouterLink :to="`/${selectedChain}/block/${item.block.header.height}`" class="text-info font-bold">{{
-                  item.block.header.height }}</RouterLink>
+                <RouterLink
+                  :to="`/${selectedChain}/block/${item.block.header.height}`"
+                  class="text-info font-bold"
+                  >{{ item.block.header.height }}</RouterLink
+                >
                 <div class="text-gray-500">
                   {{ format.toDay(item.block?.header?.time, 'from') }}
                 </div>
@@ -371,15 +399,21 @@ function confirm() {
             <td colspan="3" class="text-info">LATEST TRANSACTIONS</td>
           </tr>
         </thead>
-        <tr v-for="(item, index) in latestTransactions" class="border-y-solid border-y-1 border-[#EAECF0]"
-          :key="'latest-transaction' + index">
+        <tr
+          v-for="(item, index) in latestTransactions"
+          class="border-y-solid border-y-1 border-[#EAECF0]"
+          :key="'latest-transaction' + index"
+        >
           <td class="py-4">
             <div class="flex gap-3 items-center">
               <div class="p-2 rounded-full bg-base-300">
                 <Icon icon="mingcute:paper-line" class="text-lg" />
               </div>
               <div>
-                <RouterLink :to="`/${selectedChain}/tx/${item.txhash}`" class="text-info font-bold">
+                <RouterLink
+                  :to="`/${selectedChain}/tx/${item.txhash}`"
+                  class="text-info font-bold"
+                >
                   {{ shortenAddress(item.txhash, 15, 0) }}
                 </RouterLink>
                 <div class="text-gray-500">
@@ -411,9 +445,7 @@ function confirm() {
             </div>
           </td>
           <td class="py-4 text-info font-semibold">
-            {{
-              format.formatToken(getAmountEVM(item))
-            }}
+            {{ format.formatToken(getAmountEVM(item)) }}
           </td>
         </tr>
       </table>
