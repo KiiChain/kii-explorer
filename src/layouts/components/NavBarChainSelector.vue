@@ -4,7 +4,7 @@ import { computed, ref } from 'vue';
 
 const chain = useBlockchain();
 
-let chainFilters = ref<string[]>(['kii', 'kiichain', 'Testnet Oro']);
+let chainFilters = ref<string[]>(['Testnet Oro']);
 
 function handleSelectedChainFilter(event: Event) {
   const target = event.target as HTMLSelectElement;
