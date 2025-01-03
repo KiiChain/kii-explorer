@@ -1,7 +1,6 @@
 {
   "routes": [
     { "src": "/[^.]+", "dest": "/", "status": 200 },
-    { "src": "/", "dest": "/kiichain", "status": 301 },
     { "src": "/", "dest": "/Testnet Oro", "status": 301 }
   ]
 }

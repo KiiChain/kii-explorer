@@ -40,8 +40,6 @@ let searchQuery = ref('');
 let gasPriceEvm = ref('');
 // let latestBlocks = ref<Block[]>([]);
 
-const isKiichain = selectedChain === 'kiichain';
-
 const publicClient = createPublicClient({
   chain: testnet,
   transport: http(),
@@ -72,7 +70,7 @@ const getSubValue = computed(() => {
       return '';
     }
     case 'Testnet Oro': {
-      return baseStore.isV3Metamask ? `TXS within 50 BLOCK LIMIT` : '';
+      return '';
     }
   }
 });
@@ -312,7 +310,7 @@ function confirm() {
         :value="`N/A (Testnet)`"
         sub-value-suffix="(+0.10%)"
         title2="GAS PRICE"
-        :value2="isKiichain ? `${gasPriceEvm} tekii` : '--'"
+        :value2="'--'"
       />
 
       <DualCardValue
