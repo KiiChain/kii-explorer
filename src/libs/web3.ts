@@ -46,8 +46,8 @@ export const testnetV2EVM = defineChain({
 });
 
 export const testnetV3EVM = defineChain({
-  id: 0xae3f3,
-  name: 'Kiichain Tesnet',
+  id: 1336,
+  name: 'Kiichain Tesnet Oro',
   nativeCurrency: { name: 'kii', symbol: 'kii', decimals: 18 },
   rpcUrls: {
     default: {
@@ -60,7 +60,7 @@ export const testnetV3EVM = defineChain({
   blockExplorers: {
     default: {
       name: 'Kiichain Tesnet',
-      url: 'https://app.kiiglobal.io/kiichain',
+      url: 'https://app.kiiglobal.io/Testnet$%20Oro',
       apiUrl: '',
     },
   },
