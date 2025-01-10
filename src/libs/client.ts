@@ -271,7 +271,7 @@ export class CosmosRestClient extends BaseRestClient<RequestRegistry> {
     const sortedBlocks = blocksResponse.blocks.blocks.sort(
       (a, b) => b.blockNumber - a.blockNumber
     );
-    const latestBlocksPromise = sortedBlocks.slice(0, 30).map(async (block) => {
+    const latestBlocksPromise = sortedBlocks.slice(0, 20).map(async (block) => {
       return await this.getBaseBlockAt(block.blockNumber);
     });
     const latestBlocks = await Promise.all(latestBlocksPromise);
@@ -328,15 +328,17 @@ export class CosmosRestClient extends BaseRestClient<RequestRegistry> {
   }
   async getTxsCount() {
     const query = `?&events=message.action='/cosmos.bank.v1beta1.MsgSend'&pagination.limit=1&pagination.count_total=true`;
-    
+
     const response = await this.request(this.registry.tx_txs, {}, query);
-  
+
     // Check if pagination exists
-    const total = response.pagination ? +(response?.pagination?.total || 0) : +(response.total || 0);
-  
+    const total = response.pagination
+      ? +(response?.pagination?.total || 0)
+      : +(response.total || 0);
+
     return total;
   }
-  
+
   async getTxsCountEvm() {
     const query = `?&query=transfer.msg_index='0'&pagination.count_total=true`;
     return (await this.request(this.registry.tx_txs, {}, query)).total;
@@ -442,7 +444,7 @@ export class CosmosRestClient extends BaseRestClient<RequestRegistry> {
     });
   }
   async getSmartContracts(page: number) {
-    const url = `${DEFAULT.kii_backend_smart_contracts.url}/${page}`;
+    const url = `${DEFAULT.kii_backend_smart_contracts.url}?page=${page}`;
     const response = await fetch(url);
     const smartContractsResponse: PaginatedSmartContractResponse =
       await response.json();
