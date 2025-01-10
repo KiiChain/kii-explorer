@@ -14,7 +14,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import { shortenAddress } from '@/libs/utils';
 import { testnet } from '@/libs/web3';
 import router from '@/router';
-import type { Coin, TxResponse } from '@/types';
+import type { Block, Coin, TxResponse } from '@/types';
 import { Icon } from '@iconify/vue';
 import { createPublicClient, http } from 'viem';
 import { computed, onMounted, ref } from 'vue';
@@ -35,22 +35,13 @@ let isFilterDropdownActive = ref(false);
 const loading = ref(true);
 let errorMessage = ref('');
 let searchQuery = ref('');
-// let latestTransactions = ref<TxResponse[]>([]);
-// let transactionsCount = ref(0);
+let latestTransactions = ref<TxResponse[]>([]);
 let gasPriceEvm = ref('');
-// let latestBlocks = ref<Block[]>([]);
+let latestBlocks = ref<Block[]>([]);
 
 const publicClient = createPublicClient({
   chain: testnet,
   transport: http(),
-});
-
-const latestBlocks = computed(() => {
-  return baseStore.getRecentBlocks;
-});
-
-const latestTransactions = computed(() => {
-  return baseStore.getRecentTxs.slice(0, 30);
 });
 
 const transactionsCount = computed(() => {
@@ -91,14 +82,17 @@ const fetchTransactions = async () => {
         let latestTxs;
         let txCount;
         if (currentWallet.value === 'Metamask') {
-          latestTxs = await baseStore.fetchLatestEvmTxs();
-          txCount = latestTxs.length;
+          latestTxs = await bankStore.fetchLatestTxsEvm();
+          txCount = latestTxs.quantity;
+          latestTransactions.value = latestTxs.transactions;
         } else {
           txCount = await blockStore.rpc.getTxsCount();
           latestTxs = await bankStore.fetchLatestTxs(txCount);
           baseStore.updateTx(latestTxs);
+          latestTransactions.value = baseStore.getRecentTxs.slice(0, 20);
         }
 
+        latestBlocks.value = await baseStore.fetchLatestEvmBlocks();
         baseStore.updateTxCount(txCount);
         break;
       }
@@ -143,37 +137,6 @@ const getAmountEVM = (transaction: TxResponse): Coin => {
   };
 };
 
-// TODO: does not work.  Verify currentTx outputs an object
-// function computeTx(items: Tx[]) {
-//   const initialDenom = blockStore.current?.assets[0].base ?? '';
-
-//   const total = items.reduce(
-//     (accumulator, currentTx) => {
-//       console.log();
-//       const message = currentTx.body.messages[0];
-//       const messageAmount = Array.isArray(message.amount)
-//         ? message.amount[0]
-//         : message.amount;
-
-//       // Assuming denom is the same for all transactions, otherwise you'd need to handle varying denoms
-//       const denom = initialDenom;
-
-//       // Sum amounts as integers then convert back to string
-//       const amount = (
-//         parseInt(accumulator.amount) + parseInt(messageAmount.amount)
-//       ).toString();
-
-//       return {
-//         denom,
-//         amount,
-//       };
-//     },
-//     { denom: initialDenom, amount: '0' }
-//   );
-
-//   return format.formatToken(total);
-// }
-
 function confirm() {
   errorMessage.value = '';
   const key = searchQuery.value;
@@ -203,57 +166,6 @@ function confirm() {
     }
   }
 }
-
-// function toggleIsFilterDropdown() {
-//   isFilterDropdownActive.value = !isFilterDropdownActive.value;
-// }
-
-// const transactionHistory = computed(() => {
-//   return latestTransactions?.value?.reduce((history, currentItem) => {
-//     const txDate = dayjs(currentItem.timestamp).format('MMM D YYYY');
-
-//     if (
-//       Object.keys(history).some((existingHistory: any) =>
-//         dayjs(existingHistory.date).isSame(txDate, 'd')
-//       )
-//     ) {
-//       history[txDate] = {
-//         tx: [...history[txDate].tx, currentItem],
-//       };
-//     } else {
-//       history[txDate] = {
-//         tx: [currentItem],
-//       };
-//     }
-//     return history;
-//   }, {} as any);
-// });
-
-// const transactionHistoryChartValue = computed(() => {
-//   const getAmount = (item: TxResponse) => {
-//     if(isKiichain){
-//       return Number(item.events.find(ev => ev.type === 'transfer')?.attributes.find(att => att.key === 'amount')?.value.replace(/\D/g,'')) || 0
-//     }
-//     return item.tx.body.messages[0]?.amount?(Array.isArray(item.tx.body.messages[0]['amount'])
-//       ? item.tx.body.messages[0]['amount'][0]['amount']
-//       : item.tx.body.messages[0]['amount']['amount']):0;
-//   };
-
-//   return {
-//     series: Object.values(transactionHistory?.value || {}).map((data: any) => ({
-//       data: data.tx
-//         .reduce(
-//           (total: number, curr: any) =>
-//             (total = total + Number(getAmount(curr))),
-//           0
-//         )
-//         .toString(),
-//     })),
-//     labels: Object.keys(transactionHistory?.value || {})?.map((date: string) =>
-//       dayjs(date).format('MMM D')
-//     ),
-//   };
-// });
 </script>
 
 <template>
@@ -268,21 +180,6 @@ function confirm() {
     <div
       class="flex items-center rounded-lg bg-base-100 dark:bg-base100 p-2 rounded-xl w-full shadow"
     >
-      <!-- Search Filter Dropdown -->
-      <!-- <div class="relative flex gap-2 items-center linear-gradient-tb-bg text-white rounded px-3 py-2 cursor-pointer"
-        @click="toggleIsFilterDropdown">
-        <Icon icon="icon-park-outline:setting-config" class="text-lg fill-white" />
-        <div>All Filters</div>
-        <Icon icon="mdi:chevron-up" class="text-lg fill-white transition-all ease-in-out"
-          :class="!isFilterDropdownActive && 'rotate-180'" />
-        <div v-if="isFilterDropdownActive"
-          class="absolute -bottom-32 right-0 bg-white border rounded border-info text-black divide-y w-full">
-          <div class="px-4 py-2 hover:bg-gray-100">Filter 1</div>
-          <div class="px-4 py-2 hover:bg-gray-100">Filter 2</div>
-          <div class="px-4 py-2 hover:bg-gray-100">Filter 3</div>
-        </div>
-      </div> -->
-
       <!-- Search Filter Input -->
       <input
         :placeholder="$t('pages.explore_search_placeholder')"

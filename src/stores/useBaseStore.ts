@@ -235,6 +235,7 @@ export const useBaseStore = defineStore('baseStore', {
     // }
     async fetchLatestEvmBlocks() {
       this.recents = await this.blockchain.rpc.getBaseLatestBlocksEvm();
+      return this.recents;
     },
     async fetchLatestEvmTxs(): Promise<TxResponse[]> {
       const { transactions, quantity } =

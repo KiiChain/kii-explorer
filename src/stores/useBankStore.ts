@@ -183,9 +183,11 @@ export const useBankStore = defineStore('bankstore', {
 
       return allData;
     },
-    async fetchLatestTxsEvm(denom: string) {
+    async fetchLatestTxsEvm(): Promise<{
+      transactions: TxResponse[];
+      quantity: any;
+    }> {
       const data = await this.blockchain.rpc.getLatestTxsEvm();
-
       return data!;
     },
   },
